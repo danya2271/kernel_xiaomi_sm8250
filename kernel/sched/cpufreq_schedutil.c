@@ -819,6 +819,9 @@ sugov_update_shared(struct update_util_data *hook, u64 time, unsigned int flags)
 
 	sg_cpu->util = sugov_get_util(sg_cpu);
 	sg_cpu->flags = flags;
+
+	flags &= ~SCHED_CPUFREQ_RT_DL;
+
 	raw_spin_lock(&sg_policy->update_lock);
 
 	if (sg_policy->max != sg_cpu->max) {
