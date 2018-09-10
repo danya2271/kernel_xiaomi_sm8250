@@ -739,56 +739,10 @@ KBUILD_CFLAGS += -Wno-format -Wno-maybe-uninitialized -Wno-misleading-indentatio
 endif
 ifeq ($(cc-name),clang)
 # Additional optimizations for better kernel speed
-KBUILD_CFLAGS +=  -mllvm -enable-load-pre
-KBUILD_CFLAGS +=  -mllvm -enable-loop-distribute
-KBUILD_CFLAGS +=  -mllvm -enable-post-misched
-KBUILD_CFLAGS +=  -mllvm -enable-pre
-KBUILD_CFLAGS +=  -mllvm -enable-tail-merge
-KBUILD_CFLAGS +=  -falign-functions
-KBUILD_CFLAGS +=  -fomit-frame-pointer
-KBUILD_CFLAGS +=  -funroll-loops
-KBUILD_CFLAGS +=  -fno-strict-aliasing
-KBUILD_CFLAGS +=  -fvectorize -fmerge-all-constants -finline-functions  -fno-semantic-interposition -fno-signed-zeros  -ffinite-math-only -freciprocal-math -fcf-protection=none -ffast-math
-KBUILD_CFLAGS +=  -fforce-emit-vtables
-KBUILD_CFLAGS +=  -mllvm --enable-merge-functions
-KBUILD_CFLAGS += -fno-trapping-math -fno-math-errno
-KBUILD_LDFLAGS += -z separate-code
-KBUILD_LDFLAGS += -z lazy
-KBUILD_LDFLAGS += -z nocopyreloc
-KBUILD_LDFLAGS += -z now
-KBUILD_LDFLAGS += -z combreloc
-KBUILD_LDFLAGS += -O3 --plugin-opt=O3
-KBUILD_LDFLAGS += --disable-new-dtags
-KBUILD_AFLAGS += -ffunction-sections
-KBUILD_AFLAGS += -fdata-sections
-KBUILD_AFLAGS += -fno-exceptions
-KBUILD_AFLAGS += -fno-rtti
-KBUILD_AFLAGS += -fmerge-all-constants
-KBUILD_AFLAGS += -mrelax-all
+KBUILD_CFLAGS +=  -fno-semantic-interposition -fno-signed-zeros  -ffinite-math-only -freciprocal-math -fcf-protection=none -fno-trapping-math -fno-math-errno
 else
-KBUILD_CFLAGS +=  -falign-functions
-KBUILD_CFLAGS +=  -fomit-frame-pointer
-KBUILD_CFLAGS +=  -funroll-loops
-KBUILD_CFLAGS +=  -fno-strict-aliasing
 KBUILD_CFLAGS += -fno-trapping-math -fno-math-errno
 KBUILD_CFLAGS +=  -fipa-pta -fipa-sra -frename-registers
-KBUILD_CFLAGS +=  -falign-functions
-KBUILD_CFLAGS +=  -falign-loops
-KBUILD_CFLAGS +=  -fno-trapv
-KBUILD_CFLAGS +=  -fno-wrapv
-KBUILD_CFLAGS +=  -funsafe-loop-optimizations
-KBUILD_CFLAGS +=  -floop-interchange -fdelete-null-pointer-checks
-KBUILD_LDFLAGS += -z separate-code
-KBUILD_LDFLAGS += -z lazy
-KBUILD_LDFLAGS += -z nocopyreloc
-KBUILD_LDFLAGS += -z now
-KBUILD_LDFLAGS += -z combreloc
-KBUILD_LDFLAGS += --disable-new-dtags
-KBUILD_AFLAGS += -ffunction-sections
-KBUILD_AFLAGS += -fdata-sections
-KBUILD_AFLAGS += -fno-exceptions
-KBUILD_AFLAGS += -fno-rtti
-KBUILD_AFLAGS += -fmerge-all-constants
 endif
 
 ifdef CONFIG_POLLY_CLANG
