@@ -1701,10 +1701,18 @@ repeat:
 	ret = -EINTR;
 	if (signal_pending(current))
 		goto failed_removal;
+<<<<<<< HEAD
 
 	cond_resched();
 	lru_add_drain_all();
 	drain_all_pages(zone);
+=======
+	ret = 0;
+	if (drain) {
+		lru_add_drain_all_cpuslocked();
+		cond_resched();
+	}
+>>>>>>> 80166fc64a6f2 (mm: remove extra drain pages on pcp list)
 
 	pfn = scan_movable_pages(start_pfn, end_pfn);
 	if (pfn) { /* We have movable pages */
