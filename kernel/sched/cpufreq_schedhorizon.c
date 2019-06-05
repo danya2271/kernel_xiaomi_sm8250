@@ -18,8 +18,8 @@
 #include <trace/events/power.h>
 #include <linux/sched/sysctl.h>
 
-static unsigned int default_efficient_freq_lp[] = {1344000, 1612800};
-static u64 default_up_delay_lp[] = {4 * NSEC_PER_MSEC, 20 * NSEC_PER_MSEC};
+static unsigned int default_efficient_freq_lp[] = {1612800};
+static u64 default_up_delay_lp[] = {2 * NSEC_PER_MSEC};
 
 static unsigned int default_efficient_freq_hp[] = {1382000, 1766400};
 static u64 default_up_delay_hp[] = {20 * NSEC_PER_MSEC, 120 * NSEC_PER_MSEC};
@@ -1025,7 +1025,7 @@ static int sugov_init(struct cpufreq_policy *policy)
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_lp_mask)) {
-		tunables->up_rate_limit_us = 2500;
+		tunables->up_rate_limit_us = 0;
 		tunables->down_rate_limit_us = 500;
 	}
 
