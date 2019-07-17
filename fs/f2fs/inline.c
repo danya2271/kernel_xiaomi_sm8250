@@ -11,6 +11,21 @@
 
 #include "f2fs.h"
 #include "node.h"
+<<<<<<< HEAD
+=======
+#include <trace/events/f2fs.h>
+
+static bool support_inline_data(struct inode *inode)
+{
+	if (f2fs_is_atomic_file(inode))
+		return false;
+	if (!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))
+		return false;
+	if (i_size_read(inode) > MAX_INLINE_DATA(inode))
+		return false;
+	return true;
+}
+>>>>>>> b1f726b67077 (f2fs: remove additional tracings added by CAF)
 
 bool f2fs_may_inline_data(struct inode *inode)
 {
