@@ -8654,40 +8654,12 @@ static bool __update_blocked_others(struct rq *rq, bool *done)
 
 	return decayed;
 }
-
-static inline void update_blocked_load_status(struct rq *rq, bool has_blocked)
-{
-	if (!has_blocked)
-		rq->has_blocked_load = 0;
-}
 #else
 static inline bool cfs_rq_has_blocked(struct cfs_rq *cfs_rq) { return false; }
 static inline bool others_have_blocked(struct rq *rq) { return false; }
 static inline void update_blocked_load_tick(struct rq *rq) {}
 static inline void update_blocked_load_status(struct rq *rq, bool has_blocked) {}
 #endif
-
-static bool __update_blocked_others(struct rq *rq, bool *done)
-{
-	const struct sched_class *curr_class;
-	u64 now = rq_clock_pelt(rq);
-	bool decayed;
-
-	/*
-	 * update_load_avg() can call cpufreq_update_util(). Make sure that RT,
-	 * DL and IRQ signals have been updated before updating CFS.
-	 */
-	curr_class = rq->curr->sched_class;
-
-	decayed = update_rt_rq_load_avg(now, rq, curr_class == &rt_sched_class) |
-		  update_dl_rq_load_avg(now, rq, curr_class == &dl_sched_class) |
-		  update_irq_load_avg(rq, 0);
-
-	if (others_have_blocked(rq))
-		*done = false;
-
-	return decayed;
-}
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
 
@@ -9224,7 +9196,7 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 		if (cpu_isolated(i))
 			continue;
 
-		if ((env->flags & LBF_NOHZ_STATS) && update_nohz_stats(rq, false))
+		if ((env->flags & LBF_NOHZ_STATS) && update_nohz_stats(rq))
 			env->flags |= LBF_NOHZ_AGAIN;
 
 		sgs->group_load += cpu_load(rq);
