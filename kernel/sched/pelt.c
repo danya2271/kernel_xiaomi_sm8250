@@ -130,10 +130,21 @@ accumulate_sum(u64 delta, struct sched_avg *sa,
 				decay_load(sa->runnable_load_sum, periods);
 			sa->util_sum = decay_load((u64)(sa->util_sum), periods);
 
+		/*
+		 * Step 2
+		 */
+		delta %= 1024;
+		if (load) {
 			/*
-			 * Step 2
+			 * This relies on the:
+			 *
+			 * if (!load)
+			 *	runnable = running = 0;
+			 *
+			 * clause from ___update_load_sum(); this results in
+			 * the below usage of @contrib to dissapear entirely,
+			 * so no point in calculating it.
 			 */
-			delta %= 1024;
 			contrib = __accumulate_pelt_segments(periods,
 					1024 - sa->period_contrib, delta);
 		}
@@ -219,7 +230,9 @@ ___update_load_sum(u64 now, struct sched_avg *sa,
 	 * This means that weight will be 0 but not running for a sched_entity
 	 * but also for a cfs_rq if the latter becomes idle. As an example,
 	 * this happens during idle_balance() which calls
-	 * update_blocked_averages()
+	 * update_blocked_averages().
+	 *
+	 * Also see the comment in accumulate_sum().
 	 */
 	if (!load)
 		runnable = running = 0;
