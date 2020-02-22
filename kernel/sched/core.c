@@ -3857,6 +3857,7 @@ void scheduler_tick(void)
 	bool early_notif;
 	u32 old_load;
 	unsigned int flag = 0;
+	unsigned long thermal_pressure;
 
 	sched_clock_tick();
 
@@ -3865,6 +3866,8 @@ void scheduler_tick(void)
 	old_load = task_load(curr);
 	wallclock = sched_ktime_clock();
 	update_rq_clock(rq);
+	thermal_pressure = arch_scale_thermal_pressure(cpu_of(rq));
+	update_thermal_load_avg(rq_clock_task(rq), rq, thermal_pressure);
 	curr->sched_class->task_tick(rq, curr, 0);
 	calc_global_load_tick(rq);
 	psi_task_tick(rq);
