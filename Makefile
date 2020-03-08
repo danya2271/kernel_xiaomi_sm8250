@@ -665,7 +665,6 @@ NM		:= $(CROSS_COMPILE)gcc-nm
 DISABLE_LTO	:= -fno-lto
 export DISABLE_LTO LDFINAL
 else
-KBUILD_CFLAGS := -fipa-pta
 LDFINAL		:= $(LD)
 export LDFINAL
 endif
@@ -740,7 +739,7 @@ KBUILD_CFLAGS   += -ffp-contract=fast
 endif
 
 ifneq ($(cc-name),clang)
-KBUILD_CFLAGS += -Wno-format -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-enum-int-mismatch -Wno-uninitialized -Wno-address
+KBUILD_CFLAGS += -Wno-format -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-enum-int-mismatch -Wno-uninitialized -Wno-address -Wno-strict-aliasing
 endif
 ifeq ($(cc-name),clang)
 # Additional optimizations for better kernel speed
