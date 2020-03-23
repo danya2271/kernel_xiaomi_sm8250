@@ -2966,6 +2966,9 @@ bool uclamp_boosted(struct task_struct *p);
 # define arch_scale_freq_invariant()	false
 #endif
 
+
+extern struct cpumask min_cap_cpu_mask;
+
 /**
  * cpu_util_cfs() - Estimates the amount of CPU capacity used by CFS tasks.
  * @cpu: the CPU to get the utilization for.
