@@ -148,6 +148,8 @@ enum {
 
 int thr;
 int thr_del;
+int res;
+int res_del;
 
 struct worker_pool {
 	spinlock_t		lock;		/* the pool lock */
@@ -1429,12 +1431,18 @@ static void __queue_work(int cpu, struct workqueue_struct *wq,
 		return;
 
 	if (req_cpu == WORK_CPU_UNBOUND) {
-			if (thr <= 7) {
+			if ((thr <= 7) && (res < 3)) {
 				//printk("Debugging Cpu Workqueue %d", thr);
 				cpu = thr;
 				thr += 1;
+			} else if ((thr <= 3) && (res = 3)) {
+				cpu = thr;
+				thr += 1;
+				if (thr == 3)
+					res = 0;
 			} else {
 				thr = 0;
+				res += 1;
 			}
 	}
 retry:
@@ -1563,7 +1571,7 @@ static void __queue_delayed_work(int cpu, struct workqueue_struct *wq,
 {
 	struct timer_list *timer = &dwork->timer;
 	struct work_struct *work = &dwork->work;
-	if (thr_del <= 3) {
+	if (thr_del <= 7) {
 		//printk("Debugging Cpu Workqueue %d", thr_del);
 		cpu = thr_del;
 		thr_del += 1;
@@ -4410,12 +4418,18 @@ bool workqueue_congested(int cpu, struct workqueue_struct *wq)
 	rcu_read_lock_sched();
 
 	if (cpu == WORK_CPU_UNBOUND) {
-			if (thr <= 7) {
+			if ((thr <= 7) && (res < 3)) {
 				//printk("Debugging Cpu Workqueue %d", thr);
 				cpu = thr;
 				thr += 1;
+			} else if ((thr <= 3) && (res = 3)) {
+				cpu = thr;
+				thr += 1;
+				if (thr == 3)
+					res = 0;
 			} else {
 				thr = 0;
+				res += 1;
 			}
 	}
 

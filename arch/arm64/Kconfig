@@ -283,6 +283,7 @@ config HOTPLUG_SIZE_BITS
 	 If unsure, stick with default value.
 
 config KERNEL_MODE_NEON
+	select XOR_BLOCKS
 	def_bool y
 
 config FIX_EARLYCON_MEM
