@@ -5687,7 +5687,7 @@ static int __cam_isp_ctx_handle_irq_in_activated(void *context,
 		CAM_DBG(CAM_ISP, "No handle function for Substate[%s]",
 			__cam_isp_ctx_substate_val_to_type(
 			ctx_isp->substate_activated));
-		if (isp_ctx_debug.enable_state_monitor_dump)
+		if (!IS_ENABLED(CONFIG_CAMERA_DISABLE_DUMP_STATE))
 			__cam_isp_ctx_dump_state_monitor_array(ctx_isp);
 	}
 
