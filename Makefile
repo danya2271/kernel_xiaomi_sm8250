@@ -655,7 +655,7 @@ endif
 
 ifdef CONFIG_LTO_GCC
 LTO_CFLAGS	:= -flto -flto=jobserver -fno-fat-lto-objects \
-		   -fuse-linker-plugin -fwhole-program
+		   -fuse-linker-plugin -fipa-pta -fwhole-program
 KBUILD_CFLAGS	+= $(LTO_CFLAGS)
 LTO_LDFLAGS	:= $(LTO_CFLAGS) -Wno-lto-type-mismatch -Wno-psabi \
 		   -Wno-stringop-overflow -flinker-output=nolto-rel
@@ -665,6 +665,7 @@ NM		:= $(CROSS_COMPILE)gcc-nm
 DISABLE_LTO	:= -fno-lto
 export DISABLE_LTO LDFINAL
 else
+KBUILD_CFLAGS := -fipa-pta
 LDFINAL		:= $(LD)
 export LDFINAL
 endif
