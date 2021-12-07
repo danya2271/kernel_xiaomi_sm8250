@@ -3553,6 +3553,7 @@ static int gsi_set_inst_name(struct usb_function_instance *fi,
 	if (IS_ERR(gsi))
 		return PTR_ERR(gsi);
 
+#ifdef CONFIG_IPC_LOGGING
 	opts->gsi = gsi;
 
 #ifdef CONFIG_IPC_LOGGING
