@@ -1000,6 +1000,26 @@ static void clear_cl_predict_history(void)
 	}
 }
 
+static int cluster_select_deepest(struct lpm_cluster *cluster)
+{
+	int i;
+
+	for (i = cluster->nlevels - 1; i >= 0; i--) {
+		struct lpm_cluster_level *level = &cluster->levels[i];
+
+		if (level->notify_rpm) {
+			if (!(sys_pm_ops && sys_pm_ops->sleep_allowed))
+				continue;
+			if (!sys_pm_ops->sleep_allowed())
+				continue;
+		}
+
+		break;
+	}
+
+	return i;
+}
+
 static int cluster_select(struct lpm_cluster *cluster, bool from_idle,
 							int *ispred)
 {
@@ -1013,6 +1033,8 @@ static int cluster_select(struct lpm_cluster *cluster, bool from_idle,
 
 	if (!cluster)
 		return -EINVAL;
+
+	return cluster_select_deepest(cluster);
 
 	sleep_us = (uint32_t)get_cluster_sleep_time(cluster,
 						from_idle, &cpupred_us);
