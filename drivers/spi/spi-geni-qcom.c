@@ -24,8 +24,7 @@
 #endif
 
 #define SPI_NUM_CHIPSELECT	(4)
-static int spi_xfer_timeout_ms = 250;
-#define SPI_XFER_TIMEOUT_MS	spi_xfer_timeout_ms
+#define SPI_XFER_TIMEOUT_MS	(1500)
 #define SPI_AUTO_SUSPEND_DELAY	(250)
 /* SPI SE specific registers */
 #define SE_SPI_CPHA		(0x224)
