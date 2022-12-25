@@ -636,6 +636,18 @@ config LTO_CLANG_THIN
 	  If unsure, say Y.
 endchoice
 
+config POLLY_CLANG
+	bool "Use Clang Polly optimizations"
+	depends on !COMPILE_TEST
+	help
+	  This option enables Clang's polyhedral loop optimizer known as
+	  Polly. Polly is able to optimize various loops throughout the
+	  kernel for cache locality. This requires a Clang toolchain
+	  compiled with support for Polly. More information can be found
+	  from Polly's website:
+
+	  https://polly.llvm.org
+
 config HAVE_ARCH_WITHIN_STACK_FRAMES
 	bool
 	help
