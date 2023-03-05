@@ -298,6 +298,11 @@ enum {
 	HVDCP_PULSE_COUNT_MAX_QC2_INVALID = 0xC0
 };
 
+#define USBIN_ADAPTER_ALLOW_CFG_REG		(USBIN_BASE + 0x60)
+#define USBIN_ADAPTER_ALLOW_MASK		GENMASK(3, 0)
+#define USBIN_ADAPTER_ALLOW_5V_OR_9V_TO_12V	0x07
+#define USBIN_ADAPTER_ALLOW_5V_TO_12V		0x0c
+
 #define USBIN_OPTIONS_1_CFG_REG			(USBIN_BASE + 0x62)
 #define HVDCP_AUTH_ALG_EN_CFG_BIT		BIT(6)
 #define HVDCP_AUTONOMOUS_MODE_EN_CFG_BIT	BIT(5)
@@ -347,11 +352,17 @@ enum {
 
 /* DCIN Interrupt Bits */
 #define DCIN_PLUGIN_RT_STS_BIT			BIT(4)
+#define DCIN_PON_RT_STS_BIT			BIT(6)
 
 #define DCIN_CMD_IL_REG				(DCIN_BASE + 0x40)
 #define DCIN_SUSPEND_BIT			BIT(0)
 #define DCIN_EN_OVERRIDE_BIT			BIT(1)
+#define DCIN_EN_BIT			BIT(2)
 #define DCIN_EN_MASK				GENMASK(2, 1)
+
+#define DCIN_CMD_PULLDOWN_REG           (DCIN_BASE + 0x45)
+#define DCIN_PULLDOWN_EN_BIT            BIT(0)
+#define DCIN_MID_PULLDOWN_BIT           BIT(1)
 
 #define DCIN_CMD_PON_REG			(DCIN_BASE + 0x45)
 #define DCIN_PON_BIT				BIT(0)
@@ -394,6 +405,8 @@ static void override_smb5_reg_h_values_for_xiaomi_sdm439(void) {
 #endif
 }
 #endif
+#define TYPE_C_SNK_DEBUG_ACC_STATUS_REG			(TYPEC_BASE + 0x07)
+#define SNK_DEBUG_ACC_RPSTD_PRSTD_BIT			BIT(0)
 
 #define TYPE_C_SRC_STATUS_REG			(TYPEC_BASE + 0x08)
 #define DETECTED_SNK_TYPE_MASK			GENMASK(4, 0)
@@ -406,6 +419,7 @@ static void override_smb5_reg_h_values_for_xiaomi_sdm439(void) {
 
 #define TYPE_C_STATE_MACHINE_STATUS_REG		(TYPEC_BASE + 0x09)
 #define TYPEC_ATTACH_DETACH_STATE_BIT		BIT(5)
+#define TYPEC_ATTACHWAIT_SRC				0x05
 
 #define TYPE_C_MISC_STATUS_REG			(TYPEC_BASE + 0x0B)
 #define TYPEC_WATER_DETECTION_STATUS_BIT	BIT(7)
@@ -426,6 +440,10 @@ static void override_smb5_reg_h_values_for_xiaomi_sdm439(void) {
 #define U_USB_FLOAT1_BIT			BIT(2)
 #define U_USB_FMB2_BIT				BIT(1)
 #define U_USB_FLOAT2_BIT			BIT(0)
+
+#define TYPE_C_DEBUG_ACC_SNK_CFG		(TYPEC_BASE + 0x4A)
+#define TYPEC_DEBUG_ACC_SNK_SEL_ICL		BIT(2)
+#define TYPEC_DEBUG_ACC_SNK_DIS_AICL		BIT(3)
 
 #define TYPE_C_MODE_CFG_REG			(TYPEC_BASE + 0x44)
 #define TYPEC_TRY_MODE_MASK			GENMASK(4, 3)
