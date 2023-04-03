@@ -505,13 +505,8 @@ static int fts_input_report_b(struct fts_ts_data *data)
 			input_report_abs(data->input_dev, ABS_MT_PRESSURE,
 					 events[i].p);
 #endif
-			if (events[i].area <= 0) {
-				events[i].area = 0x09;
-			}
-			input_report_abs(data->input_dev, ABS_MT_POSITION_X,
-					 events[i].x);
-			input_report_abs(data->input_dev, ABS_MT_POSITION_Y,
-					 events[i].y);
+			input_report_abs(data->input_dev, ABS_MT_POSITION_X, events[i].x);
+			input_report_abs(data->input_dev, ABS_MT_POSITION_Y, events[i].y);
 
 			touchs |= BIT(events[i].id);
 			data->touchs |= BIT(events[i].id);
@@ -587,9 +582,6 @@ static int fts_input_report_a(struct fts_ts_data *data)
 			input_report_abs(data->input_dev, ABS_MT_PRESSURE,
 					 events[i].p);
 #endif
-			if (events[i].area <= 0) {
-				events[i].area = 0x09;
-			}
 
 			input_report_abs(data->input_dev, ABS_MT_POSITION_X,
 					 events[i].x);
@@ -720,7 +712,7 @@ static int fts_read_parse_touchdata(struct fts_ts_data *data)
 		events[i].y = events[i].y * 10 / 16;
 		events[i].flag = buf[FTS_TOUCH_EVENT_POS + base] >> 6;
 		events[i].id = buf[FTS_TOUCH_ID_POS + base] >> 4;
-		events[i].area = buf[FTS_TOUCH_AREA_POS + base] >> 4;
+		// events[i].area = buf[FTS_TOUCH_AREA_POS + base] >> 4;
 		// events[i].p =  buf[FTS_TOUCH_PRE_POS + base] & 0x03;
 
 		if (EVENT_DOWN(events[i].flag) && (data->point_num == 0)) {

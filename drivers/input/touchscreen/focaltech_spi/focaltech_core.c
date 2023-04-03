@@ -583,9 +583,6 @@ static int fts_input_report_a(struct fts_ts_data *data)
 			input_report_abs(data->input_dev, ABS_MT_PRESSURE,
 					 events[i].p);
 #endif
-			if (events[i].area <= 0) {
-				events[i].area = 0x09;
-			}
 
 			input_report_abs(data->input_dev, ABS_MT_POSITION_X,
 					 events[i].x);
