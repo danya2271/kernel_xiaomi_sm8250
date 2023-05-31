@@ -2965,7 +2965,7 @@ static void __sched_fork(unsigned long clone_flags, struct task_struct *p)
 	p->boost_expires		= 0;
 	p->boost_period			= 0;
 	p->se.vlag			= 0;
-	p->se.slice			= sysctl_sched_min_granularity;
+	p->se.slice			= sysctl_sched_base_slice;
 	INIT_LIST_HEAD(&p->se.group_node);
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
