@@ -20,7 +20,7 @@ SCHED_FEAT(RUN_TO_PARITY, true)
  * wakeup-preemption), since its likely going to consume data we
  * touched, increases cache locality.
  */
-SCHED_FEAT(NEXT_BUDDY, false)
+SCHED_FEAT(NEXT_BUDDY, true)
 
 /*
  * Consider buddies to be cache hot, decreases the likeliness of a
@@ -39,7 +39,7 @@ SCHED_FEAT(DOUBLE_TICK, false)
 /*
  * Decrement CPU capacity based on time not spent running tasks
  */
-SCHED_FEAT(NONTASK_CAPACITY, true)
+SCHED_FEAT(NONTASK_CAPACITY, false)
 
 /*
  * Queue remote wakeups on the target CPU and process them
