@@ -389,9 +389,9 @@ TRACE_EVENT(sde_perf_uidle_status,
 
 #define sde_atrace trace_tracing_mark_write
 
-#define SDE_ATRACE_END(name) sde_atrace('E', current, name, 0)
-#define SDE_ATRACE_BEGIN(name) sde_atrace('B', current, name, 0)
-#define SDE_ATRACE_FUNC() SDE_ATRACE_BEGIN(__func__)
+#define SDE_ATRACE_END(name) do { } while (0)
+#define SDE_ATRACE_BEGIN(name) do { } while (0)
+#define SDE_ATRACE_FUNC() do { } while (0)
 
 #define SDE_ATRACE_INT(name, value) sde_atrace('C', current, name, value)
 

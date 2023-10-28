@@ -27,8 +27,7 @@ enum sde_rot_dbg_evtlog_flag {
 	SDE_ROT_EVTLOG_ALL = BIT(7)
 };
 
-#define SDEROT_EVTLOG(...) sde_rot_evtlog(__func__, __LINE__, \
-		SDE_ROT_EVTLOG_DEFAULT, ##__VA_ARGS__, SDE_ROT_DATA_LIMITER)
+#define SDEROT_EVTLOG(...) do { } while (0)
 
 #define SDEROT_EVTLOG_TOUT_HANDLER(...)	\
 	sde_rot_evtlog_tout_handler(false, __func__, ##__VA_ARGS__, \

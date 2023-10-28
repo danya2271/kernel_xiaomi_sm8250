@@ -30,9 +30,9 @@
 
 #undef CDBG
 #ifdef CAM_SENSOR_DEBUG
-#define CDBG(fmt, args...) pr_err(fmt, ##args)
+#define CDBG(fmt, args...) do { } while (0)
 #else
-#define CDBG(fmt, args...) pr_debug(fmt, ##args)
+#define CDBG(fmt, args...) do { } while (0)
 #endif
 
 #define SENSOR_DRIVER_I2C "i2c_camera"
