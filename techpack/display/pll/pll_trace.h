@@ -92,13 +92,10 @@ TRACE_EVENT(mdss_pll_trace_counter,
 			__get_str(counter_name), __entry->value)
 )
 
-#define MDSS_PLL_ATRACE_END(name) trace_pll_tracing_mark_write(current->tgid,\
-		name, 0)
-#define MDSS_PLL_ATRACE_BEGIN(name) trace_pll_tracing_mark_write(current->tgid,\
-		name, 1)
-#define MDSS_PLL_ATRACE_FUNC() MDSS_PLL_ATRACE_BEGIN(__func__)
-#define MDSS_PLL_ATRACE_INT(name, value) \
-	trace_mdss_pll_trace_counter(current->tgid, name, value)
+#define MDSS_PLL_ATRACE_END(name) do { } while (0)
+#define MDSS_PLL_ATRACE_BEGIN(name) do { } while (0)
+#define MDSS_PLL_ATRACE_FUNC() do { } while (0)
+#define MDSS_PLL_ATRACE_INT(name, value) do { } while (0)
 
 
 #endif /* _MDSS_PLL_TRACE_H_ */
