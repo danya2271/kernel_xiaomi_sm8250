@@ -18,9 +18,9 @@
 #include <media/v4l2-ioctl.h>
 
 #ifdef CONFIG_CAM_SYNC_DBG
-#define CDBG(fmt, args...) pr_err(fmt, ##args)
+#define CDBG(fmt, args...) do { } while (0)
 #else
-#define CDBG(fmt, args...) pr_debug(fmt, ##args)
+#define CDBG(fmt, args...) do { } while (0)
 #endif
 
 #define CAM_SYNC_OBJ_NAME_LEN           64

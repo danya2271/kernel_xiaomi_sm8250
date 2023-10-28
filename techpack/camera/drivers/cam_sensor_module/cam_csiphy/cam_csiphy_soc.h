@@ -22,7 +22,7 @@
 #include "cam_csiphy_core.h"
 
 #undef CDBG
-#define CDBG(fmt, args...) pr_debug(fmt, ##args)
+#define CDBG(fmt, args...) do { } while (0)
 
 #define CSI_3PHASE_HW                               1
 #define CSIPHY_VERSION_V35                        0x35

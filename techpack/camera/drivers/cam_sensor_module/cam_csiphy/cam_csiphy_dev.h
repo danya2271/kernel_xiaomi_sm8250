@@ -64,9 +64,9 @@
 
 #undef CDBG
 #ifdef CAM_CSIPHY_CORE_DEBUG
-#define CDBG(fmt, args...) pr_err(fmt, ##args)
+#define CDBG(fmt, args...) do { } while (0)
 #else
-#define CDBG(fmt, args...) pr_debug(fmt, ##args)
+#define CDBG(fmt, args...) do { } while (0)
 #endif
 
 #define DPHY_LANE_0    BIT(0)
