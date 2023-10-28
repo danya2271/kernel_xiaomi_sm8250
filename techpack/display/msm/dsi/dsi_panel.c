@@ -4099,47 +4099,6 @@ void dsi_panel_put(struct dsi_panel *panel)
 	kfree(panel);
 }
 
-#ifdef CONFIG_EXPOSURE_ADJUSTMENT
-static struct dsi_panel * set_panel;
-static ssize_t mdss_fb_set_ea_enable(struct device *dev,
-	struct device_attribute *attr, const char *buf, size_t len)
-{
-	u32 anti_flicker;
-
-	if (sscanf(buf, "%d", &anti_flicker) != 1) {
-		pr_err("sccanf buf error!\n");
-		return len;
-	}
-
-	ea_panel_mode_ctrl(set_panel, anti_flicker != 0);
-
-	return len;
-}
-
-static ssize_t mdss_fb_get_ea_enable(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	int ret;
-	bool anti_flicker = ea_panel_is_enabled();
-
-	ret = scnprintf(buf, PAGE_SIZE, "%d\n", anti_flicker ? 1 : 0);
-
-	return ret;
-}
-
-static DEVICE_ATTR(anti_flicker, S_IRUGO | S_IWUSR,
-	mdss_fb_get_ea_enable, mdss_fb_set_ea_enable);
-
-static struct attribute *mdss_fb_attrs[] = {
-	&dev_attr_anti_flicker.attr,
-	NULL,
-};
-
-static struct attribute_group mdss_fb_attr_group = {
-	.attrs = mdss_fb_attrs,
-};
-#endif
-
 int dsi_panel_drv_init(struct dsi_panel *panel,
 		       struct mipi_dsi_host *host)
 {
@@ -4193,13 +4152,6 @@ int dsi_panel_drv_init(struct dsi_panel *panel,
 			       panel->name, rc);
 		goto error_gpio_release;
 	}
-
-#ifdef CONFIG_EXPOSURE_ADJUSTMENT
-	rc = sysfs_create_group(&(panel->parent->kobj), &mdss_fb_attr_group);
-	if (rc)
-		pr_err("sysfs group creation failed, rc=%d\n", rc);
-	set_panel = panel;
-#endif
 
 	goto exit;
 
