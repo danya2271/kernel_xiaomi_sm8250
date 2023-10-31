@@ -2391,48 +2391,7 @@ static void msm_pcie_sel_debug_testcase(struct msm_pcie_dev_t *dev,
 int msm_pcie_debug_info(struct pci_dev *dev, u32 option, u32 base,
 			u32 offset, u32 mask, u32 value)
 {
-	int ret = 0;
-	struct msm_pcie_dev_t *pdev = NULL;
-
-	if (!dev) {
-		pr_err("PCIe: the input pci dev is NULL.\n");
-		return -ENODEV;
-	}
-
-	if (option == MSM_PCIE_READ_PCIE_REGISTER ||
-		option == MSM_PCIE_WRITE_PCIE_REGISTER ||
-		option == MSM_PCIE_DUMP_PCIE_REGISTER_SPACE) {
-		if (!base || base >= MSM_PCIE_MAX_RES) {
-			PCIE_DBG_FS(pdev, "Invalid base_sel: 0x%x\n", base);
-			PCIE_DBG_FS(pdev,
-				"PCIe: base_sel is still 0x%x\n", base_sel);
-			return -EINVAL;
-		}
-
-		base_sel = base;
-		PCIE_DBG_FS(pdev, "PCIe: base_sel is now 0x%x\n", base_sel);
-
-		if (option == MSM_PCIE_READ_PCIE_REGISTER ||
-			option == MSM_PCIE_WRITE_PCIE_REGISTER) {
-			wr_offset = offset;
-			wr_mask = mask;
-			wr_value = value;
-
-			PCIE_DBG_FS(pdev,
-				"PCIe: wr_offset is now 0x%x\n", wr_offset);
-			PCIE_DBG_FS(pdev,
-				"PCIe: wr_mask is now 0x%x\n", wr_mask);
-			PCIE_DBG_FS(pdev,
-				"PCIe: wr_value is now 0x%x\n", wr_value);
-		}
-	}
-
-	pdev = PCIE_BUS_PRIV_DATA(dev->bus);
-	rc_sel = BIT(pdev->rc_idx);
-
-	msm_pcie_sel_debug_testcase(pdev, option);
-
-	return ret;
+	return 0;
 }
 EXPORT_SYMBOL(msm_pcie_debug_info);
 
