@@ -15,6 +15,7 @@
 #define SCHED_FEAT_NEXT_BUDDY 1
 
 /*
+<<<<<<< HEAD
  * Prefer to schedule the task that ran last (when we did
  * wake-preempt) as that likely will touch the same data, increases
  * cache locality.
@@ -23,6 +24,9 @@
 
 /*
  * Consider buddies to be cache hot, decreases the likelyness of a
+=======
+ * Consider buddies to be cache hot, decreases the likeliness of a
+>>>>>>> cb28dd8b7662 (sched/fair: Commit to EEVDF)
  * cache buddy being migrated away, increases cache locality.
  */
 #define SCHED_FEAT_CACHE_HOT_BUDDY 1
@@ -123,3 +127,10 @@
 #define SCHED_FEAT_BASE_SLICE 1
 
 #define SCHED_FEAT_EEVDF 1
+
+/*
+ * Inflate the effective utilization of SchedTune-boosted tasks, which
+ * generally leads to usage of higher frequencies.
+ * If disabled, boosts will only bias tasks to higher-capacity CPUs.
+ */
+#define SCHED_FEAT_SCHEDTUNE_BOOST_UTIL 0
