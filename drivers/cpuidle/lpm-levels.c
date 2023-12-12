@@ -589,7 +589,7 @@ static void clear_predict_history(void)
 
 static void update_history(struct cpuidle_device *dev, int idx);
 
-static inline bool lpm_disallowed(s64 sleep_us, int cpu, struct lpm_cpu *pm_cpu)
+static inline bool lpm_disallowed(int cpu, struct lpm_cpu *pm_cpu)
 {
 	uint64_t bias_time = 0;
 
@@ -645,7 +645,7 @@ static int cpu_power_select(struct cpuidle_device *dev,
 	uint32_t min_residency, max_residency;
 	struct power_params *pwr_params;
 
-	if (lpm_disallowed(sleep_us, dev->cpu, cpu))
+	if (lpm_disallowed(dev->cpu, cpu))
 		goto done_select;
 
 	idx_restrict = cpu->nlevels + 1;
