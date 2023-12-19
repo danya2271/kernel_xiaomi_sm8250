@@ -731,6 +731,11 @@ ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS  += -Werror
 endif
 
+ifeq ($(cc-name),clang)
+#Enable fast FMA optimizations
+KBUILD_CFLAGS   += -ffp-contract=fast
+endif
+
 ifdef CONFIG_POLLY_CLANG
 POLLY_FLAGS	+= -mllvm -polly \
 		   -mllvm -polly-ast-use-context \
