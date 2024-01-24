@@ -2240,13 +2240,11 @@ static int _adreno_start(struct adreno_device *adreno_dev)
 	/* Send OOB request to turn on the GX */
 	status = gmu_core_dev_oob_set(device, oob_gpu);
 	if (status) {
-		gmu_core_snapshot(device);
 		goto error_mmu_off;
 	}
 
 	status = gmu_core_dev_hfi_start_msg(device);
 	if (status) {
-		gmu_core_snapshot(device);
 		goto error_oob_clear;
 	}
 
@@ -2498,7 +2496,6 @@ static int adreno_stop(struct kgsl_device *device)
 	error = gmu_core_dev_oob_set(device, oob_gpu);
 	if (error) {
 		gmu_core_dev_oob_clear(device, oob_gpu);
-			gmu_core_snapshot(device);
 			error = -EINVAL;
 			goto no_gx_power;
 	}
@@ -2524,7 +2521,6 @@ static int adreno_stop(struct kgsl_device *device)
 	 */
 
 	if (!error && gmu_core_dev_wait_for_lowest_idle(device)) {
-		gmu_core_snapshot(device);
 		/*
 		 * Assume GMU hang after 10ms without responding.
 		 * It shall be relative safe to clear vbif and stop
@@ -3286,7 +3282,6 @@ void adreno_spin_idle_debug(struct adreno_device *adreno_dev,
 				status3, intstatus, cx_status);
 
 		dev_err(device->dev, " hwfault=%8.8X\n", hwfault);
-		gmu_core_snapshot(device);
 	} else {
 		dev_err(device->dev,
 				"rb=%d pos=%X/%X rbbm_status=%8.8X/%8.8X int_0_status=%8.8X\n",
@@ -3294,7 +3289,6 @@ void adreno_spin_idle_debug(struct adreno_device *adreno_dev,
 				status3, intstatus);
 
 		dev_err(device->dev, " hwfault=%8.8X\n", hwfault);
-		kgsl_device_snapshot(device, NULL, false);
 	}
 }
 
@@ -4225,7 +4219,6 @@ static const struct kgsl_functable adreno_functable = {
 	.compat_ioctl = adreno_compat_ioctl,
 	.power_stats = adreno_power_stats,
 	.gpuid = adreno_gpuid,
-	.snapshot = adreno_snapshot,
 	.irq_handler = adreno_irq_handler,
 	.drain = adreno_drain,
 	.device_private_create = adreno_device_private_create,
