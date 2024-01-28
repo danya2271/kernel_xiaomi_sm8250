@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-2.0-only
 ccflags-y += -I$(src)
-
+ccflags-y += -Ofast
 msm_kgsl_core-y = \
 	kgsl.o \
 	kgsl_drawobj.o \
