@@ -128,12 +128,6 @@ static int get_cpu_min_freq(char *buf, const struct kernel_param *kp)
 	return cnt;
 }
 
-static const struct kernel_param_ops param_ops_cpu_min_freq = {
-	.set = set_cpu_min_freq,
-	.get = get_cpu_min_freq,
-};
-module_param_cb(cpu_min_freq, &param_ops_cpu_min_freq, NULL, 0644);
-
 static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 {
 	int i, j, ntokens = 0;

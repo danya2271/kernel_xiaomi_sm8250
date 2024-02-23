@@ -865,12 +865,16 @@ static int subsys_powerup(const struct subsys_desc *subsys)
 
 static int subsys_ramdump(int enable, const struct subsys_desc *subsys)
 {
+#if 0
 	struct pil_tz_data *d = subsys_to_data(subsys);
 
 	if (!enable)
 		return 0;
 
 	return pil_do_ramdump(&d->desc, d->ramdump_dev, d->minidump_dev);
+#else
+	return 0;
+#endif
 }
 
 static void subsys_free_memory(const struct subsys_desc *subsys)
@@ -1246,7 +1250,7 @@ static int pil_tz_driver_probe(struct platform_device *pdev)
 
 	d->desc.sequential_loading = of_property_read_bool(pdev->dev.of_node,
 						"qcom,sequential-fw-load");
-
+#if 0
 	d->ramdump_dev = create_ramdump_device(d->subsys_desc.name,
 								&pdev->dev);
 	if (!d->ramdump_dev) {
@@ -1263,7 +1267,7 @@ static int pil_tz_driver_probe(struct platform_device *pdev)
 		rc = -ENOMEM;
 		goto err_minidump;
 	}
-
+#endif
 	d->subsys = subsys_register(&d->subsys_desc);
 	if (IS_ERR(d->subsys)) {
 		rc = PTR_ERR(d->subsys);
