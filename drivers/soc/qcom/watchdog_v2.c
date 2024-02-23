@@ -936,11 +936,11 @@ static const struct of_device_id msm_wdog_match_table[] = {
 
 static void dump_pdata(struct msm_watchdog_data *pdata)
 {
-	dev_dbg(pdata->dev, "wdog bark_time %d", pdata->bark_time);
+/*	dev_dbg(pdata->dev, "wdog bark_time %d", pdata->bark_time);
 	dev_dbg(pdata->dev, "wdog pet_time %d", pdata->pet_time);
 	dev_dbg(pdata->dev, "wdog perform ipi ping %d", pdata->do_ipi_ping);
 	dev_dbg(pdata->dev, "wdog base address is 0x%lx\n", (unsigned long)
-								pdata->base);
+								pdata->base); */
 }
 
 static int msm_wdog_dt_to_pdata(struct platform_device *pdev,
@@ -1044,13 +1044,13 @@ static int msm_watchdog_probe(struct platform_device *pdev)
 	log_buf_init();
 
 	/* Add wdog info to minidump table */
-	strlcpy(md_entry.name, "KWDOGDATA", sizeof(md_entry.name));
+/*	strlcpy(md_entry.name, "KWDOGDATA", sizeof(md_entry.name));
 	md_entry.virt_addr = (uintptr_t)wdog_dd;
 	md_entry.phys_addr = virt_to_phys(wdog_dd);
 	md_entry.size = sizeof(*wdog_dd);
 	md_entry.id = MINIDUMP_DEFAULT_ID;
 	if (msm_minidump_add_region(&md_entry) < 0)
-		pr_info("Failed to add Watchdog data in Minidump\n");
+		pr_info("Failed to add Watchdog data in Minidump\n");*/
 
 	return 0;
 err:
