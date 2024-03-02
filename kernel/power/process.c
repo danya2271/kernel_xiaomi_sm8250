@@ -26,7 +26,7 @@
 /*
  * Timeout for stopping processes
  */
-unsigned int __read_mostly freeze_timeout_msecs = 20 * MSEC_PER_SEC;
+unsigned int __read_mostly freeze_timeout_msecs = 250;
 
 #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 
