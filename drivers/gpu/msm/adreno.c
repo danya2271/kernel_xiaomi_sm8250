@@ -1691,9 +1691,6 @@ static int adreno_probe(struct platform_device *pdev)
 
 	kgsl_pwrscale_init(&pdev->dev, CONFIG_QCOM_ADRENO_DEFAULT_GOVERNOR);
 
-	/* Initialize coresight for the target */
-	adreno_coresight_init(adreno_dev);
-
 	/* Get the system cache slice descriptor for GPU */
 	adreno_dev->gpu_llc_slice = adreno_llc_getd(LLCC_GPU);
 	if (IS_ERR(adreno_dev->gpu_llc_slice) &&
@@ -1785,7 +1782,6 @@ static int adreno_remove(struct platform_device *pdev)
 #endif
 	adreno_sysfs_close(adreno_dev);
 
-	adreno_coresight_remove(adreno_dev);
 	adreno_profile_close(adreno_dev);
 
 	/* Release the system cache slice descriptor */
@@ -2035,7 +2031,7 @@ static int adreno_init(struct kgsl_device *device)
 	set_bit(ADRENO_DEVICE_INITIALIZED, &adreno_dev->priv);
 
 	/*
-	 * Allocate a small chunk of memory for precise drawobj profiling for
+	 * Allocate a small chunk of memory for precise drawobj  for
 	 * those targets that have the always on timer
 	 */
 
@@ -2389,9 +2385,6 @@ static int _adreno_start(struct adreno_device *adreno_dev)
 	 */
 	adreno_llc_setup(device);
 
-	/* Re-initialize the coresight registers if applicable */
-	adreno_coresight_start(adreno_dev);
-
 	adreno_irqctrl(adreno_dev, 1);
 
 	adreno_perfcounter_start(adreno_dev);
@@ -2508,9 +2501,6 @@ static int adreno_stop(struct kgsl_device *device)
 	kgsl_pwrscale_update_stats(device);
 
 	adreno_irqctrl(adreno_dev, 0);
-
-	/* Save active coresight registers if applicable */
-	adreno_coresight_stop(adreno_dev);
 
 	/* Save physical performance counter values before GPU power down*/
 	adreno_perfcounter_save(adreno_dev);
@@ -3191,9 +3181,6 @@ int adreno_soft_reset(struct kgsl_device *device)
 	/* Reinitialize the GPU */
 	gpudev->start(adreno_dev);
 
-	/* Re-initialize the coresight registers if applicable */
-	adreno_coresight_start(adreno_dev);
-
 	/* Enable IRQ */
 	adreno_irqctrl(adreno_dev, 1);
 
@@ -3390,7 +3377,7 @@ static int adreno_drain(struct kgsl_device *device)
 /* Caller must hold the device mutex. */
 static int adreno_suspend_context(struct kgsl_device *device)
 {
-	/* process any profiling results that are available */
+	/* process any  results that are available */
 	adreno_profile_process_results(ADRENO_DEVICE(device));
 
 	/* Wait for the device to go idle */
