@@ -116,6 +116,7 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 	/* Initialize @best such that @best always has a valid CPU at the end */
 	struct cass_cpu_cand cands[2], *best = cands;
 	int this_cpu = raw_smp_processor_id();
+	unsigned long p_util, uc_min;
 	bool has_idle = false;
 	unsigned long p_util;
 	int cidx = 0, cpu;
