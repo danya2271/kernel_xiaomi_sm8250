@@ -3,7 +3,7 @@
  * Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
  */
 
-#define pr_fmt(fmt) "QCOM-STEPCHG: %s: " fmt, __func__
+#define pr_fmt(fmt)
 
 #include <linux/delay.h>
 #include <linux/module.h>
