@@ -7,6 +7,14 @@ config SUSPEND
 	  powered and thus its contents are preserved, such as the
 	  suspend-to-RAM state (e.g. the ACPI S3 state).
 
+config CPU_SUSPEND
+	bool "Disable cpu cores on suspend/screen off state"
+	depends on HOTPLUG_CPU
+	default y
+	help
+		This allows you to turn off cpu cores in different device states
+		like AOD, suspend and idle
+
 config SUSPEND_FREEZER
 	bool "Enable freezer for suspend to RAM/standby" \
 		if ARCH_WANTS_FREEZER_CONTROL || BROKEN
