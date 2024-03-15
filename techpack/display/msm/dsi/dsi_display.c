@@ -22,6 +22,8 @@
 #include "dsi_pwr.h"
 #include "sde_dbg.h"
 #include "dsi_parser.h"
+#include <linux/cpu_suspend.h>
+
 
 #ifdef CONFIG_DRM_SDE_EXPO
 #include "sde_expo_dim_layer.h"
@@ -1254,6 +1256,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 			dsi_panel_set_doze_brightness(display->panel,
 				mi_cfg->unset_doze_brightness, true);
 		mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
+		suspend_cpus_aod();
 		break;
 	case SDE_MODE_DPMS_LP2:
 		mi_cfg->in_aod = true;
@@ -1263,6 +1266,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 			dsi_panel_set_doze_brightness(display->panel,
 				mi_cfg->unset_doze_brightness, true);
 		mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
+		suspend_cpus_aod();
 		break;
 	case SDE_MODE_DPMS_ON:
 		if ((display->panel->power_mode == SDE_MODE_DPMS_LP1) ||
@@ -1271,8 +1275,10 @@ int dsi_display_set_power(struct drm_connector *connector,
 			rc = dsi_panel_set_nolp(display->panel);
 			mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
 		}
+		activate_cpus();
 		break;
 	case SDE_MODE_DPMS_OFF:
+		suspend_cpus();
 	default:
 		return rc;
 	}
