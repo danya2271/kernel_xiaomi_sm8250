@@ -28,6 +28,8 @@ DTB_LIST := $(dtb-y)
 endif
 DTB_OBJS := $(shell find $(obj)/dts/ -name \*.dtb)
 
+DTBO_OBJS := $(shell find $(obj)/dts/ -name \*.dtbo)
+
 # Add RTIC DTB to the DTB list if RTIC MPGen is enabled
 # Note, we keep this for compatibility with
 # BUILD_ARM64_APPENDED_DTB_IMAGE targets.
