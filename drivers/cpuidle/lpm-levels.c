@@ -1396,7 +1396,9 @@ static int lpm_cpuidle_enter(struct cpuidle_device *dev,
 		struct cpuidle_driver *drv, int idx)
 {
 	struct lpm_cpu *cpu = per_cpu(cpu_lpm, dev->cpu);
+	bool success = false;
 	const struct cpumask *cpumask = get_cpu_mask(dev->cpu);
+	ktime_t start = ktime_get();
 
 	cpu_prepare(cpu, idx, true);
 	cluster_prepare(cpu->parent, cpumask, idx, true, 0);
@@ -1406,6 +1408,7 @@ static int lpm_cpuidle_enter(struct cpuidle_device *dev,
 	if (need_resched())
 		return idx;
 
+	success = psci_enter_sleep(cpu, idx, true);
 
 	cluster_unprepare(cpu->parent, cpumask, idx, true, 0, success);
 	cpu_unprepare(cpu, idx, true);
