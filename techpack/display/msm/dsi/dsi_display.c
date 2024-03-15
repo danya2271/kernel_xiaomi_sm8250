@@ -1256,6 +1256,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 			dsi_panel_set_doze_brightness(display->panel,
 				mi_cfg->unset_doze_brightness, true);
 		mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
+		screen_off = true;
 		break;
 	case SDE_MODE_DPMS_LP2:
 		mi_cfg->in_aod = true;
@@ -1265,6 +1266,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 			dsi_panel_set_doze_brightness(display->panel,
 				mi_cfg->unset_doze_brightness, true);
 		mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
+		screen_off = true;
 		break;
 	case SDE_MODE_DPMS_ON:
 		if ((display->panel->power_mode == SDE_MODE_DPMS_LP1) ||
@@ -1275,6 +1277,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 		}
 		break;
 	case SDE_MODE_DPMS_OFF:
+		screen_off = true;
 	default:
 		return rc;
 	}
@@ -7338,6 +7341,8 @@ int dsi_display_set_mode(struct dsi_display *display,
 	int rc = 0;
 	struct dsi_display_mode adj_mode;
 	struct dsi_mode_info timing;
+	screen_off = false;
+	activate_cpus();
 
 	if (!display || !mode || !display->panel) {
 		DSI_ERR("Invalid params\n");
