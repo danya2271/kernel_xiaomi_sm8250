@@ -16,6 +16,7 @@
 #include <linux/cpu.h>
 #include <linux/printk.h>
 #include <linux/cpu_suspend.h>
+bool screen_off;
 // Leave 2 little cores for AOD
 inline void suspend_cpus_aod(void) {
 	unsigned int cpu;
