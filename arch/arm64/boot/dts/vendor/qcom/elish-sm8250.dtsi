@@ -1,6 +1,5 @@
 /*
-this file is for attribution only of umi
-And public attribution of xiaomi platforms(like elish and so and)
+this file is for attribution only of elish
 */
 
 #include "elish-pinctrl.dtsi"
@@ -261,7 +260,6 @@ And public attribution of xiaomi platforms(like elish and so and)
 
 &qupv3_se4_spi {
 	status = "ok";
-	qcom,rt;
 	pinctrl-0 = <&qupv3_se4_spi_active>;
 	pinctrl-1 = <&qupv3_se4_spi_sleep>;
 	novatek@0 {
@@ -295,18 +293,18 @@ And public attribution of xiaomi platforms(like elish and so and)
 		novatek,config-array-size = <3>;
 		novatek,cfg_0 {
 			novatek,display-maker = <0x42>;
-			novatek,fw-name = "novatek_nt36523_k81a_fw01.bin";
-			novatek,mp-name = "novatek_nt36523_k81a_mp01.bin";
+			novatek,fw-name = "novatek_nt36523_fw03.bin";
+			novatek,mp-name = "novatek_nt36523_mp03.bin";
 		};
 		novatek,cfg_1 {
-			novatek,display-maker = <0x08>;
-			novatek,fw-name = "novatek_nt36523_k81a_fw02.bin";
-			novatek,mp-name = "novatek_nt36523_k81a_mp02.bin";
+			novatek,display-maker = <0x04>;
+			novatek,fw-name = "novatek_nt36523_fw02.bin";
+			novatek,mp-name = "novatek_nt36523_mp02.bin";
 		};
 		novatek,cfg_2 {
-			novatek,display-maker = <0x35>;
-			novatek,fw-name = "novatek_nt36523_k81a_fw02.bin";
-			novatek,mp-name = "novatek_nt36523_k81a_mp02.bin";
+			novatek,display-maker = <0x44>;
+			novatek,fw-name = "novatek_nt36523_fw02.bin";
+			novatek,mp-name = "novatek_nt36523_mp02.bin";
 		};
 	};
 };
@@ -367,11 +365,10 @@ And public attribution of xiaomi platforms(like elish and so and)
 
 &usb1 {
 	status = "ok";
-	qcom,ignore-wakeup-src-in-hostmode;
+};
 
-	dwc3@a800000 {
-		dr_mode = "host";
-	};
+&dwc1 {
+	dr_mode = "host";
 };
 
 &usb2_phy1 {
@@ -589,7 +586,7 @@ And public attribution of xiaomi platforms(like elish and so and)
 	};
 
 	ln8000@5B {
-		compatible = "lionsemi,ln8000-master";
+		compatible = "lionsemi,ln8000";
 		reg = <0x5B>;
 		/* bank <bit-idx> <flags: active-low> */
 		//irq-gpios = <&tlmm 55 0x2002>;
@@ -598,15 +595,11 @@ And public attribution of xiaomi platforms(like elish and so and)
 
 		charger_name = "tertiary_chg";
 
-		interrupt-parent = <&tlmm>;
-		interrupts = <68 0x2002>;
-
 		//interrupt-parent = <&tlmm>;
 		//interrupts = <55 0x2002>;
 		//pinctrl-names = "default";
 		//pinctrl-0 = <&bq2597x_int_default &bq2597x_int_suspend>;
-		//ln8000_charger,irq_index = <296>;
-
+		ln8000_charger,irq_index = <296>;
 		/* device configuration */
 		ln8000_charger,bat-ovp-threshold = <4660>;
 		ln8000_charger,bat-ovp-alarm-threshold = <4625>;
@@ -636,7 +629,7 @@ And public attribution of xiaomi platforms(like elish and so and)
 	};
 
 	ln8000-secondary@51 {
-		compatible = "lionsemi,ln8000-slave";
+		compatible = "lionsemi,ln8000-secondary";
 		reg = <0x51>;
 		//pinctrl-names = "bq2597x_slave_irq";
 		//pinctrl-0 = <&bq2597x_slave_int_default &bq2597x_slave_int_suspend>;
@@ -644,8 +637,6 @@ And public attribution of xiaomi platforms(like elish and so and)
 		charger_name = "quaternary_chg";
 		/* bank <bit-idx> <flags: active-low> */
 		//irq-gpios = <&tlmm 55 0x2002>;
-		interrupt-parent = <&tlmm>;
-		interrupts = <64 0x2002>;
 
 		//interrupt-parent = <&tlmm>;
 		//interrupts = <55 0x2002>;
@@ -978,7 +969,7 @@ And public attribution of xiaomi platforms(like elish and so and)
 	qcom,chg-cool-th= <150>;
 	//qcom,suspend-input-on-debug-batt;
 	qcom,usbpd-phandle = <&pm8150b_pdphy>;
-	qcom,battery-data = <&enuma_batterydata>;
+	qcom,battery-data = <&elish_batterydata>;
 	//mi,fcc-batt-unverify-ua = <2000000>;
 	mi,support-ffc;
 	qcom,lpd-disable;
@@ -1063,7 +1054,6 @@ And public attribution of xiaomi platforms(like elish and so and)
 		mi,qc3-battery-warm-th = <480>;
 		mi,support-qc3p5-without-smb;
 		mi,cp-sec-enable;
-		mi,chg-enable-k81;
 	};
 
 	usbpd_pm {
@@ -1082,7 +1072,6 @@ And public attribution of xiaomi platforms(like elish and so and)
 		mi,cell-vol-high-threshold-mv = <4450>;
 		mi,cell-vol-max-threshold-mv = <4487>;
 		mi,chg-enable-k81;
-		mi,pd-power-max = <67>; /*charge power max : 67W */
 	};
 
 	dual-FuelGauge{
@@ -1107,14 +1096,13 @@ And public attribution of xiaomi platforms(like elish and so and)
 
 	};
 
-	enuma_batterydata: qcom,battery-data {
+	elish_batterydata: qcom,battery-data {
 		qcom,batt-id-range-pct = <15>;
 		#include "jeita-step-cfg-k81.dtsi"
 	};
 	bcm4775 {
 		compatible = "bcm4775";
 		pinctrl-names = "default","gps_enable_active", "gps_enable_suspend";
-		gps-ldo = <&tlmm 46 GPIO_ACTIVE_LOW>;
 		pinctrl-0 = <&gps_clk_default>;
                 pinctrl-1 = <&gps_enable_active>;
                 pinctrl-2 = <&gps_enable_suspend>;
@@ -1123,7 +1111,6 @@ And public attribution of xiaomi platforms(like elish and so and)
 
 &pm8150b_pdphy {
 	mi,non-qcom-pps-ctrl;
-	mi,pd-power-max = <67>; /*charge power max : 67W */
 };
 
 &smb1390 {
