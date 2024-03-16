@@ -4,7 +4,7 @@
  */
 
 #include <linux/kernel.h>
-#include <linux/random.h>
+#include <linux/hw_random.h>
 #include <linux/io.h>
 
 #include <soc/qcom/scm.h>
@@ -46,9 +46,6 @@ void __init init_random_pool(void)
 
 		dmac_inv_range(random_buffer, random_buffer +
 						RANDOM_BUFFER_SIZE);
-		bytes_received = (bytes_received <= RANDOM_BUFFER_SIZE) ?
-					bytes_received : RANDOM_BUFFER_SIZE;
-		add_bootloader_randomness(random_buffer, bytes_received);
 	}
 }
 

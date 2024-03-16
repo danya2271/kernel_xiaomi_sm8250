@@ -1352,6 +1352,30 @@ static QDF_STATUS get_sar_limit_cmd_tlv(wmi_unified_t wmi_handle)
 	return status;
 }
 
+#ifdef WMI_INTERFACE_EVENT_LOGGING
+/**
+ * wmi_sar2_result_string() - return string conversion of sar2 result
+ * @result: sar2 result value
+ *
+ * This utility function helps log string conversion of sar2 result.
+ *
+ * Return: string conversion of sar 2 result, if match found;
+ *	   "Unknown response" otherwise.
+ */
+static const char *wmi_sar2_result_string(uint32_t result)
+{
+	switch (result) {
+	CASE_RETURN_STRING(WMI_SAR2_SUCCESS);
+	CASE_RETURN_STRING(WMI_SAR2_INVALID_ANTENNA_INDEX);
+	CASE_RETURN_STRING(WMI_SAR2_INVALID_TABLE_INDEX);
+	CASE_RETURN_STRING(WMI_SAR2_STATE_ERROR);
+	CASE_RETURN_STRING(WMI_SAR2_BDF_NO_TABLE);
+	default:
+		return "Unknown response";
+	}
+}
+#endif /*WMI_INTERFACE_EVENT_LOGGING */
+
 /**
  * extract_sar2_result_event_tlv() -  process sar response event from FW.
  * @handle: wma handle
@@ -1379,6 +1403,9 @@ static QDF_STATUS extract_sar2_result_event_tlv(void *handle,
 		wmi_err("Invalid sar2 result event fixed param buffer");
 		return QDF_STATUS_E_INVAL;
 	}
+
+	wmi_debug("SAR2 result: %s",
+		 wmi_sar2_result_string(sar2_fixed_param->result));
 
 	return QDF_STATUS_SUCCESS;
 }
