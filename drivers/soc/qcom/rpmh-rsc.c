@@ -466,6 +466,11 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 					    drv->name, msg->cmds[0].addr);
 			udelay(10);
 		}
+
+		if (count == 50000) {
+			break;
+		}
+
 	} while (ret == -EBUSY);
 
 	return ret;

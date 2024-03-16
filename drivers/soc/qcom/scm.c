@@ -28,6 +28,7 @@
 #define SCM_INTERRUPTED		1
 #define SCM_V2_EBUSY		-12
 
+static atomic_t scm_call_count = ATOMIC_INIT(0);
 static DEFINE_MUTEX(scm_lock);
 
 /*
@@ -94,7 +95,7 @@ static int scm_remap_error(int err)
 
 #ifdef CONFIG_ARM64
 
-static int __scm_call_armv8_64(u64 x0, u64 x1, u64 x2, u64 x3, u64 x4, u64 x5,
+static int ___scm_call_armv8_64(u64 x0, u64 x1, u64 x2, u64 x3, u64 x4, u64 x5,
 				u64 *ret1, u64 *ret2, u64 *ret3)
 {
 	register u64 r0 asm("x0") = x0;
@@ -143,7 +144,16 @@ static int __scm_call_armv8_64(u64 x0, u64 x1, u64 x2, u64 x3, u64 x4, u64 x5,
 	return r0;
 }
 
-static int __scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
+static int __scm_call_armv8_64(u64 x0, u64 x1, u64 x2, u64 x3, u64 x4, u64 x5,
+				u64 *ret1, u64 *ret2, u64 *ret3)
+{
+	int ret;
+
+	ret = ___scm_call_armv8_64(x0, x1, x2, x3, x4, x5, ret1, ret2, ret3);
+	return ret;
+}
+
+static int ___scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
 				u64 *ret1, u64 *ret2, u64 *ret3)
 {
 	register u32 r0 asm("w0") = w0;
@@ -193,9 +203,18 @@ static int __scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
 	return r0;
 }
 
+static int __scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
+				u64 *ret1, u64 *ret2, u64 *ret3)
+{
+	int ret;
+
+	ret = ___scm_call_armv8_32(w0, w1, w2, w3, w4, w5, ret1, ret2, ret3);
+	return ret;
+}
+
 #else
 
-static int __scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
+static int ___scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
 				u64 *ret1, u64 *ret2, u64 *ret3)
 {
 	register u32 r0 asm("r0") = w0;
@@ -241,6 +260,15 @@ static int __scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
 		*ret3 = r3;
 
 	return r0;
+}
+
+static int __scm_call_armv8_32(u32 w0, u32 w1, u32 w2, u32 w3, u32 w4, u32 w5,
+				u64 *ret1, u64 *ret2, u64 *ret3)
+{
+	int ret;
+
+	ret = ___scm_call_armv8_32(w0, w1, w2, w3, w4, w5, ret1, ret2, ret3);
+	return ret;
 }
 
 static int __scm_call_armv8_64(u64 x0, u64 x1, u64 x2, u64 x3, u64 x4, u64 x5,
@@ -662,40 +690,6 @@ EXPORT_SYMBOL(scm_is_secure_device);
 
 #ifdef CONFIG_ARM64
 
-#define TZ_HLOS_NOTIFY_CORE_KERNEL_BOOTUP 0x7
-int  scm_mem_protection_init_do_qrks(void)
-{
-	uint32_t pid_offset = 0;
-	uint32_t task_name_offset = 0;
-	struct scm_desc desc = {0};
-	int ret = 0, resp;
-
-	pid_offset = offsetof(struct task_struct, pid);
-	task_name_offset = offsetof(struct task_struct, comm);
-	pr_debug("offset of pid is %zu, offset of comm is %zu\n",
-		pid_offset, task_name_offset);
-	desc.args[0] = pid_offset;
-	desc.args[1] = task_name_offset;
-	desc.arginfo = 2;
-	ret = scm_call2(SCM_SIP_FNID(SCM_SVC_RTIC,
-			TZ_HLOS_NOTIFY_CORE_KERNEL_BOOTUP),
-			&desc);
-	resp = desc.ret[0];
-
-	if (ret == -1) {
-		pr_err("%s: SCM call not supported\n", __func__);
-		return ret;
-	} else if (ret || resp) {
-		pr_err("%s: SCM call failed\n", __func__);
-		if (ret)
-			return ret;
-		else
-			return resp;
-	}
-
-	return resp;
-}
-
 /*
  * SCM call command ID to protect kernel memory
  * in Hyp Stage 2 page tables.
@@ -709,7 +703,6 @@ static int __init scm_mem_protection_init(void)
 	struct scm_desc desc = {0};
 	int ret = 0, resp;
 
-	scm_mem_protection_init_do_qrks();
 	desc.args[0] = 0;
 	desc.arginfo = 0;
 	ret = scm_call2(SCM_SIP_FNID(SCM_SVC_RTIC,
@@ -735,3 +728,8 @@ early_initcall(scm_mem_protection_init);
 #endif
 
 #endif
+
+bool under_scm_call(void)
+{
+	return atomic_read(&scm_call_count);
+}

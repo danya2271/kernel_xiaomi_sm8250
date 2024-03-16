@@ -787,11 +787,24 @@ static int subsystem_powerup(struct subsys_device *dev, void *data)
 			|| system_state == SYSTEM_POWER_OFF)
 			WARN(1, "SSR aborted: %s, system reboot/shutdown is under way\n",
 				name);
-		else if (!dev->desc->ignore_ssr_failure)
-			panic("[%s:%d]: Powerup error: %s!",
-				current->comm, current->pid, name);
-		else
+		else {
+			if (!dev->desc->ignore_ssr_failure) {
+				/*
+				 * There is a slight window between reboot and
+				 * system_state changing to SYSTEM_RESTART or
+				 * SYSTEM_POWER_OFF. Add a delay before panic
+				 * to ensure SSR that happens during reboot
+				 * will not result in a kernel panic.
+				 */
+				msleep(3000);
+				if (system_state != SYSTEM_RESTART
+					&& system_state != SYSTEM_POWER_OFF)
+					panic("[%s:%d]: Powerup error: %s!",
+						current->comm,
+						current->pid, name);
+			}
 			pr_err("Powerup failure on %s\n", name);
+		}
 		return ret;
 	}
 
@@ -864,6 +877,7 @@ static int subsys_start(struct subsys_device *subsys)
 		return ret;
 	}
 	subsys_set_state(subsys, SUBSYS_ONLINE);
+	subsys_set_crash_status(subsys, CRASH_STATUS_NO_CRASH);
 
 	notify_each_subsys_device(&subsys, 1, SUBSYS_AFTER_POWERUP,
 								NULL);
@@ -952,7 +966,8 @@ void *__subsystem_get(const char *name, const char *fw_name)
 
 	if (!name)
 		return NULL;
-
+	if (fw_name && !strcmp(fw_name, "modem"))
+		msleep(3000);
 	subsys = retval = find_subsys_device(name);
 	if (!subsys)
 		return ERR_PTR(-ENODEV);
@@ -1647,7 +1662,8 @@ static int subsys_parse_devicetree(struct subsys_desc *desc)
 			desc->generic_irq = ret;
 	}
 
-	desc->ignore_ssr_failure = true;
+	desc->ignore_ssr_failure = of_property_read_bool(pdev->dev.of_node,
+						"qcom,ignore-ssr-failure");
 
 	order = ssr_parse_restart_orders(desc);
 	if (IS_ERR(order)) {
