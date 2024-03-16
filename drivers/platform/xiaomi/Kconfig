@@ -1,8 +1,16 @@
 # Xiaomi configuration options
 
+config BOARD_XIAOMI
+	bool "BOARD_XIAOMI"
+
+config BOARD_XIAOMI_SM8250
+	bool "BOARD_XIAOMI_SM8250"
+
 config MACH_XIAOMI
 	bool "Xiaomi device"
 	depends on ARCH_QCOM
+	select BOARD_XIAOMI
+	select BOARD_XIAOMI_SM8250
 	help
 	  Support for Xiaomi products
 
