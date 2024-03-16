@@ -2,6 +2,7 @@
 	dsi_k11a_38_08_0a_dsc_cmd: qcom,mdss_dsi_k11a_38_08_0a_dsc_cmd {
 		qcom,mdss-dsi-panel-name = "xiaomi 38 08 0a cmd mode dsc dsi panel";
 		qcom,mdss-dsi-panel-type = "dsi_cmd_mode";
+		qcom,mdss-dsi-panel-physical-type = "oled";
 		qcom,mdss-dsi-virtual-channel-id = <0>;
 		qcom,mdss-dsi-stream = <0>;
 		qcom,mdss-dsi-bpp = <24>;
@@ -139,7 +140,7 @@
 					/* Dimming Setting*/
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 00 00 00 00 00 02 B0 06
-					39 00 00 00 00 00 02 B7 20                /* Dimming Speed Setting : 0x20 : 32Frames*/
+					39 00 00 00 00 00 02 B7 10                /* Dimming Speed Setting : 0x10 : 16Frames*/
 					39 00 00 00 00 00 02 B0 05
 					39 01 00 00 00 00 02 B7 93                /* 0x93 : ELVSS DIM ON */
 					39 01 00 00 00 00 03 F0 A5 A5
@@ -288,7 +289,7 @@
 					/* Dimming Setting*/
 					39 01 00 00 00 00 03 F0 5A 5A
 					39 00 00 00 00 00 02 B0 06
-					39 00 00 00 00 00 02 B7 20              /* Dimming Speed Setting : 0x20 : 32Frames*/
+					39 00 00 00 00 00 02 B7 10              /* Dimming Speed Setting : 0x10 : 16Frames*/
 					39 00 00 00 00 00 02 B0 05
 					39 01 00 00 00 00 02 B7 93              /* 0x93 : ELVSS DIM ON */
 					39 01 00 00 00 00 03 F0 A5 A5
@@ -351,8 +352,8 @@
 	mi,mdss-dsi-panel-hbm-off-51-index = <1>;
 	mi,esd-err-irq-gpio = <&tlmm 51 0x2001>;
 	mi,mdss-panel-on-dimming-delay = <120>;
-	mi,mdss-dsi-pan-enable-smart-fps;
-	mi,mdss-dsi-smart-fps-max_framerate = <120>;
+	// mi,mdss-dsi-pan-enable-smart-fps;
+	// mi,mdss-dsi-smart-fps-max_framerate = <120>;
 	mi,mdss-dsi-panel-hbm-brightness = <1>;
 	mi,mdss-dsi-panel-dc-threshold = <440>;
 	mi,mdss-dsi-panel-max-brightness-clone = <8191>;

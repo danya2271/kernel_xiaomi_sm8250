@@ -1,6 +1,5 @@
 /*
-this file is for attribution only of umi
-And public attribution of xiaomi platforms(like apollo and so and)
+this file is for attribution only of apollo
 */
 
 #include "apollo-pinctrl.dtsi"
@@ -42,7 +41,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 		compatible = "xiaomi,spi-for-tp";
 		reg = <0>;
 		status = "ok";
-		spi-max-frequency = <10000000>;  //10M
+		spi-max-frequency = <15000000>;  //15M
 	};
 };
 
@@ -251,7 +250,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	qcom,fs-current-limit = <22500>;
 	qcom,cabc-sel = <1>;
 	mi,cabcoff-dbv = <200>;
-	mi,cabc-pwm = <3276 4095>;
+	mi,cabc-pwm = <4095 4095>;
 };
 
 &dsi_panel_pwr_supply_lab_ibb {
@@ -683,7 +682,6 @@ And public attribution of xiaomi platforms(like apollo and so and)
 		mi,use-qcom-gauge;
 		//mi,cp-sec-enable;
 		mi,therm-level-threshold = <12>;
-		mi,pd-power-max = <33>; /*charge power max : 33W */
 	};
 
 	apollo_batterydata: qcom,battery-data {
@@ -714,7 +712,6 @@ And public attribution of xiaomi platforms(like apollo and so and)
 
 &pm8150b_pdphy {
 	mi,non-qcom-pps-ctrl;
-	mi,pd-power-max = <33>; /*charge power max : 33W */
 };
 
 &smb1390 {
@@ -937,7 +934,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	wireless_therm {//place close to wireless charge RX
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150b_adc_tm ADC_AMUX_THM1_PU2>;
 		trips {
 			active-config0 {
@@ -951,7 +948,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	conn_therm {//place close to type-c connector
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150b_adc_tm ADC_AMUX_THM3_PU2>;
 		wake-capable-sensor;
 		trips {
@@ -966,7 +963,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	xo-therm-adc {
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150_adc_tm ADC_XO_THERM_PU2>;
 		wake-capable-sensor;
 		trips {
@@ -981,7 +978,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	charger_therm0 {//place close to charger chip place
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150_adc_tm ADC_AMUX_THM1_PU2>;
 		wake-capable-sensor;
 		trips {
@@ -996,7 +993,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	flash_therm {//place close to flash fpc
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150_adc_tm ADC_AMUX_THM2_PU2>;
 		wake-capable-sensor;
 		trips {
@@ -1011,7 +1008,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	quiet_therm {//place close to quiet place
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM1_PU2>;
 		wake-capable-sensor;
 		trips {
@@ -1026,7 +1023,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	xo_therm {//place close to soc place
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM2_PU2>;
 		wake-capable-sensor;
 		trips {
@@ -1041,7 +1038,7 @@ And public attribution of xiaomi platforms(like apollo and so and)
 	backlight_therm {//place close to lcd fpc
 		polling-delay-passive = <0>;
 		polling-delay = <0>;
-		thermal-governor = "user_space";
+		thermal-governor = "step_wise";
 		thermal-sensors = <&pm8150l_adc_tm ADC_AMUX_THM3_PU2>;
 		wake-capable-sensor;
 		trips {
