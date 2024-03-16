@@ -37,7 +37,6 @@ config BUG_ON_HW_MEM_ONLINE_FAIL
 config QCOM_GENI_SE
 	tristate "QCOM GENI Serial Engine Driver"
 	depends on ARCH_QCOM || COMPILE_TEST
-	select REGMAP_MMIO
 	help
 	  This driver is used to manage Generic Interface (GENI) firmware based
 	  Qualcomm Technologies, Inc. Universal Peripheral (QUP) Wrapper. This
@@ -723,6 +722,13 @@ config QCOM_SMP2P_SLEEPSTATE
 	  are sent through the smp2p framework. This driver can also receive
 	  notifications from the remote to prevent suspend on the local
 	  processor.
+
+config SMP2P_SLEEPSTATE_TIME
+	int "SMP2P Sleepstate Timeout"
+	default 200
+	depends on QCOM_SMP2P
+	help
+	  This option allows modifying smp2p sleepstate wakeup time.
 
 config QCOM_QDSS_BRIDGE
 	bool "Configure bridge driver for QTI/Qualcomm Technologies, Inc. MDM"

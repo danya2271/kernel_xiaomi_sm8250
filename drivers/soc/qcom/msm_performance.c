@@ -57,6 +57,7 @@ static unsigned int curr_cap[CLUSTER_MAX];
 /*******************************sysfs start************************************/
 static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 {
+#if 0
 	int i, j, ntokens = 0;
 	unsigned int val, cpu;
 	const char *cp = buf;
@@ -76,15 +77,13 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 	for (i = 0; i < ntokens; i += 2) {
 		if (sscanf(cp, "%u:%u", &cpu, &val) != 2)
 			return -EINVAL;
-		if (cpu >= nr_cpu_ids)
-			break;
+		if (cpu > (num_present_cpus() - 1))
+			return -EINVAL;
 
-		if (cpu_possible(cpu)) {
-			i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
+		i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
 
-			i_cpu_stats->min = val;
-			cpumask_set_cpu(cpu, limit_mask);
-		}
+		i_cpu_stats->min = val;
+		cpumask_set_cpu(cpu, limit_mask);
 
 		cp = strnchr(cp, strlen(cp), ' ');
 		cp++;
@@ -111,6 +110,7 @@ static int set_cpu_min_freq(const char *buf, const struct kernel_param *kp)
 			cpumask_clear_cpu(j, limit_mask);
 	}
 	put_online_cpus();
+#endif
 
 	return 0;
 }
@@ -128,8 +128,15 @@ static int get_cpu_min_freq(char *buf, const struct kernel_param *kp)
 	return cnt;
 }
 
+static const struct kernel_param_ops param_ops_cpu_min_freq = {
+	.set = set_cpu_min_freq,
+	.get = get_cpu_min_freq,
+};
+module_param_cb(cpu_min_freq, &param_ops_cpu_min_freq, NULL, 0644);
+
 static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 {
+#if 0
 	int i, j, ntokens = 0;
 	unsigned int val, cpu;
 	const char *cp = buf;
@@ -149,15 +156,14 @@ static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 	for (i = 0; i < ntokens; i += 2) {
 		if (sscanf(cp, "%u:%u", &cpu, &val) != 2)
 			return -EINVAL;
-		if (cpu >= nr_cpu_ids)
-			break;
+		if (cpu > (num_present_cpus() - 1))
+			return -EINVAL;
 
-		if (cpu_possible(cpu)) {
-			i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
+		i_cpu_stats = &per_cpu(msm_perf_cpu_stats, cpu);
 
-			i_cpu_stats->max = val;
-			cpumask_set_cpu(cpu, limit_mask);
-		}
+		i_cpu_stats->max = val;
+		cpumask_set_cpu(cpu, limit_mask);
+
 		cp = strnchr(cp, strlen(cp), ' ');
 		cp++;
 	}
@@ -175,6 +181,7 @@ static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 			cpumask_clear_cpu(j, limit_mask);
 	}
 	put_online_cpus();
+#endif
 
 	return 0;
 }
