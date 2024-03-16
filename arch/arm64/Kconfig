@@ -177,7 +177,6 @@ config ARM64
 	select HAVE_MOVE_PMD
 	select HAVE_MOVE_PUD
 	select ARCH_SUPPORTS_SPECULATIVE_PAGE_FAULT
-	select USER_STACKTRACE_SUPPORT if BOARD_XIAOMI
 	help
 	  ARM 64-bit (AArch64) Linux support.
 
