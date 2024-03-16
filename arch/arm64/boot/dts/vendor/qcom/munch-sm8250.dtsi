@@ -77,12 +77,12 @@ And public attribution of xiaomi platforms(like L11R and so and)
 		aw86927_vib_cont_bst_brk_gain = < 0x05 >;
 		aw86927_vib_cont_brk_gain = < 0x08 >;
 		aw86927_vib_d2s_gain = < 0x04 >;
-		aw86927_vib_trig_config = < 1 0 1 1 1 2 0 0
-					    1 0 0 1 0 2 0 0
-					    1 0 0 1 0 2 0 0 >;
-		aw86927_vib_bst_vol_default = < 0x47 >;
-		aw86927_vib_bst_vol_ram = < 0x47 >;
-		aw86927_vib_bst_vol_rtp = < 0x47 >;
+		aw86927_vib_trig_config = < 0 0 0 1 0 2 0 0
+					    0 0 0 1 0 2 0 0
+					    0 0 0 1 0 2 0 0 >;
+		aw86927_vib_bst_vol_default = < 0x58 >;
+		aw86927_vib_bst_vol_ram = < 0x58 >;
+		aw86927_vib_bst_vol_rtp = < 0x58 >;
 		/*--------------------common--------------------*/
 		vib_effect_id_boundary = < 10 >;
 		vib_effect_max = < 197 >; /*vib_effect_max must bigger than vib_effect_id*/
@@ -108,10 +108,10 @@ And public attribution of xiaomi platforms(like L11R and so and)
 		wf_0 {
 			/*CLICK*/
 			qcom,effect-id = <0>;
-			qcom,wf-vmax-mv = <3600>;
+			qcom,wf-vmax-mv = <3900>;
 			qcom,wf-pattern = [3e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-play-rate-us = <19000>;
 		};
 		wf_1 {
 			/*DOUBLE CLICK*/
@@ -124,10 +124,10 @@ And public attribution of xiaomi platforms(like L11R and so and)
 		wf_2 {
 			/*TICK*/
 			qcom,effect-id = <2>;
-			qcom,wf-vmax-mv = <3600>;
+			qcom,wf-vmax-mv = <3900>;
 			qcom,wf-pattern = [7e 3e];
 			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-play-rate-us = <19000>;
 		};
 		wf_3 {
 			/*THUD*/
@@ -254,9 +254,9 @@ And public attribution of xiaomi platforms(like L11R and so and)
 		ti,bq2597x,bat-ucp-alarm-disable;
 		ti,bq2597x,bat-ucp-disable;
 
-		/*ti,bq2597x,bus-ovp-alarm-disable;
+		ti,bq2597x,bus-ovp-alarm-disable;
 		ti,bq2597x,bus-ocp-disable;
-		ti,bq2597x,bus-ocp-alarm-disable;*/
+		ti,bq2597x,bus-ocp-alarm-disable;
 		ti,bq2597x,bat-therm-disable;
 		ti,bq2597x,bus-therm-disable;
 		ti,bq2597x,die-therm-disable;
@@ -428,10 +428,9 @@ And public attribution of xiaomi platforms(like L11R and so and)
 
 		ti,bq2597x,bat-ucp-disable;
 
-		/*ti,bq2597x,bus-ovp-alarm-disable;
+		ti,bq2597x,bus-ovp-alarm-disable;
 		ti,bq2597x,bus-ocp-disable;
 		ti,bq2597x,bus-ocp-alarm-disable;
-		*/
 		ti,bq2597x,bat-therm-disable;
 		ti,bq2597x,bus-therm-disable;
 		ti,bq2597x,die-therm-disable;
@@ -547,11 +546,13 @@ And public attribution of xiaomi platforms(like L11R and so and)
 	qcom,chg-term-current-ma = <(-200)>;
 	qcom,step-charging-enable;
 	qcom,sw-jeita-enable;
-	qcom,chg-warm-th= <480>;
+	qcom,chg-warm-th= <410>;
 	qcom,chg-cool-th= <150>;
 	//qcom,suspend-input-on-debug-batt;
+	pinctrl-names = "default", "smb5_active", "smb5_suspend";
+	pinctrl-0 = <&vbus_disable_suspend>;
 	qcom,usbpd-phandle = <&pm8150b_pdphy>;
-	qcom,battery-data = <&munch_batterydata>;
+	qcom,battery-data = <&umi_batterydata>;
 	//mi,fcc-batt-unverify-ua = <2000000>;
 	mi,support-ffc;
 	qcom,lpd-disable;
@@ -613,8 +614,8 @@ And public attribution of xiaomi platforms(like L11R and so and)
 				   1600000 1600000 1400000 1200000 1100000 1050000 1000000
 				   950000 500000>;
 	qcom,thermal-fcc-pps-bq
-				= <12400000 10000000 8800000 8000000 7000000 6000000 5600000
-				   5000000 4100000 3500000 3000000 2400000 2000000 1500000
+				= <12400000 11000000 10000000 8800000 8000000 7500000 7000000
+				   6500000 6000000 5500000 5000000 4000000 2650000 2000000
 				   1000000 500000>;
 };
 
@@ -639,7 +640,7 @@ And public attribution of xiaomi platforms(like L11R and so and)
 		mi,qc3-bat-curr-max = <3600>;
 		mi,qc3-bus-volt-max = <12000>;
 		mi,qc3-bus-curr-max = <2100>;
-		mi,qc3-battery-warm-th = <480>;
+		mi,qc3-battery-warm-th = <410>;
 		mi,cp-sec-enable;
 		mi,support-qc3p5-without-smb;
 	};
@@ -656,7 +657,7 @@ And public attribution of xiaomi platforms(like L11R and so and)
 		mi,step-charge-high-vol-curr-max = <4400>;
 		mi,cell-vol-high-threshold-mv = <4500>;
 		mi,cell-vol-max-threshold-mv = <4480>;
-		mi,pd-battery-warm-th = <480>;
+		mi,pd-battery-warm-th = <410>;
 		mi,cp-sec-enable;
 	};
 
@@ -668,7 +669,7 @@ And public attribution of xiaomi platforms(like L11R and so and)
 		status = "ok";
 	};
 */
-	munch_batterydata: qcom,battery-data {
+	umi_batterydata: qcom,battery-data {
 		qcom,batt-id-range-pct = <15>;
 		#include "jeita-step-cfg-munch.dtsi"
 	};
@@ -1325,8 +1326,6 @@ And public attribution of xiaomi platforms(like L11R and so and)
 &wlan {
        vdd-wlan-dig-supply = <&pm8150_s6>;
        qcom,vdd-wlan-dig-config = <950000 950000 0 0 1>;
-       vdd-wlan-3antenna-supply = <&pm8150_l16>;
-       qcom,vdd-wlan-3antenna-config = <3024000 3304000 0 0 0>;
 };
 
 &bluetooth {

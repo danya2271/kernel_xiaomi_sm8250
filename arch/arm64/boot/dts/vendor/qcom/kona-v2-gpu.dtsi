@@ -38,8 +38,8 @@
 			opp-microvolt = <3>;
 		};
 
-		opp-196142000 {
-			opp-hz = /bits/ 64 <196142000>;
+		opp-296142000 {
+			opp-hz = /bits/ 64 <296142000>;
 			opp-microvolt = <2>;
 		};
 
@@ -79,9 +79,9 @@
 				qcom,bus-min-ddr7 = <1>;
 				qcom,bus-max-ddr7 = <11>;
 
-				qcom,bus-freq-ddr8 = <12>;
+				qcom,bus-freq-ddr8 = <11>;
 				qcom,bus-min-ddr8 = <1>;
-				qcom,bus-max-ddr8 = <12>;
+				qcom,bus-max-ddr8 = <11>;
 
 				qcom,acd-level = <0x802b5ffd>;
 			};
@@ -89,9 +89,9 @@
 			qcom,gpu-pwrlevel@1 {
 				reg = <1>;
 				qcom,gpu-freq = <606852000>;
-				qcom,bus-freq-ddr7 = <12>;
+				qcom,bus-freq-ddr7 = <11>;
 				qcom,bus-min-ddr7 = <1>;
-				qcom,bus-max-ddr7 = <12>;
+				qcom,bus-max-ddr7 = <11>;
 
 				qcom,bus-freq-ddr8 = <11>;
 				qcom,bus-min-ddr8 = <1>;
@@ -103,9 +103,9 @@
 			qcom,gpu-pwrlevel@2 {
 				reg = <2>;
 				qcom,gpu-freq = <530710000>;
-				qcom,bus-freq-ddr7 = <12>;
+				qcom,bus-freq-ddr7 = <11>;
 				qcom,bus-min-ddr7 = <1>;
-				qcom,bus-max-ddr7 = <12>;
+				qcom,bus-max-ddr7 = <11>;
 
 				qcom,bus-freq-ddr8 = <11>;
 				qcom,bus-min-ddr8 = <1>;
@@ -158,7 +158,7 @@
 
 			qcom,gpu-pwrlevel@6 {
 				reg = <6>;
-				qcom,gpu-freq = <196142000>;
+				qcom,gpu-freq = <296142000>;
 				qcom,bus-freq-ddr7 = <3>;
 				qcom,bus-min-ddr7 = <1>;
 				qcom,bus-max-ddr7 = <9>;
@@ -286,7 +286,7 @@
 
 			qcom,gpu-pwrlevel@6 {
 				reg = <6>;
-				qcom,gpu-freq = <196142000>;
+				qcom,gpu-freq = <296142000>;
 				qcom,bus-freq-ddr7 = <3>;
 				qcom,bus-min-ddr7 = <1>;
 				qcom,bus-max-ddr7 = <9>;
@@ -414,7 +414,7 @@
 
 			qcom,gpu-pwrlevel@6 {
 				reg = <6>;
-				qcom,gpu-freq = <196142000>;
+				qcom,gpu-freq = <296142000>;
 				qcom,bus-freq-ddr7 = <3>;
 				qcom,bus-min-ddr7 = <1>;
 				qcom,bus-max-ddr7 = <9>;
