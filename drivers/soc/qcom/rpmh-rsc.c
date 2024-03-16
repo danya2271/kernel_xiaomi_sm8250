@@ -487,9 +487,6 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 			count++;
 		}
 		if (count == 50000) {
-#ifdef CONFIG_DEBUG
-			printk(KERN_ERR "Long Press :TCS Busy but log saved!");
-#endif
 			break;
 		}
 
