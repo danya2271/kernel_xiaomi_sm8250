@@ -1262,7 +1262,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 	case SDE_MODE_DPMS_LP2:
 		mi_cfg->in_aod = true;
 		mi_drm_notifier_call_chain(MI_DRM_EARLY_EVENT_BLANK, &notify_data);
-		rc = dsi_panel_set_lp2(display->panel);
+		rc = dsi_panel_set_lp1(display->panel);
 		if (mi_cfg->unset_doze_brightness)
 			dsi_panel_set_doze_brightness(display->panel,
 				mi_cfg->unset_doze_brightness, true);
@@ -1277,6 +1277,7 @@ int dsi_display_set_power(struct drm_connector *connector,
 			rc = dsi_panel_set_nolp(display->panel);
 			mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
 		}
+		activate_cpus();
 		break;
 	case SDE_MODE_DPMS_OFF:
 		suspend_cpus();
@@ -7350,7 +7351,7 @@ int dsi_display_set_mode(struct dsi_display *display,
 	struct dsi_display_mode adj_mode;
 	struct dsi_mode_info timing;
 	screen_off = false;
-	activate_cpus();
+//	activate_cpus();
 
 	if (!display || !mode || !display->panel) {
 		DSI_ERR("Invalid params\n");
@@ -7388,11 +7389,11 @@ int dsi_display_set_mode(struct dsi_display *display,
 		goto error;
 	}
 
-	DSI_INFO("mdp_transfer_time_us=%d us\n",
-			adj_mode.priv_info->mdp_transfer_time_us);
-	DSI_INFO("hactive= %d,vactive= %d,fps=%d\n",
-			timing.h_active, timing.v_active,
-			timing.refresh_rate);
+//	DSI_INFO("mdp_transfer_time_us=%d us\n",
+//			adj_mode.priv_info->mdp_transfer_time_us);
+//	DSI_INFO("hactive= %d,vactive= %d,fps=%d\n",
+//			timing.h_active, timing.v_active,
+//			timing.refresh_rate);
 
 	if (display->panel->cur_mode->timing.refresh_rate != timing.refresh_rate) {
 		if (display->drm_conn && display->drm_conn->kdev)

@@ -2153,36 +2153,6 @@ static const char *get_screen_state_name(int mode)
 	}
 }
 
-static int screen_state_for_thermal_callback(struct notifier_block *nb,
-		unsigned long val, void *data)
-{
-	struct mi_drm_notifier *evdata = data;
-	unsigned int blank;
-
-	if (val != MI_DRM_EVENT_BLANK || !evdata || !evdata->data)
-		return 0;
-
-	blank = *(int *)(evdata->data);
-	switch (blank) {
-	case MI_DRM_BLANK_UNBLANK:
-		sm.screen_state = 1;
-		break;
-	case MI_DRM_BLANK_LP1:
-	case MI_DRM_BLANK_LP2:
-	case MI_DRM_BLANK_POWERDOWN:
-		sm.screen_state = 0;
-		break;
-	default:
-		break;
-	}
-
-	pr_warn("%s: %s, sm.screen_state = %d\n", __func__,
-			get_screen_state_name(blank), sm.screen_state);
-
-	sysfs_notify(&thermal_message_dev.kobj, NULL, "screen_state");
-
-	return NOTIFY_OK;
-}
 #endif
 
 static int usb_online_callback(struct notifier_block *nb,
@@ -2255,9 +2225,6 @@ static int __init thermal_init(void)
 			result);
 
 #ifdef CONFIG_DRM
-	sm.thermal_notifier.notifier_call = screen_state_for_thermal_callback;
-	if (mi_drm_register_client(&sm.thermal_notifier) < 0)
-		pr_warn("Thermal: register screen state callback failed\n");
 #endif
 
 	usb_state.psy_notifier.notifier_call = usb_online_callback;
