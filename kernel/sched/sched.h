@@ -2212,6 +2212,7 @@ static inline unsigned long cpu_util(int cpu)
 	if (!walt_disabled && sysctl_sched_use_walt_cpu_util) {
 		u64 walt_cpu_util =
 			cpu_rq(cpu)->walt_stats.cumulative_runnable_avg_scaled;
+	}
 
 	return min_t(unsigned long, walt_cpu_util, capacity_orig_of(cpu));
 #endif
