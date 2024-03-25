@@ -142,6 +142,8 @@ int __weak arch_asym_cpu_priority(int cpu)
 {
 	return -arch_scale_cpu_capacity(NULL, cpu);
 }
+
+#define capacity_greater(cap1, cap2) ((cap1) * 1024 > (cap2) * 1078)
 #endif
 
 #ifdef CONFIG_CFS_BANDWIDTH
@@ -6599,8 +6601,7 @@ static void find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 		goto out;
 
 	/* fast path for prev_cpu */
-	if (((capacity_orig_of(prev_cpu) == capacity_orig_of(start_cpu)) ||
-		asym_cap_siblings(prev_cpu, start_cpu)) &&
+	if ((capacity_orig_of(prev_cpu) == capacity_orig_of(start_cpu)) ||
 		!cpu_isolated(prev_cpu) && cpu_online(prev_cpu) &&
 		idle_cpu(prev_cpu)) {
 
@@ -9326,8 +9327,7 @@ group_similar_cpu_capacity(struct sched_group *sg, struct sched_group *ref)
 	long diff = sg->sgc->min_capacity - ref->sgc->min_capacity;
 	long max = max(sg->sgc->min_capacity, ref->sgc->min_capacity);
 
-	return ((abs(diff) < max >> 3) ||
-		asym_cap_siblings(group_first_cpu(sg), group_first_cpu(ref)));
+	return (abs(diff) < max >> 3);
 }
 
 static inline enum
@@ -10229,8 +10229,7 @@ static struct sched_group *find_busiest_group(struct lb_env *env)
 			if ((sds.busiest->group_weight > 1) &&
 				capacity_local > capacity_busiest) {
 				goto out_balanced;
-			} else if (capacity_local == capacity_busiest ||
-				   asym_cap_siblings(cpu_local, cpu_busiest)) {
+			} else if (capacity_local == capacity_busiest) {
 				if (cpu_rq(cpu_busiest)->nr_running < 2)
 					goto out_balanced;
 			}
