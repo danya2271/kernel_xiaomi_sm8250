@@ -2879,12 +2879,6 @@ static inline bool is_asym_cap_cpu(int cpu)
 	return cpumask_test_cpu(cpu, &asym_cap_sibling_cpus);
 }
 
-static inline int asym_cap_siblings(int cpu1, int cpu2)
-{
-	return (cpumask_test_cpu(cpu1, &asym_cap_sibling_cpus) &&
-		cpumask_test_cpu(cpu2, &asym_cap_sibling_cpus));
-}
-
 static inline int cpu_max_possible_capacity(int cpu)
 {
 	return cpu_rq(cpu)->cluster->max_possible_capacity;
@@ -2964,9 +2958,6 @@ static inline int same_freq_domain(int src_cpu, int dst_cpu)
 	struct rq *rq = cpu_rq(src_cpu);
 
 	if (src_cpu == dst_cpu)
-		return 1;
-
-	if (asym_cap_siblings(src_cpu, dst_cpu))
 		return 1;
 
 	return cpumask_test_cpu(dst_cpu, &rq->freq_domain_cpumask);
