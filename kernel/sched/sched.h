@@ -2982,9 +2982,6 @@ static inline int same_freq_domain(int src_cpu, int dst_cpu)
 	if (src_cpu == dst_cpu)
 		return 1;
 
-	if (asym_cap_siblings(src_cpu, dst_cpu))
-		return 1;
-
 	return cpumask_test_cpu(dst_cpu, &rq->freq_domain_cpumask);
 }
 
