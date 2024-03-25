@@ -510,8 +510,7 @@ static void sugov_walt_adjust(struct sugov_cpu *sg_cpu, unsigned long *util,
 		*util = *max;
 
 	if (sg_policy->tunables->pl) {
-		if (conservative_pl())
-			pl = mult_frac(pl, TARGET_LOAD, 100);
+		pl = mult_frac(pl, TARGET_LOAD, 100);
 		*util = max(*util, pl);
 	}
 }
@@ -1117,15 +1116,15 @@ static int sugov_init(struct cpufreq_policy *policy)
 
 	if (cpumask_test_cpu(policy->cpu, cpu_lp_mask)) {
 		tunables->up_rate_limit_us = 5000;
-		tunables->down_rate_limit_us = 5000;
-		tunables->hispeed_load = 50;
+		tunables->down_rate_limit_us = 500;
+		tunables->hispeed_load = 30;
 		tunables->hispeed_freq = 1344000;
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_perf_mask)) {
 		tunables->up_rate_limit_us = 16000;
 		tunables->down_rate_limit_us = 1000;
-		tunables->hispeed_load = 50;
+		tunables->hispeed_load = 25;
 		tunables->hispeed_freq = 1382000;
 	}
 
