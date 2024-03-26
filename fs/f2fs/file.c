@@ -29,7 +29,6 @@
 #include "acl.h"
 #include "gc.h"
 #include "trace.h"
-#include <trace/events/f2fs.h>
 
 static vm_fault_t f2fs_filemap_fault(struct vm_fault *vmf)
 {
@@ -43,8 +42,6 @@ static vm_fault_t f2fs_filemap_fault(struct vm_fault *vmf)
 	if (!ret)
 		f2fs_update_iostat(F2FS_I_SB(inode), APP_MAPPED_READ_IO,
 							F2FS_BLKSIZE);
-
-	trace_f2fs_filemap_fault(inode, vmf->pgoff, (unsigned long)ret);
 
 	return ret;
 }
@@ -153,7 +150,6 @@ static vm_fault_t f2fs_vm_page_mkwrite(struct vm_fault *vmf)
 	f2fs_update_iostat(sbi, APP_MAPPED_IO, F2FS_BLKSIZE);
 	f2fs_update_time(sbi, REQ_TIME);
 
-	trace_f2fs_vm_page_mkwrite(page, DATA);
 out_sem:
 	up_read(&F2FS_I(inode)->i_mmap_sem);
 
@@ -260,8 +256,6 @@ static int f2fs_do_sync_file(struct file *file, loff_t start, loff_t end,
 	if (unlikely(f2fs_readonly(inode->i_sb)))
 		return 0;
 
-	trace_f2fs_sync_file_enter(inode);
-
 	if (S_ISDIR(inode->i_mode))
 		goto go_write;
 
@@ -272,7 +266,6 @@ static int f2fs_do_sync_file(struct file *file, loff_t start, loff_t end,
 	clear_inode_flag(inode, FI_NEED_IPU);
 
 	if (ret || is_sbi_flag_set(sbi, SBI_CP_DISABLED)) {
-		trace_f2fs_sync_file_exit(inode, cp_reason, datasync, ret);
 		return ret;
 	}
 
@@ -365,7 +358,6 @@ flush_out:
 	}
 	f2fs_update_time(sbi, REQ_TIME);
 out:
-	trace_f2fs_sync_file_exit(inode, cp_reason, datasync, ret);
 	return ret;
 }
 
@@ -625,8 +617,6 @@ void f2fs_truncate_data_blocks_range(struct dnode_of_data *dn, int count)
 	dn->ofs_in_node = ofs;
 
 	f2fs_update_time(sbi, REQ_TIME);
-	trace_f2fs_truncate_data_blocks_range(dn->inode, dn->nid,
-					 dn->ofs_in_node, nr_free);
 }
 
 void f2fs_truncate_data_blocks(struct dnode_of_data *dn)
@@ -676,8 +666,6 @@ int f2fs_do_truncate_blocks(struct inode *inode, u64 from, bool lock)
 	int count = 0, err = 0;
 	struct page *ipage;
 	bool truncate_page = false;
-
-	trace_f2fs_truncate_blocks_enter(inode, from);
 
 	free_from = (pgoff_t)F2FS_BLK_ALIGN(from);
 
@@ -729,7 +717,6 @@ free_partial:
 	if (!err)
 		err = truncate_partial_data_page(inode, from, truncate_page);
 
-	trace_f2fs_truncate_blocks_exit(inode, err);
 	return err;
 }
 
@@ -770,8 +757,6 @@ int f2fs_truncate(struct inode *inode)
 	if (!(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) ||
 				S_ISLNK(inode->i_mode)))
 		return 0;
-
-	trace_f2fs_truncate(inode);
 
 	if (time_to_inject(F2FS_I_SB(inode), FAULT_TRUNCATE)) {
 		f2fs_show_injection_info(F2FS_I_SB(inode), FAULT_TRUNCATE);
@@ -1766,7 +1751,6 @@ static long f2fs_fallocate(struct file *file, int mode,
 out:
 	inode_unlock(inode);
 
-	trace_f2fs_fallocate(inode, mode, offset, len, ret);
 	return ret;
 }
 
@@ -2244,7 +2228,6 @@ static int f2fs_ioc_shutdown(struct file *filp, unsigned long arg)
 				ret = 0;
 				f2fs_stop_checkpoint(sbi, false);
 				set_sbi_flag(sbi, SBI_IS_SHUTDOWN);
-				trace_f2fs_shutdown(sbi, in, ret);
 			}
 			return ret;
 		}
@@ -2302,8 +2285,6 @@ static int f2fs_ioc_shutdown(struct file *filp, unsigned long arg)
 out:
 	if (in != F2FS_GOING_DOWN_FULLSYNC)
 		mnt_drop_write_file(filp);
-
-	trace_f2fs_shutdown(sbi, in, ret);
 
 	return ret;
 }
@@ -3963,8 +3944,6 @@ write:
 	}
 	inode_unlock(inode);
 out:
-	trace_f2fs_file_write_iter(inode, iocb->ki_pos,
-					iov_iter_count(from), ret);
 	if (ret > 0)
 		ret = generic_write_sync(iocb, ret);
 	return ret;
