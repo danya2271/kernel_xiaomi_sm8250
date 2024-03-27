@@ -18,25 +18,25 @@
 #include <trace/events/power.h>
 #include <linux/sched/sysctl.h>
 
-static unsigned int default_efficient_freq_lp[] = {1344000, 1612800};
-static u64 default_up_delay_lp[] = {4 * NSEC_PER_MSEC, 20 * NSEC_PER_MSEC};
+static unsigned int default_efficient_freq_lp[] = {1612800};
+static u64 default_up_delay_lp[] = {20 * NSEC_PER_MSEC};
 
-static unsigned int default_efficient_freq_hp[] = {1056000, 1382000, 1766400};
-static u64 default_up_delay_hp[] = {2 * NSEC_PER_MSEC, 20 * NSEC_PER_MSEC, 60 * NSEC_PER_MSEC};
+static unsigned int default_efficient_freq_hp[] = {0};
+static u64 default_up_delay_hp[] = {0 * NSEC_PER_MSEC};
 
-static unsigned int default_efficient_freq_pr[] = {1190400};
+static unsigned int default_efficient_freq_pr[] = {844800};
 static u64 default_up_delay_pr[] = {100 * NSEC_PER_MSEC};
 
 #define DEFAULT_RTG_BOOST_FREQ_LP 1612800
-#define DEFAULT_RTG_BOOST_FREQ_HP 1382000
+#define DEFAULT_RTG_BOOST_FREQ_HP 1766400
 #define DEFAULT_RTG_BOOST_FREQ_PR 1401600
 
 #define DEFAULT_HISPEED_LOAD_LP 100
 #define DEFAULT_HISPEED_LOAD_HP 30
 #define DEFAULT_HISPEED_LOAD_PR 100
 
-#define DEFAULT_HISPEED_FREQ_LP 1344000
-#define DEFAULT_HISPEED_FREQ_HP 1382000
+#define DEFAULT_HISPEED_FREQ_LP 1612800
+#define DEFAULT_HISPEED_FREQ_HP 1766400
 #define DEFAULT_HISPEED_FREQ_PR 844800
 
 #define DEFAULT_PL_LP 0
@@ -1030,12 +1030,12 @@ static int sugov_init(struct cpufreq_policy *policy)
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_perf_mask)) {
-		tunables->up_rate_limit_us = 3000;
+		tunables->up_rate_limit_us = 500;
 		tunables->down_rate_limit_us = 500;
 	}
 
         if (cpumask_test_cpu(policy->cpu, cpu_prime_mask)) {
-                tunables->up_rate_limit_us = 3000;
+                tunables->up_rate_limit_us = 2000;
                 tunables->down_rate_limit_us = 0;
         }
 	
