@@ -5983,6 +5983,17 @@ schedtune_cpu_margin_with(unsigned long util, int cpu, struct task_struct *p)
 
 #endif /* CONFIG_SCHED_TUNE */
 
+#ifdef CONFIG_EXP_SCHED_OPTIM
+#define RT_LOAD (2*1023*NICE_0_LOAD)
+static inline unsigned long rt_load(int cpu)
+{
+	if (likely(!is_rt_throttle(cpu)))
+		return cpu_rq(cpu)->rt.rt_nr_running * RT_LOAD;
+
+	return 0;
+}
+#endif
+
 static struct sched_group *
 find_idlest_group(struct sched_domain *sd, struct task_struct *p,
 		  int this_cpu, int sd_flag);
@@ -6033,6 +6044,9 @@ find_idlest_group_cpu(struct sched_group *group, struct task_struct *p, int this
 			}
 		} else if (shallowest_idle_cpu == -1) {
 			load = cpu_load(cpu_rq(i));
+#ifdef CONFIG_EXP_SCHED_OPTIM
+			load += rt_load(i);
+#endif
 			if (load < min_load) {
 				min_load = load;
 				least_loaded_cpu = i;
@@ -6634,6 +6648,12 @@ static void find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 
 			if (sched_cpu_high_irqload(i))
 				continue;
+
+#ifdef CONFIG_EXP_SCHED_OPTIM
+			if (cpu_rq(i)->rt.rt_nr_running &&
+				likely(!is_rt_throttle(i)))
+				continue;
+#endif
 
 			if (fbt_env->skip_cpu == i)
 				continue;
@@ -7273,6 +7293,12 @@ static void select_cpu_candidates(struct sched_domain *sd, cpumask_t *cpus,
 			cpu_cap = capacity_of(cpu);
 			spare_cap = cpu_cap - util;
 
+#ifdef CONFIG_EXP_SCHED_OPTIM
+			if (cpu_rq(cpu)->rt.rt_nr_running &&
+				likely(!is_rt_throttle(cpu)))
+				continue;
+#endif
+
 			/*
 			 * Skip CPUs that cannot satisfy the capacity request.
 			 * IOW, placing the task there would make the CPU
@@ -7566,6 +7592,21 @@ unlock:
 	    (prev_energy != ULONG_MAX) && (best_energy_cpu != prev_cpu) &&
 	    ((prev_energy - best_energy) <= prev_energy >> 4))
 		best_energy_cpu = prev_cpu;
+
+#ifdef CONFIG_EXP_SCHED_OPTIM
+	if (prev_energy > best_energy)
+		return best_energy_cpu;
+
+	/* aovid round off or the task util is too small */
+	if (prev_energy == best_energy) {
+		int best_cpu_cap = capacity_orig_of(best_energy_cpu);
+		int prev_cpu_cap = capacity_orig_of(prev_cpu);
+
+		if (best_cpu_cap < prev_cpu_cap)
+			return best_energy_cpu;
+
+	}
+#endif
 
 done:
 
@@ -9030,6 +9071,12 @@ static unsigned long scale_rt_capacity(int cpu, unsigned long max)
 		return 1;
 
 	used = READ_ONCE(rq->avg_rt.util_avg);
+#ifdef CONFIG_EXP_SCHED_OPTIM
+	if (unlikely(is_rt_throttle(cpu)) || !(rq->rt.rt_nr_running)) {
+		/* mtk: don't reduce capacity when rt task throttle or sleep*/
+		used = 0;
+	}
+#endif
 	used += READ_ONCE(rq->avg_dl.util_avg);
 
 	if (unlikely(used >= max))
