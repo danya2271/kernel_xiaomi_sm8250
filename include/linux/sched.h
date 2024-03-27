@@ -31,6 +31,9 @@
 #include <linux/rseq.h>
 #include <linux/android_kabi.h>
 
+#ifdef CONFIG_EXP_SCHED_OPTIM
+extern bool is_rt_throttle(int cpu);
+#endif
 /* task_struct member predeclarations (sorted alphabetically): */
 struct audit_context;
 struct backing_dev_info;
