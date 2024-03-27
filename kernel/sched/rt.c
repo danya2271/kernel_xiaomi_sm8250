@@ -1905,9 +1905,6 @@ static int find_lowest_rq(struct task_struct *task)
 #ifdef CONFIG_EXP_SCHED_OPTIM
 	/* Choose task_cpu if it is idle and it fits lowest_mask */
 	if (cpumask_test_cpu(cpu, lowest_mask) && idle_cpu(cpu) &&
-#if defined(CONFIG_ENERGY_MODEL) && defined(CONFIG_CPU_FREQ_GOV_SCHEDUTIL)
-		cpu_is_slowest(cpu) &&
-#endif
 		!cpu_isolated(cpu))
 		return cpu;
 #endif
