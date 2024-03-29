@@ -9131,11 +9131,6 @@ redo:
 
 		continue;
 next:
-#ifdef CONFIG_SCHED_WALT
-		trace_sched_load_balance_skip_tasks(env->src_cpu, env->dst_cpu,
-				env->src_grp_type, p->pid, load, task_util(p),
-				cpumask_bits(&p->cpus_allowed)[0]);
-#endif
 		list_move(&p->se.group_node, tasks);
 	}
 
@@ -9695,7 +9690,7 @@ group_is_overloaded(struct lb_env *env, struct sg_lb_stats *sgs)
 		return false;
 
 #ifdef CONFIG_SCHED_WALT
-	if (env->idle != CPU_NOT_IDLE && walt_rotation_enabled)
+	if (walt_rotation_enabled)
 		return true;
 #endif
 
