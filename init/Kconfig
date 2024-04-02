@@ -1164,11 +1164,6 @@ config CHECKPOINT_RESTORE
 
 	  If unsure, say N here.
 
-config EXP_SCHED_OPTIM
-	bool "Load balance optimization for scheduler"
-	help
-		Experimental changes
-
 config SCHED_CASS
 	bool "Capacity Aware Superset Scheduler"
 	depends on SMP
