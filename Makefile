@@ -710,11 +710,6 @@ KBUILD_AFLAGS   += -O2
 KBUILD_LDFLAGS  += -O2
 endif
 
-ifeq ($(cc-name),clang)
-#Enable fast FMA optimizations
-KBUILD_CFLAGS   += -ffp-contract=fast
-endif
-
 ifdef CONFIG_POLLY_CLANG
 POLLY_FLAGS	+= -mllvm -polly \
 		   -mllvm -polly-parallel \
