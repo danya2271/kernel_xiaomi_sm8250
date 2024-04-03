@@ -9375,7 +9375,7 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 		if (cpu_isolated(i))
 			continue;
 
-		if ((env->flags & LBF_NOHZ_STATS) && update_nohz_stats(rq, false))
+		if ((env->flags & LBF_NOHZ_STATS) && update_nohz_stats(rq))
 			env->flags |= LBF_NOHZ_AGAIN;
 
 		sgs->group_load += cpu_load(rq);
