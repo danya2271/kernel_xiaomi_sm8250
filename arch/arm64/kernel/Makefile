@@ -3,6 +3,12 @@
 # Makefile for the linux kernel.
 #
 
+ccflags-y += -fforce-emit-vtables
+ccflags-y += -mllvm --enable-merge-functions
+ccflags-y += -mllvm -inline-threshold=343
+ccflags-y += -mllvm -unroll-threshold=98
+ccflags-y += -mllvm -inlinehint-threshold=169
+
 CPPFLAGS_vmlinux.lds	:= -DTEXT_OFFSET=$(TEXT_OFFSET)
 AFLAGS_head.o		:= -DTEXT_OFFSET=$(TEXT_OFFSET)
 CFLAGS_armv8_deprecated.o := -I$(src)
