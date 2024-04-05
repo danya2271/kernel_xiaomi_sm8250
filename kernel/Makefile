@@ -3,6 +3,13 @@
 # Makefile for the linux kernel.
 #
 
+ccflags-y += -Ofast
+ccflags-y += -fforce-emit-vtables
+ccflags-y += -mllvm --enable-merge-functions
+ccflags-y += -mllvm -inline-threshold=488
+ccflags-y += -mllvm -unroll-threshold=169
+ccflags-y += -mllvm -inlinehint-threshold=255
+
 obj-y     = fork.o exec_domain.o panic.o \
 	    cpu.o exit.o softirq.o resource.o \
 	    sysctl.o sysctl_binary.o capability.o ptrace.o user.o \
