@@ -743,14 +743,14 @@ KBUILD_AFLAGS += -fno-rtti
 KBUILD_AFLAGS += -fmerge-all-constants
 KBUILD_AFLAGS += -mrelax-all
 
-#Enable hot cold split optimization
-KBUILD_CFLAGS   += -mllvm -hot-cold-split=true
-
 ifdef CONFIG_POLLY_CLANG
 POLLY_FLAGS	+= -mllvm -polly \
 		   -mllvm -polly-ast-use-context \
 		   -mllvm -polly-invariant-load-hoisting \
 		   -mllvm -polly-run-inliner \
+		   -mllvm -polly-omp-backend=LLVM \
+		   -mllvm -polly-scheduling=dynamic \
+		   -mllvm -polly-scheduling-chunksize=1 \
 		   -mllvm -polly-vectorizer=stripmine
 ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 130000; echo $$?),0)
 POLLY_FLAGS	+= -mllvm -polly-loopfusion-greedy=1 \
