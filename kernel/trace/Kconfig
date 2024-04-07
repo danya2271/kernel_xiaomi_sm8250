@@ -823,3 +823,9 @@ endif # FTRACE
 
 endif # TRACING_SUPPORT
 
+config NO_LOG
+	bool "NO_LOG"
+	default y if !DEBUG_KERNEL
+	help
+		Explicitely disable logging in kernel
+
