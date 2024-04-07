@@ -715,6 +715,34 @@ ifeq ($(cc-name),clang)
 KBUILD_CFLAGS   += -ffp-contract=fast
 endif
 
+# Additional optimizations for better kernel speed
+KBUILD_CFLAGS +=  -mllvm -enable-load-pre
+KBUILD_CFLAGS +=  -mllvm -enable-loop-distribute
+KBUILD_CFLAGS +=  -mllvm -enable-post-misched
+KBUILD_CFLAGS +=  -mllvm -enable-pre
+KBUILD_CFLAGS +=  -mllvm -enable-tail-merge
+KBUILD_CFLAGS +=  -falign-functions
+KBUILD_CFLAGS +=  -fomit-frame-pointer
+KBUILD_CFLAGS +=  -funroll-loops
+KBUILD_CFLAGS +=  -fno-strict-aliasing
+KBUILD_CFLAGS +=  -ggdb
+KBUILD_LDFLAGS += -z separate-code
+KBUILD_LDFLAGS += -z lazy
+KBUILD_LDFLAGS += -z nocopyreloc
+KBUILD_LDFLAGS += -z now
+KBUILD_LDFLAGS += -z combreloc
+KBUILD_LDFLAGS += -O3
+KBUILD_LDFLAGS += --disable-new-dtags
+KBUILD_AFLAGS += -ffunction-sections
+KBUILD_AFLAGS += -fdata-sections
+KBUILD_AFLAGS += -fno-exceptions
+KBUILD_AFLAGS += -fno-rtti
+KBUILD_AFLAGS += -fmerge-all-constants
+KBUILD_AFLAGS += -mrelax-all
+
+#Enable hot cold split optimization
+KBUILD_CFLAGS   += -mllvm -hot-cold-split=true
+
 ifdef CONFIG_POLLY_CLANG
 POLLY_FLAGS	+= -mllvm -polly \
 		   -mllvm -polly-ast-use-context \
@@ -916,7 +944,7 @@ endif
 lto-clang-flags += -fvisibility=default $(call cc-option, -fsplit-lto-unit)
 
 # Limit inlining across translation units to reduce binary size
-LD_FLAGS_LTO_CLANG := -mllvm -import-instr-limit=5
+LD_FLAGS_LTO_CLANG := -mllvm -import-instr-limit=65
 
 KBUILD_LDFLAGS += $(LD_FLAGS_LTO_CLANG)
 KBUILD_LDFLAGS_MODULE += $(LD_FLAGS_LTO_CLANG)
