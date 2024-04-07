@@ -288,6 +288,7 @@ extern int kptr_restrict;
 #define pr_fmt(fmt) fmt
 #endif
 
+#ifndef CONFIG_NO_LOG
 /*
  * These can be used to print at the various log levels.
  * All of these will print unconditionally, although note that pr_debug()
@@ -316,6 +317,17 @@ extern int kptr_restrict;
  */
 #define pr_cont(fmt, ...) \
 	printk(KERN_CONT fmt, ##__VA_ARGS__)
+#else /* CONFIG_NO_LOG */
+#define pr_emerg(fmt, ...)  do {} while (0)
+#define pr_alert(fmt, ...) do {} while (0)
+#define pr_crit(fmt, ...) do {} while (0)
+#define pr_err(fmt, ...) do {} while (0)
+#define pr_warning(fmt, ...) do {} while (0)
+#define pr_warn pr_warning
+#define pr_notice(fmt, ...) do {} while (0)
+#define pr_info(fmt, ...) do {} while (0)
+#define pr_cont(fmt, ...) do {} while (0)
+#endif /* CONFIG_NO_LOG */
 
 /* pr_devel() should produce zero code unless DEBUG is defined */
 #ifdef DEBUG
