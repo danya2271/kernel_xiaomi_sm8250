@@ -233,6 +233,8 @@ SECTIONS
 
 	BSS_SECTION(0, 0, 0)
 
+	PGO_CLANG_DATA
+
 	. = ALIGN(PAGE_SIZE);
 	idmap_pg_dir = .;
 	. += IDMAP_DIR_SIZE;

@@ -39,6 +39,8 @@ ifdef RTIC_MPGEN
 DTB_OBJS += rtic_mp.dtb
 endif
 
+PGO_PROFILE := n
+
 rtic_mp.dtb: vmlinux FORCE
 	$(DTC) -O dtb -o rtic_mp.dtb -b 0 $(DTC_FLAGS) rtic_mp.dts
 
