@@ -18,7 +18,7 @@
 #include <linux/cpu_suspend.h>
 bool screen_off;
 // Leave 2 little cores for AOD
-inline void suspend_cpus_aod(void) {
+void suspend_cpus_aod(void) {
 	unsigned int cpu;
     printk("Killing cpu's");
 	for_each_present_cpu(cpu)
@@ -27,7 +27,7 @@ inline void suspend_cpus_aod(void) {
     printk("Cpu's died");
 }
 
-inline void suspend_cpus(void) {
+void suspend_cpus(void) {
 	unsigned int cpu;
     printk("Killing cpu's");
 	for_each_present_cpu(cpu)
@@ -36,7 +36,7 @@ inline void suspend_cpus(void) {
     printk("Cpu's died");
 }
 
-inline void activate_cpus(void) {
+void activate_cpus(void) {
 	unsigned int cpu;
     printk("Bringing cpu's");
 	for_each_present_cpu(cpu) {
