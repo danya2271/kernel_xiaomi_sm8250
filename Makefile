@@ -722,6 +722,10 @@ ifeq ($(cc-name),clang)
 KBUILD_CFLAGS   += -ffp-contract=fast
 endif
 
+ifneq ($(cc-name),clang)
+KBUILD_CFLAGS += -Wno-format -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-enum-int-mismatch -Wno-uninitialized -Wno-address
+endif
+ifeq ($(cc-name),clang)
 # Additional optimizations for better kernel speed
 KBUILD_CFLAGS +=  -mllvm -enable-load-pre
 KBUILD_CFLAGS +=  -mllvm -enable-loop-distribute
@@ -733,12 +737,13 @@ KBUILD_CFLAGS +=  -fomit-frame-pointer
 KBUILD_CFLAGS +=  -funroll-loops
 KBUILD_CFLAGS +=  -fno-strict-aliasing
 KBUILD_CFLAGS +=  -ggdb
+KBUILD_CFLAGS += -fno-trapping-math -fno-math-errno
 KBUILD_LDFLAGS += -z separate-code
 KBUILD_LDFLAGS += -z lazy
 KBUILD_LDFLAGS += -z nocopyreloc
 KBUILD_LDFLAGS += -z now
 KBUILD_LDFLAGS += -z combreloc
-KBUILD_LDFLAGS += -O3
+KBUILD_LDFLAGS += -O3 --plugin-opt=O3
 KBUILD_LDFLAGS += --disable-new-dtags
 KBUILD_AFLAGS += -ffunction-sections
 KBUILD_AFLAGS += -fdata-sections
@@ -746,6 +751,7 @@ KBUILD_AFLAGS += -fno-exceptions
 KBUILD_AFLAGS += -fno-rtti
 KBUILD_AFLAGS += -fmerge-all-constants
 KBUILD_AFLAGS += -mrelax-all
+endif
 
 ifdef CONFIG_POLLY_CLANG
 POLLY_FLAGS	+= -mllvm -polly \
