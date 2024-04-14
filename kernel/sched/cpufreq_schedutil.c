@@ -307,7 +307,6 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 				policy->cpuinfo.max_freq : policy->cur;
 
 	freq = map_util_freq(util, freq, max);
-	trace_sugov_next_freq(policy->cpu, util, max, freq);
 
 	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update)
 		return sg_policy->next_freq;
@@ -1275,14 +1274,14 @@ static int sugov_init(struct cpufreq_policy *policy)
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_perf_mask)) {
-		tunables->up_rate_limit_us = 5000;
+		tunables->up_rate_limit_us = 6000;
 		tunables->down_rate_limit_us = 500;
 		tunables->hispeed_load = 40;
 		tunables->hispeed_freq = 1382000;
 	}
 
         if (cpumask_test_cpu(policy->cpu, cpu_prime_mask)) {
-                tunables->up_rate_limit_us = 5000;
+                tunables->up_rate_limit_us = 6000;
                 tunables->down_rate_limit_us = 0;
 				tunables->hispeed_load = 40;
 				tunables->hispeed_freq = 1401600;
