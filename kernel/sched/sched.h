@@ -2254,8 +2254,6 @@ static inline unsigned long cpu_util_cum(int cpu, int delta)
 
 #ifdef CONFIG_SCHED_WALT
 	util = cpu_util(cpu);
-#else
-	util = __cpu_util(cpu);
 #endif
 
 	delta += util;
