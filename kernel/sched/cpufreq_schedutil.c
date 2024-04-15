@@ -1125,14 +1125,14 @@ static int sugov_init(struct cpufreq_policy *policy)
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_perf_mask)) {
-		tunables->up_rate_limit_us = 6000;
+		tunables->up_rate_limit_us = 10000;
 		tunables->down_rate_limit_us = 500;
 		tunables->hispeed_load = 40;
 		tunables->hispeed_freq = 1382000;
 	}
 
         if (cpumask_test_cpu(policy->cpu, cpu_prime_mask)) {
-                tunables->up_rate_limit_us = 6000;
+                tunables->up_rate_limit_us = 12000;
                 tunables->down_rate_limit_us = 0;
 				tunables->hispeed_load = 40;
 				tunables->hispeed_freq = 1401600;
