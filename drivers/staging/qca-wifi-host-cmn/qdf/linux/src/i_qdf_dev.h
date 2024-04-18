@@ -112,7 +112,8 @@ static inline QDF_STATUS
 __qdf_dev_set_irq_affinity(uint32_t irnum, struct qdf_cpu_mask *cpmask)
 {
 	int ret;
-
+	if (IS_ENABLED(CONFIG_IRQ_SBALANCE))
+		return 0;
 	ret = irq_set_affinity_hint(irnum, (struct cpumask *)cpmask);
 	return qdf_status_from_os_return(ret);
 }
