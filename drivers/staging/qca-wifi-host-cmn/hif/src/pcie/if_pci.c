@@ -3631,6 +3631,8 @@ void hif_pci_irq_set_affinity_hint(
 	int i, ret;
 	unsigned int cpus;
 	bool mask_set = false;
+	if (IS_ENABLED(CONFIG_IRQ_SBALANCE))
+		return 0;
 
 	for (i = 0; i < hif_ext_group->numirq; i++)
 		qdf_cpumask_clear(&hif_ext_group->new_cpu_mask[i]);
