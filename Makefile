@@ -748,7 +748,9 @@ KBUILD_CFLAGS +=  -falign-functions
 KBUILD_CFLAGS +=  -fomit-frame-pointer
 KBUILD_CFLAGS +=  -funroll-loops
 KBUILD_CFLAGS +=  -fno-strict-aliasing
-KBUILD_CFLAGS +=  -ggdb
+KBUILD_CFLAGS +=  -fvectorize -fmerge-all-constants -finline-functions  -fno-semantic-interposition -fno-signed-zeros  -ffinite-math-only -freciprocal-math -fcf-protection=none -ffast-math
+KBUILD_CFLAGS +=  -fforce-emit-vtables
+KBUILD_CFLAGS +=  -mllvm --enable-merge-functions
 KBUILD_CFLAGS += -fno-trapping-math -fno-math-errno
 KBUILD_LDFLAGS += -z separate-code
 KBUILD_LDFLAGS += -z lazy
@@ -763,6 +765,30 @@ KBUILD_AFLAGS += -fno-exceptions
 KBUILD_AFLAGS += -fno-rtti
 KBUILD_AFLAGS += -fmerge-all-constants
 KBUILD_AFLAGS += -mrelax-all
+else
+KBUILD_CFLAGS +=  -falign-functions
+KBUILD_CFLAGS +=  -fomit-frame-pointer
+KBUILD_CFLAGS +=  -funroll-loops
+KBUILD_CFLAGS +=  -fno-strict-aliasing
+KBUILD_CFLAGS += -fno-trapping-math -fno-math-errno
+KBUILD_CFLAGS +=  -fipa-pta -fipa-sra -frename-registers
+KBUILD_CFLAGS +=  -falign-functions
+KBUILD_CFLAGS +=  -falign-loops
+KBUILD_CFLAGS +=  -fno-trapv
+KBUILD_CFLAGS +=  -fno-wrapv
+KBUILD_CFLAGS +=  -funsafe-loop-optimizations
+KBUILD_CFLAGS +=  -floop-interchange -fdelete-null-pointer-checks
+KBUILD_LDFLAGS += -z separate-code
+KBUILD_LDFLAGS += -z lazy
+KBUILD_LDFLAGS += -z nocopyreloc
+KBUILD_LDFLAGS += -z now
+KBUILD_LDFLAGS += -z combreloc
+KBUILD_LDFLAGS += --disable-new-dtags
+KBUILD_AFLAGS += -ffunction-sections
+KBUILD_AFLAGS += -fdata-sections
+KBUILD_AFLAGS += -fno-exceptions
+KBUILD_AFLAGS += -fno-rtti
+KBUILD_AFLAGS += -fmerge-all-constants
 endif
 
 #Enable hot cold split optimization
@@ -824,6 +850,20 @@ stackp-flags-$(CONFIG_STACKPROTECTOR)             := -fstack-protector
 stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
 
 KBUILD_CFLAGS += $(stackp-flags-y)
+
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS	+= -mllvm -inline-threshold=1500
+KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=1850
+KBUILD_CFLAGS   += -mllvm -inlinehint-threshold=1025
+else ifeq ($(cc-name),gcc)
+KBUILD_CFLAGS	+= --param max-inline-insns-auto=500
+
+# We limit inlining to 5KB on the stack.
+KBUILD_CFLAGS	+= --param large-stack-frame=1288
+
+KBUILD_CFLAGS	+= --param inline-min-speedup=5
+KBUILD_CFLAGS	+= --param inline-unit-growth=60
+endif
 
 ifeq ($(cc-name),clang)
 ifneq ($(CROSS_COMPILE),)
