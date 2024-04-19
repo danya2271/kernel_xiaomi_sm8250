@@ -2,6 +2,8 @@
 #
 # Makefile for msm-bus driver specific files
 #
+PGO_PROFILE := n
+
 obj-y +=  msm_bus_core.o msm_bus_client_api.o
 obj-$(CONFIG_OF) += msm_bus_of.o
 obj-$(CONFIG_MSM_RPM_SMD) += msm_bus_rpm_smd.o
