@@ -146,6 +146,9 @@ enum {
 
 /* struct worker is defined in workqueue_internal.h */
 
+int thr;
+int thr_del;
+
 struct worker_pool {
 	spinlock_t		lock;		/* the pool lock */
 	int			cpu;		/* I: the associated cpu */
@@ -1425,8 +1428,15 @@ static void __queue_work(int cpu, struct workqueue_struct *wq,
 	    WARN_ON_ONCE(!is_chained_work(wq)))
 		return;
 
-	if (req_cpu == WORK_CPU_UNBOUND)
-		cpu = wq_select_unbound_cpu(0);
+	if (req_cpu == WORK_CPU_UNBOUND) {
+			if (thr <= 3) {
+				//printk("Debugging Cpu Workqueue %d", thr);
+				cpu = thr;
+				thr += 1;
+			} else {
+				thr = 0;
+			}
+	}
 retry:
 	/* pwq which will be used unless @work is executing elsewhere */
 	if (wq->flags & WQ_UNBOUND) {
@@ -1553,6 +1563,13 @@ static void __queue_delayed_work(int cpu, struct workqueue_struct *wq,
 {
 	struct timer_list *timer = &dwork->timer;
 	struct work_struct *work = &dwork->work;
+	if (thr_del <= 3) {
+		//printk("Debugging Cpu Workqueue %d", thr_del);
+		cpu = thr_del;
+		thr_del += 1;
+	} else {
+		thr_del = 0;
+	}
 
 	WARN_ON_ONCE(!wq);
 #ifndef CONFIG_CFI_CLANG
@@ -4392,8 +4409,15 @@ bool workqueue_congested(int cpu, struct workqueue_struct *wq)
 
 	rcu_read_lock_sched();
 
-	if (cpu == WORK_CPU_UNBOUND)
-		cpu = 0;
+	if (cpu == WORK_CPU_UNBOUND) {
+			if (thr <= 3) {
+				//printk("Debugging Cpu Workqueue %d", thr);
+				cpu = thr;
+				thr += 1;
+			} else {
+				thr = 0;
+			}
+	}
 
 	if (!(wq->flags & WQ_UNBOUND))
 		pwq = per_cpu_ptr(wq->cpu_pwqs, cpu);
