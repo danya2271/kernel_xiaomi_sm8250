@@ -67,7 +67,7 @@ endif
 
 # From arm vDSO Makefile
 VDSO_CAFLAGS += -fPIC -fno-builtin -fno-stack-protector
-VDSO_CAFLAGS += -DDISABLE_BRANCH_PROFILING
+VDSO_CAFLAGS += -DDISABLE_BRANCH_
 
 
 # Try to compile for ARMv8. If the compiler is too old and doesn't support it,

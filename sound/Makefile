@@ -1,6 +1,14 @@
 # SPDX-License-Identifier: GPL-2.0
 # Makefile for the Linux sound card driver
 #
+ifeq ($(cc-name),gcc)
+KBUILD_CFLAGS	+= --param max-inline-insns-auto=1
+
+KBUILD_CFLAGS	+= --param large-stack-frame=1
+
+KBUILD_CFLAGS	+= --param inline-min-speedup=1
+KBUILD_CFLAGS	+= --param inline-unit-growth=1
+endif
 
 obj-$(CONFIG_SOUND) += soundcore.o
 obj-$(CONFIG_DMASOUND) += oss/dmasound/

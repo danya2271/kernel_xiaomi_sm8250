@@ -1,0 +1,1 @@
+make: *** [Makefile:153: sub-make] Прерывание

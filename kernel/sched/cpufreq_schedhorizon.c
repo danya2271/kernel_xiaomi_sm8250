@@ -22,10 +22,10 @@ static unsigned int default_efficient_freq_lp[] = {1612800};
 static u64 default_up_delay_lp[] = {2 * NSEC_PER_MSEC};
 
 static unsigned int default_efficient_freq_hp[] = {1382000, 1958400};
-static u64 default_up_delay_hp[] = {20 * NSEC_PER_MSEC, 250 * NSEC_PER_MSEC};
+static u64 default_up_delay_hp[] = {55 * NSEC_PER_MSEC, 250 * NSEC_PER_MSEC};
 
-static unsigned int default_efficient_freq_pr[] = {1401200, 1862400};
-static u64 default_up_delay_pr[] = {20 * NSEC_PER_MSEC, 250 * NSEC_PER_MSEC};
+static unsigned int default_efficient_freq_pr[] = {844800, 1862400};
+static u64 default_up_delay_pr[] = {40 * NSEC_PER_MSEC, 250 * NSEC_PER_MSEC};
 
 #define DEFAULT_RTG_BOOST_FREQ_LP 1612800
 #define DEFAULT_RTG_BOOST_FREQ_HP 1382000
@@ -418,7 +418,7 @@ unsigned long schedhorizon_cpu_util(int cpu, unsigned long util_cfs,
 static unsigned long sugov_get_util(struct sugov_cpu *sg_cpu)
 {
 	struct rq *rq = cpu_rq(sg_cpu->cpu);
-	unsigned long max = arch_scale_cpu_capacity(NULL, sg_cpu->cpu);
+	unsigned long max = arch_scale_cpu_capacity(sg_cpu->cpu);
 
 	sg_cpu->max = max;
 	sg_cpu->bw_dl = cpu_bw_dl(rq);
