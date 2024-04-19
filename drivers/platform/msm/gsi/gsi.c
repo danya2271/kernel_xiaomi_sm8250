@@ -37,11 +37,9 @@
  #define EXPORT_SYMBOL(x)
 #endif
 
-#ifndef CONFIG_DEBUG_FS
 void gsi_debugfs_init(void)
 {
 }
-#endif
 
 static const struct of_device_id msm_gsi_match[] = {
 	{ .compatible = "qcom,msm_gsi", },
