@@ -74,8 +74,8 @@ walt_dec_cfs_rq_stats(struct cfs_rq *cfs_rq, struct task_struct *p) {}
  *
  * (default: 6ms * (1 + ilog(ncpus)), units: nanoseconds)
  */
-unsigned int sysctl_sched_latency			= 6000000ULL;
-unsigned int normalized_sysctl_sched_latency		= 6000000ULL;
+unsigned int sysctl_sched_latency			= 10000000ULL;
+unsigned int normalized_sysctl_sched_latency		= 10000000ULL;
 
 /*
  * Enable/disable honoring sync flag in energy-aware wakeups.
@@ -98,15 +98,15 @@ unsigned int sysctl_sched_cstate_aware = 1;
  *
  * (default SCHED_TUNABLESCALING_LOG = *(1+ilog(ncpus))
  */
-enum sched_tunable_scaling sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_LOG;
+enum sched_tunable_scaling sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_NONE;
 
 /*
  * Minimal preemption granularity for CPU-bound tasks:
  *
  * (default: 0.75 msec * (1 + ilog(ncpus)), units: nanoseconds)
  */
-unsigned int sysctl_sched_min_granularity		= 750000ULL;
-unsigned int normalized_sysctl_sched_min_granularity	= 750000ULL;
+unsigned int sysctl_sched_min_granularity		= 1250000ULL;
+unsigned int normalized_sysctl_sched_min_granularity	= 1250000ULL;
 
 /*
  * This value is kept at sysctl_sched_latency/sysctl_sched_min_granularity
@@ -7147,6 +7147,7 @@ calc_energy(struct em_calc *ec, struct task_struct *p, struct perf_domain *pd,
 	 * ratio (sum_util / cpu_capacity) is already enough to scale the EM
 	 * reported power consumption at the (eventually clamped) cpu_capacity.
 	 */
+#ifdef CONFIG_CPUFREQ_SCHEDUTIL
 	ec->energy_util = schedutil_cpu_util(cpu, util_cfs, cpu_cap,
 						       ENERGY_UTIL, NULL);
 
@@ -7159,6 +7160,20 @@ calc_energy(struct em_calc *ec, struct task_struct *p, struct perf_domain *pd,
 	ec->cpu_util = schedutil_cpu_util(cpu, util_cfs, cpu_cap,
 						    FREQUENCY_UTIL,
 						    cpu == dst ? p : NULL);
+#else
+	ec->energy_util = schedhorizon_cpu_util(cpu, util_cfs, cpu_cap,
+						       ENERGY_UTIL, NULL);
+
+	/*
+	 * Performance domain frequency: utilization clamping must be considered
+	 * since it affects the selection of the performance domain frequency.
+	 * NOTE: in case RT tasks are running, by default the FREQUENCY_UTIL's
+	 * utilization can be max OPP.
+	 */
+	ec->cpu_util = schedhorizon_cpu_util(cpu, util_cfs, cpu_cap,
+						    FREQUENCY_UTIL,
+						    cpu == dst ? p : NULL);
+#endif
 }
 
 /*
