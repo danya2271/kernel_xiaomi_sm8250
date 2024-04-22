@@ -852,9 +852,9 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
 KBUILD_CFLAGS += $(stackp-flags-y)
 
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS	+= -mllvm -inline-threshold=1650
-KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=1950
-KBUILD_CFLAGS   += -mllvm -inlinehint-threshold=1325
+KBUILD_CFLAGS	+= -mllvm -inline-threshold=1525
+KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=1875
+KBUILD_CFLAGS   += -mllvm -inlinehint-threshold=1075
 else ifeq ($(cc-name),gcc)
 KBUILD_CFLAGS	+= --param max-inline-insns-auto=500
 
