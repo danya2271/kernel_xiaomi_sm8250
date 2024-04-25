@@ -3,6 +3,8 @@
  * Copyright (c) 2014-2015, 2017-2019, The Linux Foundation. All rights reserved.
  */
 
+#include <linux/coresight.h>
+#include <linux/coresight-cti.h>
 #include <linux/workqueue.h>
 #include <linux/sched/clock.h>
 #include <soc/qcom/sysmon.h>
@@ -47,6 +49,48 @@ static const int required_gpios[] = {
 };
 
 void *ipc_log;
+
+static void mdm_debug_gpio_show(struct mdm_ctrl *mdm)
+{
+	struct device *dev = mdm->dev;
+
+	dev_dbg(dev, "%s: MDM2AP_ERRFATAL gpio = %d\n",
+			__func__, MDM_GPIO(mdm, MDM2AP_ERRFATAL));
+	dev_dbg(dev, "%s: AP2MDM_ERRFATAL gpio = %d\n",
+			__func__, MDM_GPIO(mdm, AP2MDM_ERRFATAL));
+	dev_dbg(dev, "%s: MDM2AP_STATUS gpio = %d\n",
+			__func__, MDM_GPIO(mdm, MDM2AP_STATUS));
+	dev_dbg(dev, "%s: AP2MDM_STATUS gpio = %d\n",
+			__func__, MDM_GPIO(mdm, AP2MDM_STATUS));
+	dev_dbg(dev, "%s: AP2MDM_SOFT_RESET gpio = %d\n",
+			__func__, MDM_GPIO(mdm, AP2MDM_SOFT_RESET));
+	dev_dbg(dev, "%s: MDM2AP_WAKEUP gpio = %d\n",
+			__func__, MDM_GPIO(mdm, MDM2AP_WAKEUP));
+	dev_dbg(dev, "%s: AP2MDM_WAKEUP gpio = %d\n",
+			 __func__, MDM_GPIO(mdm, AP2MDM_WAKEUP));
+	dev_dbg(dev, "%s: AP2MDM_PMIC_PWR_EN gpio = %d\n",
+			 __func__, MDM_GPIO(mdm, AP2MDM_PMIC_PWR_EN));
+	dev_dbg(dev, "%s: MDM2AP_PBLRDY gpio = %d\n",
+			 __func__, MDM_GPIO(mdm, MDM2AP_PBLRDY));
+	dev_dbg(dev, "%s: AP2MDM_VDDMIN gpio = %d\n",
+			 __func__, MDM_GPIO(mdm, AP2MDM_VDDMIN));
+	dev_dbg(dev, "%s: MDM2AP_VDDMIN gpio = %d\n",
+			 __func__, MDM_GPIO(mdm, MDM2AP_VDDMIN));
+}
+
+static void mdm_debug_gpio_ipc_log(struct mdm_ctrl *mdm)
+{
+	esoc_mdm_log("MDM2AP_ERRFATAL gpio = %d\n",
+			MDM_GPIO(mdm, MDM2AP_ERRFATAL));
+	esoc_mdm_log("AP2MDM_ERRFATAL gpio = %d\n",
+			MDM_GPIO(mdm, AP2MDM_ERRFATAL));
+	esoc_mdm_log("MDM2AP_STATUS gpio = %d\n",
+			MDM_GPIO(mdm, MDM2AP_STATUS));
+	esoc_mdm_log("AP2MDM_STATUS gpio = %d\n",
+			MDM_GPIO(mdm, AP2MDM_STATUS));
+	esoc_mdm_log("AP2MDM_SOFT_RESET gpio = %d\n",
+			MDM_GPIO(mdm, AP2MDM_SOFT_RESET));
+}
 
 static void mdm_enable_irqs(struct mdm_ctrl *mdm)
 {
@@ -125,6 +169,14 @@ static void mdm_update_gpio_configs(struct mdm_ctrl *mdm,
 
 static void mdm_trigger_dbg(struct mdm_ctrl *mdm)
 {
+	int ret;
+
+	if (mdm->dbg_mode && !mdm->trig_cnt) {
+		ret = coresight_cti_pulse_trig(mdm->cti, MDM_CTI_CH);
+		mdm->trig_cnt++;
+		if (ret)
+			dev_err(mdm->dev, "unable to trigger cti pulse on\n");
+	}
 }
 
 static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
@@ -159,6 +211,7 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 		break;
 	case ESOC_PWR_OFF:
 		mdm_disable_irqs(mdm);
+		mdm->debug = 0;
 		mdm->ready = false;
 		mdm->trig_cnt = 0;
 		if (esoc->primary)
@@ -184,6 +237,7 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 	case ESOC_FORCE_PWR_OFF:
 		if (!graceful_shutdown && esoc->subsys.sysmon_shutdown_ret) {
 			mdm_disable_irqs(mdm);
+			mdm->debug = 0;
 			mdm->ready = false;
 			mdm->trig_cnt = 0;
 
@@ -216,22 +270,39 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 		mdm_toggle_soft_reset(mdm, false);
 		break;
 	case ESOC_PREPARE_DEBUG:
+		/*
+		 * disable all irqs except request irq (pblrdy)
+		 * force a reset of the mdm by signaling
+		 * an APQ crash, wait till mdm is ready for ramdumps.
+		 */
+		mdm->ready = false;
+		esoc_mdm_log(
+		"ESOC_PREPARE_DEBUG: Cancelling the status check work\n");
+		cancel_delayed_work(&mdm->mdm2ap_status_check_work);
+		if (!mdm->esoc->auto_boot) {
+			esoc_mdm_log(
+			"ESOC_PREPARE_DEBUG: setting AP2MDM_ERRFATAL = 1\n");
+			gpio_set_value(MDM_GPIO(mdm, AP2MDM_ERRFATAL), 1);
+			dev_dbg(mdm->dev,
+				"set ap2mdm errfatal to force reset\n");
+			msleep(mdm->ramdump_delay_ms);
+		}
 		break;
 	case ESOC_EXE_DEBUG:
-/*		mdm->trig_cnt = 0;
+		mdm->trig_cnt = 0;
 
 		if (mdm->skip_restart_for_mdm_crash)
 			break;
 
 		esoc_mdm_log("ESOC_EXE_DEBUG: Resetting the modem\n");
 		mdm->debug = 1;
-		mdm_toggle_soft_reset(mdm, false);*/
+		mdm_toggle_soft_reset(mdm, false);
 		/*
 		 * wait for ramdumps to be collected
 		 * then power down the mdm and switch gpios to booting
 		 * config
 		 */
-		/*esoc_mdm_log(
+		esoc_mdm_log(
 		"ESOC_EXE_DEBUG: Waiting for ramdumps to be collected\n");
 		wait_for_completion(&mdm->debug_done);
 		if (mdm->debug_fail) {
@@ -243,9 +314,17 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 		}
 		dev_dbg(mdm->dev, "ramdump collection done\n");
 		mdm->debug = 0;
-		init_completion(&mdm->debug_done);*/
+		init_completion(&mdm->debug_done);
 		break;
 	case ESOC_EXIT_DEBUG:
+		/*
+		 * Deassert APQ to mdm err fatal
+		 * Power on the mdm
+		 */
+		esoc_mdm_log("ESOC_EXIT_DEBUG: Setting AP2MDM_ERRFATAL = 0\n");
+		gpio_set_value(MDM_GPIO(mdm, AP2MDM_ERRFATAL), 0);
+		dev_dbg(mdm->dev, "exiting debug state after power on\n");
+		mdm->get_restart_reason = true;
 		break;
 	default:
 		esoc_mdm_log("Invalid command\n");
@@ -379,15 +458,15 @@ static void mdm_notify(enum esoc_notify notify, struct esoc_clink *esoc)
 	case ESOC_UPGRADE_AVAILABLE:
 		break;
 	case ESOC_DEBUG_DONE:
-		/*esoc_mdm_log("ESOC_DEBUG_DONE: Ramdumps collection done\n");
+		esoc_mdm_log("ESOC_DEBUG_DONE: Ramdumps collection done\n");
 		mdm->debug_fail = false;
 		mdm_update_gpio_configs(mdm, GPIO_UPDATE_BOOTING_CONFIG);
-		complete(&mdm->debug_done);*/
+		complete(&mdm->debug_done);
 		break;
 	case ESOC_DEBUG_FAIL:
-		/*esoc_mdm_log("ESOC_DEBUG_FAIL: Ramdumps collection failed\n");
+		esoc_mdm_log("ESOC_DEBUG_FAIL: Ramdumps collection failed\n");
 		mdm->debug_fail = true;
-		complete(&mdm->debug_done);*/
+		complete(&mdm->debug_done);
 		break;
 	case ESOC_PRIMARY_CRASH:
 		mdm_disable_irqs(mdm);
@@ -401,6 +480,7 @@ static void mdm_notify(enum esoc_notify notify, struct esoc_clink *esoc)
 		break;
 	case ESOC_PRIMARY_REBOOT:
 		mdm_disable_irqs(mdm);
+		mdm->debug = 0;
 		mdm->ready = false;
 		esoc_mdm_log(
 		"ESOC_PRIMARY_REBOOT: Powering down the modem\n");
@@ -506,8 +586,8 @@ static irqreturn_t mdm_pblrdy_change(int irq, void *dev_id)
 		esoc_clink_queue_request(ESOC_REQ_IMG, esoc);
 		return IRQ_HANDLED;
 	}
-	//if (mdm->debug)
-	//	esoc_clink_queue_request(ESOC_REQ_DEBUG, esoc);
+	if (mdm->debug)
+		esoc_clink_queue_request(ESOC_REQ_DEBUG, esoc);
 	return IRQ_HANDLED;
 }
 
@@ -553,6 +633,7 @@ static int mdm_dt_parse_gpios(struct mdm_ctrl *mdm)
 			break;
 		}
 	}
+	mdm_debug_gpio_show(mdm);
 	return rc;
 }
 
@@ -837,10 +918,12 @@ static int mdm9x55_setup_hw(struct mdm_ctrl *mdm,
 		return ret;
 	}
 	dev_dbg(mdm->dev, "esoc registration done\n");
+	init_completion(&mdm->debug_done);
 	INIT_WORK(&mdm->mdm_status_work, mdm_status_fn);
 	INIT_WORK(&mdm->restart_reason_work, mdm_get_restart_reason);
 	INIT_DELAYED_WORK(&mdm->mdm2ap_status_check_work, mdm2ap_status_check);
 	mdm->get_restart_reason = false;
+	mdm->debug_fail = false;
 	mdm->esoc = esoc;
 	mdm->init = 0;
 	if (esoc->auto_boot)
@@ -940,12 +1023,16 @@ static int sdx50m_setup_hw(struct mdm_ctrl *mdm,
 	dev_dbg(mdm->dev, "esoc registration done\n");
 	esoc_mdm_log("Done configuring the GPIOs and esoc registration\n");
 
+	init_completion(&mdm->debug_done);
 	INIT_WORK(&mdm->mdm_status_work, mdm_status_fn);
 	INIT_WORK(&mdm->restart_reason_work, mdm_get_restart_reason);
 	INIT_DELAYED_WORK(&mdm->mdm2ap_status_check_work, mdm2ap_status_check);
 	mdm->get_restart_reason = false;
+	mdm->debug_fail = false;
 	mdm->esoc = esoc;
 	mdm->init = 0;
+
+	mdm_debug_gpio_ipc_log(mdm);
 
 	return 0;
 
@@ -1036,12 +1123,16 @@ static int sdx55m_setup_hw(struct mdm_ctrl *mdm,
 	dev_dbg(mdm->dev, "esoc registration done\n");
 	esoc_mdm_log("Done configuring the GPIOs and esoc registration\n");
 
+	init_completion(&mdm->debug_done);
 	INIT_WORK(&mdm->mdm_status_work, mdm_status_fn);
 	INIT_WORK(&mdm->restart_reason_work, mdm_get_restart_reason);
 	INIT_DELAYED_WORK(&mdm->mdm2ap_status_check_work, mdm2ap_status_check);
 	mdm->get_restart_reason = false;
+	mdm->debug_fail = false;
 	mdm->esoc = esoc;
 	mdm->init = 0;
+
+	mdm_debug_gpio_ipc_log(mdm);
 
 	return 0;
 
