@@ -275,6 +275,7 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 		}
 		break;
 	case ESOC_EXE_DEBUG:
+<<<<<<< HEAD
 		mdm->trig_cnt = 0;
 
 		if (mdm->skip_restart_for_mdm_crash)
@@ -301,6 +302,8 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 		dev_dbg(mdm->dev, "ramdump collection done\n");
 		mdm->debug = 0;
 		init_completion(&mdm->debug_done);
+=======
+>>>>>>> d041e67c031e (Misc improvements)
 		break;
 	case ESOC_EXIT_DEBUG:
 		/*

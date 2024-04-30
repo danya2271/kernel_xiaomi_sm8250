@@ -21,11 +21,19 @@
 static unsigned int default_efficient_freq_lp[] = {1612800};
 static u64 default_up_delay_lp[] = {2 * NSEC_PER_MSEC};
 
+<<<<<<< HEAD
 static unsigned int default_efficient_freq_hp[] = {1382000, 1766400};
 static u64 default_up_delay_hp[] = {20 * NSEC_PER_MSEC, 120 * NSEC_PER_MSEC};
 
 static unsigned int default_efficient_freq_pr[] = {1401200};
 static u64 default_up_delay_pr[] = {180 * NSEC_PER_MSEC};
+=======
+static unsigned int default_efficient_freq_hp[] = {1382000, 1958400};
+static u64 default_up_delay_hp[] = {55 * NSEC_PER_MSEC, 450 * NSEC_PER_MSEC};
+
+static unsigned int default_efficient_freq_pr[] = {844800, 1862400};
+static u64 default_up_delay_pr[] = {40 * NSEC_PER_MSEC, 450 * NSEC_PER_MSEC};
+>>>>>>> d041e67c031e (Misc improvements)
 
 #define DEFAULT_RTG_BOOST_FREQ_LP 1612800
 #define DEFAULT_RTG_BOOST_FREQ_HP 1766400
@@ -1030,12 +1038,20 @@ static int sugov_init(struct cpufreq_policy *policy)
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_perf_mask)) {
+<<<<<<< HEAD
 		tunables->up_rate_limit_us = 2500;
+=======
+		tunables->up_rate_limit_us = 5500;
+>>>>>>> d041e67c031e (Misc improvements)
 		tunables->down_rate_limit_us = 500;
 	}
 
         if (cpumask_test_cpu(policy->cpu, cpu_prime_mask)) {
+<<<<<<< HEAD
                 tunables->up_rate_limit_us = 2500;
+=======
+                tunables->up_rate_limit_us = 5500;
+>>>>>>> d041e67c031e (Misc improvements)
                 tunables->down_rate_limit_us = 0;
         }
 	
