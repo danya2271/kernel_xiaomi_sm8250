@@ -218,32 +218,6 @@ static int mdm_cmd_exe(enum esoc_cmd cmd, struct esoc_clink *esoc)
 	case ESOC_PREPARE_DEBUG:
 		break;
 	case ESOC_EXE_DEBUG:
-/*		mdm->trig_cnt = 0;
-
-		if (mdm->skip_restart_for_mdm_crash)
-			break;
-
-		esoc_mdm_log("ESOC_EXE_DEBUG: Resetting the modem\n");
-		mdm->debug = 1;
-		mdm_toggle_soft_reset(mdm, false);*/
-		/*
-		 * wait for ramdumps to be collected
-		 * then power down the mdm and switch gpios to booting
-		 * config
-		 */
-		/*esoc_mdm_log(
-		"ESOC_EXE_DEBUG: Waiting for ramdumps to be collected\n");
-		wait_for_completion(&mdm->debug_done);
-		if (mdm->debug_fail) {
-			esoc_mdm_log(
-			"ESOC_EXE_DEBUG: Failed to collect the ramdumps\n");
-			dev_err(mdm->dev, "unable to collect ramdumps\n");
-			mdm->debug = 0;
-			return -EIO;
-		}
-		dev_dbg(mdm->dev, "ramdump collection done\n");
-		mdm->debug = 0;
-		init_completion(&mdm->debug_done);*/
 		break;
 	case ESOC_EXIT_DEBUG:
 		break;

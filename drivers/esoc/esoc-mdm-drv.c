@@ -606,14 +606,6 @@ int esoc_ssr_probe(struct esoc_clink *esoc_clink, struct esoc_drv *drv)
 	ret = register_reboot_notifier(&mdm_drv->esoc_restart);
 	if (ret)
 		dev_err(&esoc_clink->dev, "register for reboot failed\n");
-	ret = mdm_dbg_eng_init(drv, esoc_clink);
-	if (ret) {
-		debug_init_done = false;
-		dev_err(&esoc_clink->dev, "dbg engine failure\n");
-	} else {
-		dev_dbg(&esoc_clink->dev, "dbg engine initialized\n");
-		debug_init_done = true;
-	}
 
 	return 0;
 queue_err:
