@@ -16,6 +16,12 @@ ifneq ($(CONFIG_SCHED_OMIT_FRAME_POINTER),y)
 CFLAGS_core.o := $(PROFILING) -fno-omit-frame-pointer
 endif
 
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS	+= -mllvm -inline-threshold=2725
+KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=2475
+KBUILD_CFLAGS   += -mllvm -inlinehint-threshold=2575
+endif
+
 obj-y += core.o loadavg.o clock.o cputime.o
 obj-y += idle.o fair.o rt.o deadline.o
 obj-y += wait.o wait_bit.o swait.o completion.o
