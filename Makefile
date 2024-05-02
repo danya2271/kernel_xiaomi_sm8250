@@ -1020,9 +1020,6 @@ lto-clang-flags	:= -flto
 endif
 lto-clang-flags += -fvisibility=default $(call cc-option, -fsplit-lto-unit)
 
-# Limit inlining across translation units to reduce binary size
-LD_FLAGS_LTO_CLANG := -mllvm -import-instr-limit=65
-
 lto-clang-flags += -fwhole-program-vtables
 
 KBUILD_LDFLAGS += $(LD_FLAGS_LTO_CLANG)
