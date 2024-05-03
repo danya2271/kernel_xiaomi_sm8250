@@ -2308,7 +2308,7 @@ static struct sched_cluster *alloc_new_cluster(const struct cpumask *cpus)
 
 	cluster = kzalloc(sizeof(struct sched_cluster), GFP_ATOMIC);
 	if (!cluster) {
-		__WARN_printf("Cluster allocation failed. Possible bad scheduling\n");
+//		__WARN_printf("Cluster allocation failed. Possible bad scheduling\n");
 		return NULL;
 	}
 
