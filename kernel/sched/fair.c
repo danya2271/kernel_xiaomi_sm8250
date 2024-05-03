@@ -140,7 +140,7 @@ DEFINE_PER_CPU_READ_MOSTLY(int, sched_load_boost);
  */
 int __weak arch_asym_cpu_priority(int cpu)
 {
-	return -arch_scale_cpu_capacity(cpu);
+	return -arch_scale_cpu_capacity(NULL, cpu);
 }
 #endif
 
@@ -9829,7 +9829,7 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 		if (cpu_isolated(i))
 			continue;
 
-		if ((env->flags & LBF_NOHZ_STATS) && update_nohz_stats(rq))
+		if ((env->flags & LBF_NOHZ_STATS) && update_nohz_stats(rq, true))
 			env->flags |= LBF_NOHZ_AGAIN;
 
 		/* Bias balancing toward CPUs of our domain: */

@@ -2021,7 +2021,7 @@ update_task_rq_cpu_cycles(struct task_struct *p, struct rq *rq, int event,
 
 	if (!use_cycle_counter) {
 		rq->task_exec_scale = DIV64_U64_ROUNDUP(cpu_cur_freq(cpu) *
-				topology_get_cpu_scale(cpu),
+				topology_get_cpu_scale(NULL, cpu),
 				rq->cluster->max_possible_freq);
 		return;
 	}
@@ -2058,7 +2058,7 @@ update_task_rq_cpu_cycles(struct task_struct *p, struct rq *rq, int event,
 		SCHED_BUG_ON((s64)time_delta < 0);
 
 		rq->task_exec_scale = DIV64_U64_ROUNDUP(cycles_delta *
-				topology_get_cpu_scale(cpu),
+				topology_get_cpu_scale(NULL, cpu),
 				time_delta * rq->cluster->max_possible_freq);
 		trace_sched_get_task_cpu_cycles(cpu, event,
 				cycles_delta, time_delta, p);
@@ -2209,7 +2209,7 @@ void mark_task_starting(struct task_struct *p)
 
 #define pct_to_min_scaled(tunable) \
 		div64_u64(((u64)sched_ravg_window * tunable *		\
-			 topology_get_cpu_scale(			\
+			 topology_get_cpu_scale(NULL, 			\
 			 cluster_first_cpu(sched_cluster[0]))),	\
 			 ((u64)SCHED_CAPACITY_SCALE * 100))
 
@@ -2302,7 +2302,7 @@ static struct sched_cluster *alloc_new_cluster(const struct cpumask *cpus)
 
 	raw_spin_lock_init(&cluster->load_lock);
 	cluster->cpus = *cpus;
-	cluster->efficiency = topology_get_cpu_scale(cpumask_first(cpus));
+	cluster->efficiency = topology_get_cpu_scale(NULL, cpumask_first(cpus));
 
 	if (cluster->efficiency > max_possible_efficiency)
 		max_possible_efficiency = cluster->efficiency;
