@@ -367,10 +367,8 @@ static int teo_find_shallower_state(struct cpuidle_driver *drv,
  * teo_select - Selects the next idle state to enter.
  * @drv: cpuidle driver containing state data.
  * @dev: Target CPU.
- * @stop_tick: Indication on whether or not to stop the scheduler tick.
  */
-static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
-		      bool *stop_tick)
+static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 {
 	struct teo_cpu *cpu_data = per_cpu_ptr(&teo_cpus, dev->cpu);
 	s64 latency_req = cpuidle_governor_latency_req(dev->cpu);
@@ -404,7 +402,6 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
 	/* Check if there is any choice in the first place. */
 	if (drv->state_count < 2) {
 		idx = 0;
-		goto out_tick;
 	}
 
 	if (!dev->states_usage[0].disable)
@@ -428,7 +425,6 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
 		if ((!idx && !(drv->states[0].flags & CPUIDLE_FLAG_POLLING) &&
 		    teo_state_ok(0, drv)) || dev->states_usage[1].disable) {
 			idx = 0;
-			goto out_tick;
 		}
 		/* Assume that state 1 is not a polling one and use it. */
 		idx = 1;
@@ -469,7 +465,6 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
 	/* Avoid unnecessary overhead. */
 	if (idx < 0) {
 		idx = 0; /* No states enabled, must use 0. */
-		goto out_tick;
 	}
 
 	if (idx == idx0) {
@@ -571,22 +566,6 @@ static int teo_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
 			idx = i;
 	}
 
-	/*
-	 * Skip the timers check if state 0 is the current candidate one,
-	 * because an immediate non-timer wakeup is expected in that case.
-	 */
-	if (!idx)
-		goto out_tick;
-
-	/*
-	 * If state 0 is a polling one, check if the target residency of
-	 * the current candidate state is low enough and skip the timers
-	 * check in that case too.
-	 */
-	if ((drv->states[0].flags & CPUIDLE_FLAG_POLLING) &&
-	    drv->states[idx].target_residency < RESIDENCY_THRESHOLD_US)
-		goto out_tick;
-
 	cpu_data->sleep_length_ns = tick_nohz_get_sleep_length(&delta_tick);
 	if (cpu_data->sleep_length_ns <= 0)
 		cpu_data->sleep_length_ns = S64_MAX;
@@ -629,9 +608,6 @@ end:
 	if (idx > idx0 &&
 	    drv->states[idx].target_residency > ktime_to_us(delta_tick))
 		idx = teo_find_shallower_state(drv, dev, idx, ktime_to_us(delta_tick), false);
-
-out_tick:
-	*stop_tick = false;
 out:
 	/*
 	 * Set a limit to how long the CPU can remain in WFI in case of a
@@ -642,8 +618,7 @@ out:
 #define WFI_TIMEOUT_US 1 
 	cpu_data->wfi_timeout_us = 0;
 	if (drv->state_count > 1 && !idx && constraint_idx) {
-		if (*stop_tick)
-			delta_tick = ktime_to_us(cpu_data->sleep_length_ns);
+		delta_tick = ktime_to_us(cpu_data->sleep_length_ns);
 
 		if (delta_tick > duration_us &&
 		    (delta_tick - duration_us - WFI_TIMEOUT_US) >
@@ -694,7 +669,7 @@ static int teo_enable_device(struct cpuidle_driver *drv,
 			     struct cpuidle_device *dev)
 {
 	struct teo_cpu *cpu_data = per_cpu_ptr(&teo_cpus, dev->cpu);
-	unsigned long max_capacity = arch_scale_cpu_capacity(NULL, dev->cpu);
+	unsigned long max_capacity = arch_scale_cpu_capacity(dev->cpu);
 	int i;
 
 	memset(cpu_data, 0, sizeof(*cpu_data));
