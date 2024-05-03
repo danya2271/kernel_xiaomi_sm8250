@@ -997,7 +997,7 @@ static int cluster_select(struct lpm_cluster *cluster, bool from_idle,
 	if (!cluster)
 		return -EINVAL;
 
-//	return cluster_select_deepest(cluster);
+	return cluster_select_deepest(cluster);
 
 	sleep_us = (uint32_t)get_cluster_sleep_time(cluster,
 						from_idle, &cpupred_us);
