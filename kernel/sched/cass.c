@@ -207,8 +207,8 @@ static int cass_select_task_rq(struct task_struct *p, int prev_cpu,
 	bool sync;
 
 	/* Don't balance on exec since we don't know what @p will look like */
-//	if (wake_flags & SD_BALANCE_EXEC)
-//		return prev_cpu;
+	if (wake_flags & SD_BALANCE_EXEC)
+		return prev_cpu;
 
 	/*
 	 * If there aren't any valid CPUs which are active, then just return the
