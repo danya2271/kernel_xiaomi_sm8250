@@ -373,7 +373,14 @@ static inline int kgsl_get_page_size(size_t size, unsigned int align,
 	if (memdesc->priv & KGSL_MEMDESC_USE_SHMEM)
 		return PAGE_SIZE;
 
+#ifdef CONFIG_HUGEPAGE_POOL
+	if (align >= ilog2(SZ_2M) && size >= SZ_2M &&
+		kgsl_pool_avaialable(SZ_2M))
+		return SZ_2M;
+	else if (align >= ilog2(SZ_1M) && size >= SZ_1M &&
+#else
 	if (align >= ilog2(SZ_1M) && size >= SZ_1M &&
+#endif
 		kgsl_pool_avaialable(SZ_1M))
 		return SZ_1M;
 	else if (align >= ilog2(SZ_64K) && size >= SZ_64K &&

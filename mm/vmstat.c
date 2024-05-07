@@ -1165,6 +1165,10 @@ const char * const vmstat_text[] = {
 	"nr_vmscan_immediate_reclaim",
 	"nr_dirtied",
 	"nr_written",
+#ifdef CONFIG_KZEROD
+	"zero_page_alloc_total",
+	"zero_page_alloc_prezero",
+#endif
 	"nr_kernel_misc_reclaimable",
 	"nr_unreclaimable_pages",
 
@@ -1265,6 +1269,9 @@ const char * const vmstat_text[] = {
 	"thp_split_page",
 	"thp_split_page_failed",
 	"thp_deferred_split_page",
+#ifdef CONFIG_HUGEPAGE_POOL
+	"thp_deferred_split_page_current",
+#endif
 	"thp_split_pmd",
 #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
 	"thp_split_pud",
