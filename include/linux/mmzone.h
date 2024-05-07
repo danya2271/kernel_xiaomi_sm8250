@@ -189,6 +189,10 @@ enum node_stat_item {
 	NR_VMSCAN_IMMEDIATE,	/* Prioritise for reclaim when writeback ends */
 	NR_DIRTIED,		/* page dirtyings since bootup */
 	NR_WRITTEN,		/* page writings since bootup */
+#ifdef CONFIG_KZEROD
+	ZERO_PAGE_ALLOC_TOTAL,
+	ZERO_PAGE_ALLOC_PREZERO,
+#endif
 	NR_KERNEL_MISC_RECLAIMABLE,	/* reclaimable non-slab kernel pages */
 	NR_UNRECLAIMABLE_PAGES,
 	NR_ION_HEAP,

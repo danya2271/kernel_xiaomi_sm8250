@@ -49,6 +49,10 @@ obj-$(DEBUG_KERNEL)	+= debug.o
 
 obj-y += init-mm.o
 
+ifdef CONFIG_KZEROD
+obj-y += kzerod.o
+endif
+
 ifdef CONFIG_NO_BOOTMEM
 	obj-y		+= nobootmem.o
 else

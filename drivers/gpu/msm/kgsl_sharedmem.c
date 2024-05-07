@@ -1068,6 +1068,21 @@ kgsl_sharedmem_page_alloc_user(struct kgsl_memdesc *memdesc,
 
 	align = (memdesc->flags & KGSL_MEMALIGN_MASK) >> KGSL_MEMALIGN_SHIFT;
 
+#ifdef CONFIG_HUGEPAGE_POOL
+	/*
+	 * As 2MB is the max supported page size, use the alignment
+	 * corresponding to 2MB page to make sure higher order pages
+	 * are used if possible for a given memory size. Also, we
+	 * don't need to update alignment in memdesc flags in case
+	 * higher order page is used, as memdesc flags represent the
+	 * virtual alignment specified by the user which is anyways
+	 * getting satisfied.
+	 */
+	if (align < ilog2(SZ_2M))
+		align = ilog2(SZ_2M);
+
+	page_size = kgsl_get_page_size(size, align, memdesc);
+#else
 	/*
 	 * As 1MB is the max supported page size, use the alignment
 	 * corresponding to 1MB page to make sure higher order pages
@@ -1081,6 +1096,7 @@ kgsl_sharedmem_page_alloc_user(struct kgsl_memdesc *memdesc,
 		align = ilog2(SZ_1M);
 
 	page_size = kgsl_get_page_size(size, align, memdesc);
+#endif
 
 	/*
 	 * The alignment cannot be less than the intended page size - it can be
