@@ -7,6 +7,20 @@ KASAN_SANITIZE_slab_common.o := n
 KASAN_SANITIZE_slab.o := n
 KASAN_SANITIZE_slub.o := n
 
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS	+= -mllvm -inline-threshold=200
+KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=100
+KBUILD_CFLAGS   += -mllvm -inlinehint-threshold=100
+else ifeq ($(cc-name),gcc)
+KBUILD_CFLAGS	+= --param max-inline-insns-auto=500
+
+# We limit inlining to 5KB on the stack.
+KBUILD_CFLAGS	+= --param large-stack-frame=1288
+
+KBUILD_CFLAGS	+= --param inline-min-speedup=5
+KBUILD_CFLAGS	+= --param inline-unit-growth=60
+endif
+
 # These files are disabled because they produce non-interesting and/or
 # flaky coverage that is not a function of syscall inputs. E.g. slab is out of
 # free pages, or a task is migrated between nodes.
