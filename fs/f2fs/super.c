@@ -484,21 +484,6 @@ static int parse_options(struct super_block *sb, char *options, bool is_remount)
 
 		switch (token) {
 		case Opt_gc_background:
-			name = match_strdup(&args[0]);
-
-			if (!name)
-				return -ENOMEM;
-			if (!strcmp(name, "on")) {
-				F2FS_OPTION(sbi).bggc_mode = BGGC_MODE_ON;
-			} else if (!strcmp(name, "off")) {
-				F2FS_OPTION(sbi).bggc_mode = BGGC_MODE_OFF;
-			} else if (!strcmp(name, "sync")) {
-				F2FS_OPTION(sbi).bggc_mode = BGGC_MODE_SYNC;
-			} else {
-				kvfree(name);
-				return -EINVAL;
-			}
-			kvfree(name);
 			break;
 		case Opt_disable_roll_forward:
 			set_opt(sbi, DISABLE_ROLL_FORWARD);
@@ -1245,6 +1230,7 @@ static void f2fs_put_super(struct super_block *sb)
 	 * above failed with error.
 	 */
 	f2fs_destroy_stats(sbi);
+	f2fs_gc_sbi_list_del(sbi);
 
 	/* destroy f2fs internal modules */
 	f2fs_destroy_node_manager(sbi);
@@ -1641,7 +1627,7 @@ static void default_options(struct f2fs_sb_info *sbi)
 	F2FS_OPTION(sbi).compress_algorithm = COMPRESS_LZ4;
 	F2FS_OPTION(sbi).compress_log_size = MIN_COMPRESS_LOG_SIZE;
 	F2FS_OPTION(sbi).compress_ext_cnt = 0;
-	F2FS_OPTION(sbi).bggc_mode = BGGC_MODE_ON;
+	F2FS_OPTION(sbi).bggc_mode = BGGC_MODE_OFF;
 
 	set_opt(sbi, INLINE_XATTR);
 	set_opt(sbi, INLINE_DATA);
@@ -3696,6 +3682,8 @@ try_onemore:
 		goto free_stats;
 	}
 
+	f2fs_gc_sbi_list_add(sbi);
+
 	/* read root inode and dentry */
 	root = f2fs_iget(sb, F2FS_ROOT_INO(sbi));
 	if (IS_ERR(root)) {
@@ -3849,6 +3837,7 @@ free_node_inode:
 	iput(sbi->node_inode);
 	sbi->node_inode = NULL;
 free_stats:
+	f2fs_gc_sbi_list_del(sbi);
 	f2fs_destroy_stats(sbi);
 free_nm:
 	f2fs_destroy_node_manager(sbi);
@@ -4006,6 +3995,9 @@ static int __init init_f2fs_fs(void)
 	err = f2fs_init_compress_mempool();
 	if (err)
 		goto free_bioset;
+
+	f2fs_init_rapid_gc();
+
 	return 0;
 free_bioset:
 	f2fs_destroy_bioset();
@@ -4038,6 +4030,7 @@ static void __exit exit_f2fs_fs(void)
 {
 	f2fs_destroy_compress_mempool();
 	f2fs_destroy_bioset();
+	f2fs_destroy_rapid_gc();
 	f2fs_destroy_bio_entry_cache();
 	f2fs_destroy_post_read_processing();
 	f2fs_destroy_root_stats();
