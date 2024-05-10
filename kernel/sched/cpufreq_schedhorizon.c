@@ -24,7 +24,7 @@ static u64 default_up_delay_lp[] = {2 * NSEC_PER_MSEC};
 static unsigned int default_efficient_freq_hp[] = {1382000, 1958400};
 static u64 default_up_delay_hp[] = {55 * NSEC_PER_MSEC, 450 * NSEC_PER_MSEC};
 
-static unsigned int default_efficient_freq_pr[] = {844800, 1862400};
+static unsigned int default_efficient_freq_pr[] = {1190400, 1862400};
 static u64 default_up_delay_pr[] = {40 * NSEC_PER_MSEC, 450 * NSEC_PER_MSEC};
 
 #define DEFAULT_RTG_BOOST_FREQ_LP 1612800
