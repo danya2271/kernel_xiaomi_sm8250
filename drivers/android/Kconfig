@@ -64,6 +64,13 @@ config ANDROID_BINDER_LOGS
 	  This option impacts performance.
 
 	  Say N on production builds.
+	  
+config ANDROID_DUMMY_SLMK
+	bool "Dummy SLMK to disable lmkd"
+	depends on !ANDROID_LOW_MEMORY_KILLER && !MEMCG && !PSI
+	---help---
+	  This option enables dummy PSY and starts dummy SLMK processes
+	  to disable android LMKD
 
 config ANDROID_KABI_RESERVE
 	bool "Android KABI reserve padding"
