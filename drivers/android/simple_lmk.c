@@ -36,9 +36,7 @@ static int simple_lmk_reclaim_thread(void *data)
 	set_freezable();
 
 	while (1) {
-#ifdef CONFIG_ANDROID_FAKE_SIMPLE_LMK
 		msleep(900);
-#endif
 	}
 
 	return 0;
@@ -48,12 +46,10 @@ static int simple_lmk_reaper_thread(void *data)
 {
 	/* Use a lower priority than the reclaim thread */
 	set_task_rt_prio(current, MAX_RT_PRIO - 2);
-	set_freezable();
+	set_freezable(); 
 
 	while (1) {
-#ifdef CONFIG_ANDROID_FAKE_SIMPLE_LMK
 		msleep(900);
-#endif
 	}
 
 	return 0;
