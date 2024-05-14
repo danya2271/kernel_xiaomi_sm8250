@@ -255,7 +255,7 @@
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_7>;
 			qcom,freq-domain = <&cpufreq_hw 2 4>;
-			capacity-dmips-mhz = <1023>;
+			capacity-dmips-mhz = <1017>;
 			dynamic-power-coefficient = <386>;
 			#cooling-cells = <2>;
 			L2_7: l2-cache {
