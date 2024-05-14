@@ -11621,7 +11621,7 @@ int __init afe_init(void)
 		  afe_notify_spdif_fmt_update_work_fn);
 
 	this_afe.event_notifier.notifier_call  = afe_aud_event_notify;
-	msm_aud_evt_blocking_register_client(&this_afe.event_notifier);
+	msm_aud_evt_srcu_register_client(&this_afe.event_notifier);
 
 	return 0;
 }

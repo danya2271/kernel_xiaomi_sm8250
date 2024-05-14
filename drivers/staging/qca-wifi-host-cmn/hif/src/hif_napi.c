@@ -1006,14 +1006,9 @@ void hif_update_napi_max_poll_time(struct CE_state *ce_state,
 {
 	struct hif_softc *hif;
 	struct qca_napi_info *napi_info;
-	unsigned long long napi_poll_time = sched_clock() -
-					ce_state->ce_service_start_time;
 
 	hif = ce_state->scn;
 	napi_info = hif->napi_data.napis[ce_id];
-	if (napi_poll_time >
-			napi_info->stats[cpu_id].napi_max_poll_time)
-		napi_info->stats[cpu_id].napi_max_poll_time = napi_poll_time;
 }
 qdf_export_symbol(hif_update_napi_max_poll_time);
 
