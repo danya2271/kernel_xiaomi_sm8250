@@ -268,7 +268,6 @@ qdf_export_symbol(qdf_cpumask_clear);
 
 void qdf_cpumask_set_cpu(unsigned int cpu, qdf_cpu_mask *dstp)
 {
-	cpumask_set_cpu(cpu, dstp);
 }
 
 qdf_export_symbol(qdf_cpumask_set_cpu);

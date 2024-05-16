@@ -9260,17 +9260,7 @@ static void hdd_clear_rps_cpu_mask(struct hdd_context *hdd_ctx)
 static inline void hdd_pm_qos_update_cpu_mask(cpumask_t *mask,
 					      bool high_throughput)
 {
-	cpumask_set_cpu(0, mask);
-	cpumask_set_cpu(1, mask);
-	cpumask_set_cpu(2, mask);
-	cpumask_set_cpu(3, mask);
 
-	if (high_throughput) {
-		/* For high TPUT include GOLD mask also */
-		cpumask_set_cpu(4, mask);
-		cpumask_set_cpu(5, mask);
-		cpumask_set_cpu(6, mask);
-	}
 }
 
 #ifdef MSM_PLATFORM
