@@ -1431,11 +1431,11 @@ static void __queue_work(int cpu, struct workqueue_struct *wq,
 		return;
 
 	if (req_cpu == WORK_CPU_UNBOUND) {
-			if ((thr <= 7) && (res < 3)) {
+			if ((thr <= 7) && (res < 2)) {
 				//printk("Debugging Cpu Workqueue %d", thr);
 				cpu = thr;
 				thr += 1;
-			} else if ((thr <= 3) && (res = 3)) {
+			} else if ((thr <= 3) && (res = 2)) {
 				cpu = thr;
 				thr += 1;
 				if (thr == 3)
@@ -4418,11 +4418,11 @@ bool workqueue_congested(int cpu, struct workqueue_struct *wq)
 	rcu_read_lock_sched();
 
 	if (cpu == WORK_CPU_UNBOUND) {
-			if ((thr <= 7) && (res < 3)) {
+			if ((thr <= 7) && (res < 2)) {
 				//printk("Debugging Cpu Workqueue %d", thr);
 				cpu = thr;
 				thr += 1;
-			} else if ((thr <= 3) && (res = 3)) {
+			} else if ((thr <= 3) && (res = 2)) {
 				cpu = thr;
 				thr += 1;
 				if (thr == 3)
