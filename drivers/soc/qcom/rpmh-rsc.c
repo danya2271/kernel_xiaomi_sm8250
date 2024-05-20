@@ -467,10 +467,6 @@ int rpmh_rsc_send_data(struct rsc_drv *drv, const struct tcs_request *msg)
 			udelay(10);
 		}
 
-		if (count == 50000) {
-			break;
-		}
-
 	} while (ret == -EBUSY);
 
 	return ret;
@@ -935,5 +931,3 @@ static int __init rpmh_driver_init(void)
 }
 arch_initcall(rpmh_driver_init);
 
-MODULE_LICENSE("GPL v2");
-MODULE_DESCRIPTION("Qualcomm RPM-Hardened (RPMH) Communication driver");

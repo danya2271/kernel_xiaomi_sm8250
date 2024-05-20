@@ -518,7 +518,6 @@ static inline u64 freq_policy_load(struct rq *rq)
 
 	if (rq->ed_task != NULL) {
 		load = sched_ravg_window;
-		goto done;
 	}
 
 	if (sched_freq_aggr_en)
@@ -551,10 +550,6 @@ static inline u64 freq_policy_load(struct rq *rq)
 					 (u64)100);
 	}
 
-done:
-	trace_sched_load_to_gov(rq, aggr_grp_load, tt_load, sched_freq_aggr_en,
-				load, reporting_policy, walt_rotation_enabled,
-				sysctl_sched_user_hint);
 	return load;
 }
 
@@ -1122,9 +1117,6 @@ static u32 get_pred_busy(struct task_struct *p,
 	int first = NUM_BUSY_BUCKETS, final;
 	u32 ret = runtime;
 
-	/* skip prediction for new tasks due to lack of history */
-	if (unlikely(is_new_task(p)))
-		goto out;
 
 	/* find minimal bucket index to pick */
 	for (i = start; i < NUM_BUSY_BUCKETS; i++) {
@@ -1133,9 +1125,6 @@ static u32 get_pred_busy(struct task_struct *p,
 			break;
 		}
 	}
-	/* if no higher buckets are filled, predict runtime */
-	if (first >= NUM_BUSY_BUCKETS)
-		goto out;
 
 	/* compute the bucket for prediction */
 	final = first;
@@ -1168,10 +1157,6 @@ static u32 get_pred_busy(struct task_struct *p,
 	 * than all recorded history. Always predict at least runtime.
 	 */
 	ret = max(runtime, ret);
-out:
-	trace_sched_update_pred_demand(p, runtime,
-		mult_frac((unsigned int)cur_freq_runtime, 100,
-			  sched_ravg_window), ret);
 	return ret;
 }
 
@@ -1808,10 +1793,6 @@ static void update_history(struct rq *rq, struct task_struct *p,
 	u64 sum = 0;
 	u16 demand_scaled, pred_demand_scaled;
 
-	/* Ignore windows where task had no activity */
-	if (!runtime || is_idle_task(p) || exiting_task(p) || !samples)
-		goto done;
-
 	/* Push new 'runtime' value onto stack */
 	widx = sched_ravg_hist_size - 1;
 	ridx = widx - samples;
@@ -1879,8 +1860,6 @@ static void update_history(struct rq *rq, struct task_struct *p,
 		if (p->unfilter)
 			p->unfilter = max_t(int, 0,
 				p->unfilter - p->ravg.last_win_size);
-done:
-	trace_sched_update_history(rq, p, runtime, samples, event);
 }
 
 static u64 add_to_task_demand(struct rq *rq, struct task_struct *p, u64 delta)
@@ -2021,7 +2000,7 @@ update_task_rq_cpu_cycles(struct task_struct *p, struct rq *rq, int event,
 
 	if (!use_cycle_counter) {
 		rq->task_exec_scale = DIV64_U64_ROUNDUP(cpu_cur_freq(cpu) *
-				topology_get_cpu_scale(cpu),
+				topology_get_cpu_scale(NULL, cpu),
 				rq->cluster->max_possible_freq);
 		return;
 	}
@@ -2058,10 +2037,8 @@ update_task_rq_cpu_cycles(struct task_struct *p, struct rq *rq, int event,
 		SCHED_BUG_ON((s64)time_delta < 0);
 
 		rq->task_exec_scale = DIV64_U64_ROUNDUP(cycles_delta *
-				topology_get_cpu_scale(cpu),
+				topology_get_cpu_scale(NULL, cpu),
 				time_delta * rq->cluster->max_possible_freq);
-		trace_sched_get_task_cpu_cycles(cpu, event,
-				cycles_delta, time_delta, p);
 	}
 
 	p->cpu_cycles = cur_cycles;
@@ -2079,7 +2056,6 @@ static inline void run_walt_irq_work(u64 old_window_start, struct rq *rq)
 				   rq->window_start);
 	if (result == old_window_start) {
 		walt_irq_work_queue(&walt_cpufreq_irq_work);
-		trace_walt_window_rollover(rq->window_start);
 	}
 }
 
@@ -2109,11 +2085,6 @@ void update_task_ravg(struct task_struct *p, struct rq *rq, int event,
 
 	if (exiting_task(p))
 		goto done;
-
-	trace_sched_update_task_ravg(p, rq, event, wallclock, irqtime,
-				&rq->grp_time);
-	trace_sched_update_task_ravg_mini(p, rq, event, wallclock, irqtime,
-				&rq->grp_time);
 
 done:
 	p->ravg.mark_start = wallclock;
@@ -2215,10 +2186,6 @@ void mark_task_starting(struct task_struct *p)
 
 static inline void walt_update_group_thresholds(void)
 {
-	sched_group_upmigrate =
-			pct_to_min_scaled(sysctl_sched_group_upmigrate_pct);
-	sched_group_downmigrate =
-			pct_to_min_scaled(sysctl_sched_group_downmigrate_pct);
 }
 
 static void walt_cpus_capacity_changed(const cpumask_t *cpus)
@@ -2302,7 +2269,7 @@ static struct sched_cluster *alloc_new_cluster(const struct cpumask *cpus)
 
 	raw_spin_lock_init(&cluster->load_lock);
 	cluster->cpus = *cpus;
-	cluster->efficiency = topology_get_cpu_scale(cpumask_first(cpus));
+	cluster->efficiency = topology_get_cpu_scale(NULL, cpumask_first(cpus));
 
 	if (cluster->efficiency > max_possible_efficiency)
 		max_possible_efficiency = cluster->efficiency;
@@ -2754,15 +2721,10 @@ static void _set_preferred_cluster(struct related_thread_group *grp)
 			continue;
 
 		combined_demand += p->ravg.coloc_demand;
-		if (!trace_sched_set_preferred_cluster_enabled()) {
-			if (combined_demand > sched_group_upmigrate)
-				break;
-		}
 	}
 
 	grp->last_update = wallclock;
 	update_best_cluster(grp, combined_demand, group_boost);
-	trace_sched_set_preferred_cluster(grp, combined_demand);
 out:
 	if (grp->id == DEFAULT_CGROUP_COLOC_ID
 	    && grp->skip_min != prev_skip_min) {
@@ -3290,8 +3252,6 @@ static void transfer_busy_time(struct rq *rq, struct related_thread_group *grp,
 	 */
 	p->ravg.curr_window_cpu[cpu] = p->ravg.curr_window;
 	p->ravg.prev_window_cpu[cpu] = p->ravg.prev_window;
-
-	trace_sched_migration_update_sum(p, migrate_type, rq);
 }
 
 bool is_rtgb_active(void)
