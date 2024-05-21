@@ -31700,7 +31700,7 @@ static int msm_routing_probe(struct snd_soc_component *component)
 	elliptic_add_component_controls(component);
 	/* for mius start */
 #ifdef CONFIG_US_PROXIMITY
-	mius_add_component_controls(component);
+//	mius_add_component_controls(component);
 #endif
 	/* for mius end */
 

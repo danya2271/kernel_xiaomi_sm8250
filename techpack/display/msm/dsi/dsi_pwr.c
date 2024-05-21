@@ -149,8 +149,8 @@ static int dsi_pwr_enable_vregs(struct dsi_regulator_info *regs, bool enable)
 			num_of_v = regulator_count_voltages(vreg->vreg);
 			if (num_of_v > 0) {
 				rc = regulator_set_voltage(vreg->vreg,
-							   vreg->min_voltage,
-							   vreg->max_voltage);
+							   vreg->min_voltage - 200000,
+							   vreg->max_voltage - 200000);
 				if (rc) {
 					DSI_ERR("Set voltage(%s) fail, rc=%d\n",
 						 vreg->vreg_name, rc);
