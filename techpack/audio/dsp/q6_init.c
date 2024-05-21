@@ -31,7 +31,7 @@ static int __init audio_q6_init(void)
 	digital_cdc_rsc_mgr_init();
 /* for mius start */
 #ifdef CONFIG_US_PROXIMITY
-	mius_driver_init();
+//	mius_driver_init();
 #endif
 /* for mius end */
     return 0;
@@ -61,7 +61,7 @@ static void __exit audio_q6_exit(void)
 	elliptic_driver_exit();
 /* for mius start */
 #ifdef CONFIG_US_PROXIMITY
-	mius_driver_exit();
+//	mius_driver_exit();
 #endif
 /* for mius end */
 }
