@@ -179,7 +179,7 @@
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_4>;
 			qcom,freq-domain = <&cpufreq_hw 1 4>;
-			capacity-dmips-mhz = <1023>;
+			capacity-dmips-mhz = <1060>;
 			dynamic-power-coefficient = <304>;
 			#cooling-cells = <2>;
 			L2_4: l2-cache {
@@ -205,7 +205,7 @@
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_5>;
 			qcom,freq-domain = <&cpufreq_hw 1 4>;
-			capacity-dmips-mhz = <1023>;
+			capacity-dmips-mhz = <1060>;
 			dynamic-power-coefficient = <304>;
 			L2_5: l2-cache {
 			      compatible = "arm,arch-cache";
@@ -230,7 +230,7 @@
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_6>;
 			qcom,freq-domain = <&cpufreq_hw 1 4>;
-			capacity-dmips-mhz = <1023>;
+			capacity-dmips-mhz = <1060>;
 			dynamic-power-coefficient = <340>;
 			L2_6: l2-cache {
 			      compatible = "arm,arch-cache";
@@ -255,7 +255,7 @@
 			cpu-release-addr = <0x0 0x90000000>;
 			next-level-cache = <&L2_7>;
 			qcom,freq-domain = <&cpufreq_hw 2 4>;
-			capacity-dmips-mhz = <1017>;
+			capacity-dmips-mhz = <1060>;
 			dynamic-power-coefficient = <386>;
 			#cooling-cells = <2>;
 			L2_7: l2-cache {
@@ -5111,7 +5111,7 @@
 		reg = <0x64>;
 		fmint-gpio = <&tlmm 51 0>;
 		vdd-supply = <&pm8150a_bob>;
-		rtc6226,vdd-supply-voltage = <3296000 3296000>;
+		rtc6226,vdd-supply-voltage = <2000000 2000000>;
 		vio-supply = <&pm8150_s4>;
 		rtc6226,vio-supply-voltage = <1800000 1800000 >;
 	};
@@ -5124,7 +5124,6 @@
 	interrupt-names = "dcvsh0_int", "dcvsh1_int", "dcvsh2_int";
 
 	qcom,cpufreq-table-0 =
-			< 614400>,
 			<1171200>,
 			<1344000>,
 			<1612800>,
