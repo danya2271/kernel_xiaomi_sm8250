@@ -574,6 +574,11 @@ static inline bool entity_before(struct sched_entity *a,
 	return (s64)(a->vruntime - b->vruntime) < 0;
 }
 
+static inline s64 entity_key(struct cfs_rq *cfs_rq, struct sched_entity *se)
+{
+	return (s64)(se->vruntime - cfs_rq->min_vruntime);
+}
+
 #define __node_2_se(node) \
 	rb_entry((node), struct sched_entity, run_node)
 
@@ -3201,7 +3206,7 @@ dequeue_runnable_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se)
 
 	sub_positive(&cfs_rq->avg.runnable_load_avg, se->avg.runnable_load_avg);
 	sub_positive(&cfs_rq->avg.runnable_load_sum,
-		     se_runnable(se) * se->avg.runnable_load_sum);
+				 se_runnable(se) * se->avg.runnable_load_sum);
 }
 
 static inline void
@@ -3548,10 +3553,10 @@ static long calc_group_runnable(struct cfs_rq *cfs_rq, long shares)
 	long runnable, load_avg;
 
 	load_avg = max(cfs_rq->avg.load_avg,
-		       scale_load_down(cfs_rq->load.weight));
+				   scale_load_down(cfs_rq->load.weight));
 
 	runnable = max(cfs_rq->avg.runnable_load_avg,
-		       scale_load_down(cfs_rq->runnable_weight));
+				   scale_load_down(cfs_rq->runnable_weight));
 
 	runnable *= shares;
 	if (load_avg)
