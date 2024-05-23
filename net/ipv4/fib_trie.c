@@ -2719,14 +2719,13 @@ static const struct seq_operations fib_route_seq_ops = {
 
 int __net_init fib_proc_init(struct net *net)
 {
-#ifndef CONFIG_PROC_STRIPPED
-	if (!proc_create("fib_trie", S_IRUGO, net->proc_net, &fib_trie_fops))
+	if (!proc_create_net("fib_trie", 0444, net->proc_net, &fib_trie_seq_ops,
+			sizeof(struct fib_trie_iter)))
 		goto out1;
 
-	if (!proc_create("fib_triestat", S_IRUGO, net->proc_net,
-			 &fib_triestat_fops))
+	if (!proc_create_net_single("fib_triestat", 0444, net->proc_net,
+			fib_triestat_seq_show, NULL))
 		goto out2;
-#endif
 
 	if (!proc_create_net("route", 0444, net->proc_net, &fib_route_seq_ops,
 			sizeof(struct fib_route_iter)))
@@ -2735,21 +2734,17 @@ int __net_init fib_proc_init(struct net *net)
 	return 0;
 
 out3:
-	if (!IS_ENABLED(CONFIG_PROC_STRIPPED))
-		remove_proc_entry("fib_triestat", net->proc_net);
+	remove_proc_entry("fib_triestat", net->proc_net);
 out2:
-	if (!IS_ENABLED(CONFIG_PROC_STRIPPED))
-		remove_proc_entry("fib_trie", net->proc_net);
+	remove_proc_entry("fib_trie", net->proc_net);
 out1:
 	return -ENOMEM;
 }
 
 void __net_exit fib_proc_exit(struct net *net)
 {
-	if (!IS_ENABLED(CONFIG_PROC_STRIPPED)) {
-		remove_proc_entry("fib_trie", net->proc_net);
-		remove_proc_entry("fib_triestat", net->proc_net);
-	}
+	remove_proc_entry("fib_trie", net->proc_net);
+	remove_proc_entry("fib_triestat", net->proc_net);
 	remove_proc_entry("route", net->proc_net);
 }
 
