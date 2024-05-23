@@ -10967,6 +10967,21 @@ static int active_load_balance_cpu_stop(void *data)
 	}
 
 	if (likely(sd)) {
+		struct lb_env env = {
+			.sd		= sd,
+			.dst_cpu	= target_cpu,
+			.dst_rq		= target_rq,
+			.src_cpu	= busiest_rq->cpu,
+			.src_rq		= busiest_rq,
+			.idle		= CPU_IDLE,
+			/*
+			 * can_migrate_task() doesn't need to compute new_dst_cpu
+			 * for active balancing. Since we have CPU_IDLE, but no
+			 * @dst_grpmask we need to make that test go away with lying
+			 * about DST_PINNED.
+			 */
+			.flags		= LBF_DST_PINNED,
+		};
 		schedstat_inc(sd->alb_count);
 		update_rq_clock(busiest_rq);
 
