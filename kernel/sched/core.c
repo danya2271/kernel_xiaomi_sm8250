@@ -419,8 +419,6 @@ void wake_q_add(struct wake_q_head *head, struct task_struct *task)
 	if (cmpxchg_relaxed(&node->next, NULL, WAKE_Q_TAIL))
 		return;
 
-	head->count++;
-
 	get_task_struct(task);
 
 	/*
@@ -451,7 +449,7 @@ void wake_up_q(struct wake_q_head *head)
 		 * try_to_wake_up() executes a full barrier, which pairs with
 		 * the queueing in wake_q_add() so as not to miss wakeups.
 		 */
-		try_to_wake_up(task, TASK_NORMAL, 0, head->count);
+		try_to_wake_up(task, TASK_NORMAL, 0, 1);
 		put_task_struct(task);
 	}
 }
@@ -1445,9 +1443,6 @@ void deactivate_task(struct rq *rq, struct task_struct *p, int flags)
 {
 	if (task_contributes_to_load(p))
 		rq->nr_uninterruptible++;
-
-	if (flags & DEQUEUE_SLEEP)
-		clear_ed_task(p, rq);
 
 	dequeue_task(rq, p, flags);
 }
@@ -2953,10 +2948,6 @@ static void __sched_fork(unsigned long clone_flags, struct task_struct *p)
 	p->se.prev_sum_exec_runtime	= 0;
 	p->se.nr_migrations		= 0;
 	p->se.vruntime			= 0;
-	p->last_sleep_ts		= 0;
-	p->boost			= 0;
-	p->boost_expires		= 0;
-	p->boost_period			= 0;
 	p->se.vlag			= 0;
 	p->se.slice			= sysctl_sched_base_slice;
 	INIT_LIST_HEAD(&p->se.group_node);
@@ -4329,9 +4320,6 @@ static void __sched notrace __schedule(bool preempt)
 
 	wallclock = sched_ktime_clock();
 	if (likely(prev != next)) {
-		if (!prev->on_rq)
-			prev->last_sleep_ts = wallclock;
-
 		rq->nr_switches++;
 		rq->curr = next;
 		/*
@@ -8644,17 +8632,6 @@ const u32 sched_prio_to_wmult[40] = {
  */
 int set_task_boost(int boost, u64 period)
 {
-	if (boost < TASK_BOOST_NONE || boost >= TASK_BOOST_END)
-		return -EINVAL;
-	if (boost) {
-		current->boost = boost;
-		current->boost_period = (u64)period * 1000 * 1000;
-		current->boost_expires = sched_clock() + current->boost_period;
-	} else {
-		current->boost = 0;
-		current->boost_expires = 0;
-		current->boost_period = 0;
-	}
 	return 0;
 }
 

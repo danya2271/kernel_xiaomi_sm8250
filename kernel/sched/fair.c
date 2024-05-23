@@ -7789,22 +7789,17 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 		record_wakee(p);
 
 		if (static_branch_unlikely(&sched_energy_present)) {
-			if (uclamp_latency_sensitive(p) && !sched_feat(EAS_PREFER_IDLE) && !sync)
-				goto sd_loop;
-
-			new_cpu = find_energy_efficient_cpu(p, prev_cpu, sync,
-							    sibling_count_hint);
+			new_cpu = find_energy_efficient_cpu(p, prev_cpu, sync, 1);
 			if (new_cpu >= 0)
 				return new_cpu;
 			new_cpu = prev_cpu;
 		}
 
-		want_affine = !wake_wide(p, sibling_count_hint) &&
+		want_affine = !wake_wide(p, 1) &&
 			      !wake_cap(p, cpu, prev_cpu) &&
 			      cpumask_test_cpu(cpu, &p->cpus_allowed);
 	}
 
-sd_loop:
 	rcu_read_lock();
 	for_each_domain(cpu, tmp) {
 		if (!(tmp->flags & SD_LOAD_BALANCE))
@@ -8445,16 +8440,6 @@ static inline int migrate_degrades_locality(struct task_struct *p,
 }
 #endif
 
-static inline bool can_migrate_boosted_task(struct task_struct *p,
-			int src_cpu, int dst_cpu)
-{
-	if (per_task_boost(p) == TASK_BOOST_STRICT_MAX &&
-		task_in_related_thread_group(p) &&
-		(capacity_orig_of(dst_cpu) < capacity_orig_of(src_cpu)))
-		return false;
-	return true;
-}
-
 /*
  * can_migrate_task - may task p from runqueue rq be migrated to this_cpu?
  */
@@ -8473,12 +8458,6 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
 	 * 4) are cache-hot on their current CPU.
 	 */
 	if (throttled_lb_pair(task_group(p), env->src_cpu, env->dst_cpu))
-		return 0;
-
-	/*
-	 * don't allow pull boost task to smaller cores.
-	 */
-	if (!can_migrate_boosted_task(p, env->src_cpu, env->dst_cpu))
 		return 0;
 
 	if (p->in_iowait && is_min_capacity_cpu(env->dst_cpu) &&
@@ -9170,15 +9149,9 @@ void update_group_capacity(struct sched_domain *sd, int cpu)
 		group = child->groups;
 		do {
 			struct sched_group_capacity *sgc = group->sgc;
-			cpumask_t *cpus = sched_group_span(group);
-
-			if (!cpu_isolated(cpumask_first(cpus))) {
-				capacity += sgc->capacity;
-				min_capacity = min(sgc->min_capacity,
-							min_capacity);
-				max_capacity = max(sgc->max_capacity,
-							max_capacity);
-			}
+			capacity += sgc->capacity;
+			min_capacity = min(sgc->min_capacity, min_capacity);
+			max_capacity = max(sgc->max_capacity, max_capacity);
 			group = group->next;
 		} while (group != child->groups);
 	}
@@ -10527,7 +10500,6 @@ static int group_balance_cpu_not_isolated(struct sched_group *sg)
 	cpumask_t cpus;
 
 	cpumask_and(&cpus, sched_group_span(sg), group_balance_mask(sg));
-	cpumask_andnot(&cpus, &cpus, cpu_isolated_mask);
 	return cpumask_first(&cpus);
 }
 
@@ -10796,10 +10768,7 @@ no_move:
 			 * if the curr task on busiest CPU can't be
 			 * moved to this_cpu:
 			 */
-			if (!cpumask_test_cpu(this_cpu,
-						&busiest->curr->cpus_allowed)
-				|| !can_migrate_boosted_task(busiest->curr,
-						cpu_of(busiest), this_cpu)) {
+			if (!cpumask_test_cpu(this_cpu, &busiest->curr->cpus_allowed)) {
 				raw_spin_unlock_irqrestore(&busiest->lock,
 							    flags);
 				env.flags |= LBF_ALL_PINNED;
@@ -10962,8 +10931,6 @@ static int active_load_balance_cpu_stop(void *data)
 	struct sched_domain *sd = NULL;
 	struct task_struct *p = NULL;
 	struct rq_flags rf;
-	struct task_struct *push_task = NULL;
-	int push_task_detached = 0;
 	bool moved = false;
 
 	rq_lock_irq(busiest_rq, &rf);
@@ -11000,22 +10967,6 @@ static int active_load_balance_cpu_stop(void *data)
 	}
 
 	if (likely(sd)) {
-		struct lb_env env = {
-			.sd		= sd,
-			.dst_cpu	= target_cpu,
-			.dst_rq		= target_rq,
-			.src_cpu	= busiest_rq->cpu,
-			.src_rq		= busiest_rq,
-			.idle		= CPU_IDLE,
-			/*
-			 * can_migrate_task() doesn't need to compute new_dst_cpu
-			 * for active balancing. Since we have CPU_IDLE, but no
-			 * @dst_grpmask we need to make that test go away with lying
-			 * about DST_PINNED.
-			 */
-			.flags		= LBF_DST_PINNED,
-		};
-
 		schedstat_inc(sd->alb_count);
 		update_rq_clock(busiest_rq);
 
@@ -11035,12 +10986,6 @@ out_unlock:
 
 	rq_unlock(busiest_rq, &rf);
 
-	if (push_task) {
-		if (push_task_detached)
-			attach_one_task(target_rq, push_task);
-		put_task_struct(push_task);
-	}
-
 	if (p)
 		attach_one_task(target_rq, p);
 
@@ -11057,12 +11002,8 @@ static DEFINE_SPINLOCK(balancing);
  */
 void update_max_interval(void)
 {
-	cpumask_t avail_mask;
 	unsigned int available_cpus;
-
-	cpumask_andnot(&avail_mask, cpu_online_mask, cpu_isolated_mask);
-	available_cpus = cpumask_weight(&avail_mask);
-
+	available_cpus = num_online_cpus();
 	max_load_balance_interval = HZ*available_cpus/10;
 }
 
@@ -11201,7 +11142,6 @@ static inline int find_energy_aware_new_ilb(void)
 
 	cpumask_and(&idle_cpus, nohz.idle_cpus_mask,
 			housekeeping_cpumask(HK_FLAG_MISC));
-	cpumask_andnot(&idle_cpus, &idle_cpus, cpu_isolated_mask);
 
 	sg = sd->groups;
 	do {
@@ -11341,8 +11281,8 @@ static void nohz_balancer_kick(struct rq *rq)
 	 * None are in tickless mode and hence no need for NOHZ idle load
 	 * balancing.
 	 */
-	cpumask_andnot(&cpumask, nohz.idle_cpus_mask, cpu_isolated_mask);
-	if (cpumask_empty(&cpumask))
+	cpumask_copy(&cpumask, nohz.idle_cpus_mask);
+	if (likely(!atomic_read(&nohz.nr_cpus)))
 		return;
 
 	if (READ_ONCE(nohz.has_blocked) &&
@@ -11557,7 +11497,7 @@ static bool _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
 	 */
 	smp_mb();
 
-	cpumask_andnot(&cpus, nohz.idle_cpus_mask, cpu_isolated_mask);
+	cpumask_copy(&cpus, nohz.idle_cpus_mask);
 
 	for_each_cpu(balance_cpu, &cpus) {
 		if (balance_cpu == this_cpu || !idle_cpu(balance_cpu))
