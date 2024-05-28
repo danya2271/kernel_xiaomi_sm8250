@@ -1101,10 +1101,12 @@ static char *files_array[] = {
 	"statsd",
 	"atrace",
 	"msm_irqbalance",
+	"statsd",
 };
 
 static char *paths_array[] = {
 	"/system/bin",
+	"/apex/com.android.os.statsd/bin",
 	"/vendor/bin",
 };
 
