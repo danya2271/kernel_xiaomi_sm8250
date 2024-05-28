@@ -270,7 +270,11 @@ static inline uint64_t __qdf_get_log_timestamp(void)
 #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0))
 static inline uint64_t __qdf_get_log_timestamp(void)
 {
+#if 0
 	return arch_counter_get_cntvct();
+#else
+	return 0;
+#endif
 }
 #else
 static inline uint64_t __qdf_get_log_timestamp(void)
