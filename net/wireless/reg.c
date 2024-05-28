@@ -302,7 +302,6 @@ static void reset_regdomains(bool full_reset,
 {
 	const struct ieee80211_regdomain *r;
 
-	ASSERT_RTNL();
 
 	r = get_cfg80211_regdom();
 
