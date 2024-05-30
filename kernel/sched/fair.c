@@ -7304,7 +7304,7 @@ calc_energy(struct em_calc *ec, struct task_struct *p, struct perf_domain *pd,
 	ec->cpu_util = schedutil_cpu_util(cpu, util_cfs, cpu_cap,
 						    FREQUENCY_UTIL,
 						    cpu == dst ? p : NULL);
-#else
+#elifdef CONFIG_CPUFREQ_SCHEDHORIZON
 	ec->energy_util = schedhorizon_cpu_util(cpu, util_cfs, cpu_cap,
 						       ENERGY_UTIL, NULL);
 
