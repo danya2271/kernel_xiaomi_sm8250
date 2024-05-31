@@ -61,7 +61,7 @@ unsigned int sysctl_sched_base_slice		= 1250000ULL;
 unsigned int normalized_sysctl_sched_base_slice	= 1250000ULL;
 
 
-const_debug unsigned int sysctl_sched_migration_cost	= 0UL;
+const_debug unsigned int sysctl_sched_migration_cost	= 500000UL;
 
 DEFINE_PER_CPU_READ_MOSTLY(int, sched_load_boost);
 
