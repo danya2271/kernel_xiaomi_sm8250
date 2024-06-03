@@ -1283,24 +1283,27 @@ static int sugov_init(struct cpufreq_policy *policy)
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_lp_mask)) {
-		tunables->up_rate_limit_us = 5000;
+		tunables->up_rate_limit_us = 2000;
 		tunables->down_rate_limit_us = 500;
-		tunables->hispeed_load = 30;
-		tunables->hispeed_freq = 1344000;
+		tunables->hispeed_load = 0;
+		tunables->hispeed_freq = 0;
+		tunables->pl = 0;
 	}
 
 	if (cpumask_test_cpu(policy->cpu, cpu_perf_mask)) {
 		tunables->up_rate_limit_us = 2000;
 		tunables->down_rate_limit_us = 500;
-		tunables->hispeed_load = 25;
-		tunables->hispeed_freq = 1382000;
+		tunables->hispeed_load = 0;
+		tunables->hispeed_freq = 0;
+		tunables->pl = 0;
 	}
 
         if (cpumask_test_cpu(policy->cpu, cpu_prime_mask)) {
                 tunables->up_rate_limit_us = 2000;
                 tunables->down_rate_limit_us = 500;
-				tunables->hispeed_load = 40;
-				tunables->hispeed_freq = 1401600;
+				tunables->hispeed_load = 0;
+				tunables->hispeed_freq = 0;
+				tunables->pl = 0;
         }
 
 	policy->governor_data = sg_policy;
