@@ -1996,7 +1996,7 @@ static int ngd_slim_probe(struct platform_device *pdev)
 	dev->pgdla = SLIM_LA_MGR;
 	dev->ctrl.nchans = MSM_SLIM_NCHANS;
 	dev->ctrl.nports = MSM_SLIM_NPORTS;
-	dev->framer.rootfreq = SLIM_ROOT_FREQ >> 3;
+	dev->framer.rootfreq = 31;
 	dev->framer.superfreq =
 		dev->framer.rootfreq / SLIM_CL_PER_SUPERFRAME_DIV8;
 	dev->ctrl.a_framer = &dev->framer;
