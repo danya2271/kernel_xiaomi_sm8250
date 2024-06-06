@@ -2607,10 +2607,6 @@ static int binder_translate_binder(struct flat_binder_object *fp,
 			return -ENOMEM;
 	}
 	if (fp->cookie != node->cookie) {
-		binder_user_error("%d:%d sending u%016llx node %d, cookie mismatch %016llx != %016llx\n",
-				  proc->pid, thread->pid, (u64)fp->binder,
-				  node->debug_id, (u64)fp->cookie,
-				  (u64)node->cookie);
 		ret = -EINVAL;
 		goto done;
 	}
@@ -2632,12 +2628,6 @@ static int binder_translate_binder(struct flat_binder_object *fp,
 	fp->binder = 0;
 	fp->handle = rdata.desc;
 	fp->cookie = 0;
-
-	trace_binder_transaction_node_to_ref(t, node, &rdata);
-	binder_debug(BINDER_DEBUG_TRANSACTION,
-		     "        node %d u%016llx -> ref %d desc %d\n",
-		     node->debug_id, (u64)node->ptr,
-		     rdata.debug_id, rdata.desc);
 done:
 	binder_put_node(node);
 	return ret;
