@@ -692,6 +692,10 @@ else
 KBUILD_CFLAGS   += -O2
 endif
 
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS   += -march=armv8.2-a
+endif
+
 ifdef CONFIG_POLLY_CLANG
 POLLY_FLAGS	+= -mllvm -polly \
 		   -mllvm -polly-ast-use-context \
