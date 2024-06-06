@@ -708,6 +708,9 @@ ifeq ($(cc-name),clang)
 #Enable fast FMA optimizations
 KBUILD_CFLAGS   += -ffp-contract=fast
 endif
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS   += -march=armv8.2-a
+endif
 
 ifneq ($(cc-name),clang)
 KBUILD_CFLAGS += -Wno-format -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-enum-int-mismatch -Wno-uninitialized -Wno-address -Wno-strict-aliasing
