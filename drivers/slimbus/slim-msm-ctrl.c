@@ -18,7 +18,6 @@
 #include <linux/of.h>
 #include <linux/of_slimbus.h>
 #include <linux/msm-sps.h>
-#include <linux/qdsp6v2/apr.h>
 #include "slim-msm.h"
 
 #define MSM_SLIM_NAME	"msm_slim_ctrl"
@@ -205,7 +204,7 @@ static irqreturn_t msm_slim_interrupt(int irq, void *d)
 		 * signalling completion/exiting ISR
 		 */
 		mb();
-		msm_slim_manage_tx_msgq(dev, false, NULL);
+		msm_slim_manage_tx_msgq(dev, false, NULL, 0);
 	}
 	if (stat & MGR_INT_RX_MSG_RCVD) {
 		u32 rx_buf[10];
@@ -1134,18 +1133,10 @@ static int msm_slim_probe(struct platform_device *pdev)
 {
 	struct msm_slim_ctrl *dev;
 	int ret;
-	enum apr_subsys_state q6_state;
 	struct resource		*bam_mem, *bam_io;
 	struct resource		*slim_mem, *slim_io;
 	struct resource		*irq, *bam_irq;
 	bool			rxreg_access = false;
-
-	q6_state = apr_get_q6_state();
-	if (q6_state == APR_SUBSYS_DOWN) {
-		dev_dbg(&pdev->dev, "defering %s, adsp_state %d\n", __func__,
-			q6_state);
-		return -EPROBE_DEFER;
-	}
 	dev_dbg(&pdev->dev, "adsp is ready\n");
 
 	slim_mem = platform_get_resource_byname(pdev, IORESOURCE_MEM,
