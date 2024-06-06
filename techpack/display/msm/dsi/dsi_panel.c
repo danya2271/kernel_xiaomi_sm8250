@@ -4103,7 +4103,12 @@ static struct dsi_panel * set_panel;
 static ssize_t mdss_fb_set_ea_enable(struct device *dev,
 	struct device_attribute *attr, const char *buf, size_t len)
 {
-	u32 ea_enable = true;
+	u32 ea_enable;
+
+	if (sscanf(buf, "%d", &ea_enable) != 1) {
+		pr_err("sccanf buf error!\n");
+		return len;
+	}
 
 	ea_panel_mode_ctrl(set_panel, ea_enable != 0);
 
@@ -4113,8 +4118,12 @@ static ssize_t mdss_fb_set_ea_enable(struct device *dev,
 static ssize_t mdss_fb_get_ea_enable(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	ea_panel_is_enabled();
-	return true;
+	int ret;
+	bool ea_enable = ea_panel_is_enabled();
+
+	ret = scnprintf(buf, PAGE_SIZE, "%d\n", ea_enable ? 1 : 0);
+
+	return ret;
 }
 
 static DEVICE_ATTR(msm_fb_ea_enable, S_IRUGO | S_IWUSR,

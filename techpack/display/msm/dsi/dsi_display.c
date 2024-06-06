@@ -247,7 +247,9 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 	}
 
 #ifdef CONFIG_DRM_SDE_EXPO
-	bl_temp = expo_map_dim_level((u32)bl_temp, dsi_display);
+	if(panel->dimlayer_exposure) {
+		bl_temp = expo_map_dim_level((u32)bl_temp, dsi_display);
+	}
 #endif
 
 	rc = dsi_panel_set_backlight(panel, (u32)bl_temp);
@@ -5504,7 +5506,7 @@ static ssize_t sysfs_dimlayer_exposure_read(struct device *dev,
 	panel = display->panel;
 
 	mutex_lock(&panel->panel_lock);
-	status = 1;
+	status = panel->dimlayer_exposure;
 	mutex_unlock(&panel->panel_lock);
 
 	return snprintf(buf, PAGE_SIZE, "%d\n", status);
