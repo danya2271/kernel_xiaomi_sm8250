@@ -99,26 +99,7 @@ static ssize_t msm_rpmh_master_stats_print_data(char *prvbuf, ssize_t length,
 				struct msm_rpmh_master_stats *record,
 				const char *name)
 {
-	uint64_t accumulated_duration = record->accumulated_duration;
-	/*
-	 * If a master is in sleep when reading the sleep stats from SMEM
-	 * adjust the accumulated sleep duration to show actual sleep time.
-	 * This ensures that the displayed stats are real when used for
-	 * the purpose of computing battery utilization.
-	 */
-	if (record->last_entered > record->last_exited)
-		accumulated_duration +=
-				(arch_counter_get_cntvct()
-				- record->last_entered);
-
-	return scnprintf(prvbuf, length, "%s\n\tVersion:0x%x\n"
-			"\tSleep Count:0x%x\n"
-			"\tSleep Last Entered At:0x%llx\n"
-			"\tSleep Last Exited At:0x%llx\n"
-			"\tSleep Accumulated Duration:0x%llx\n\n",
-			name, record->version_id, record->counts,
-			record->last_entered, record->last_exited,
-			accumulated_duration);
+	return 0;
 }
 
 static ssize_t msm_rpmh_master_stats_show(struct kobject *kobj,

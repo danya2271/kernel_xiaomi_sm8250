@@ -80,35 +80,7 @@ static inline u64 get_time_in_msec(u64 counter)
 static inline int msm_rpmstats_append_data_to_buf(char *buf,
 		struct msm_rpm_stats_data *data, int buflength)
 {
-	char stat_type[5];
-	u64 time_in_last_mode;
-	u64 time_since_last_mode;
-	u64 actual_last_sleep;
-
-	stat_type[4] = 0;
-	memcpy(stat_type, &data->stat_type, sizeof(u32));
-
-	time_in_last_mode = data->last_exited_at - data->last_entered_at;
-	time_in_last_mode = get_time_in_msec(time_in_last_mode);
-	time_since_last_mode = arch_counter_get_cntvct() - data->last_exited_at;
-	time_since_last_mode = get_time_in_sec(time_since_last_mode);
-	actual_last_sleep = get_time_in_msec(data->accumulated);
-
-#if defined(CONFIG_MSM_RPM_SMD)
-	return scnprintf(buf, buflength,
-		"RPM Mode:%s\n\t count:%d\ntime in last mode(msec):%llu\n"
-		"time since last mode(sec):%llu\nactual last sleep(msec):%llu\n"
-		"client votes: %#010x\n\n",
-		stat_type, data->count, time_in_last_mode,
-		time_since_last_mode, actual_last_sleep,
-		data->client_votes);
-#else
-	return scnprintf(buf, buflength,
-		"RPM Mode:%s\n\t count:%d\ntime in last mode(msec):%llu\n"
-		"time since last mode(sec):%llu\nactual last sleep(msec):%llu\n\n",
-		stat_type, data->count, time_in_last_mode,
-		time_since_last_mode, actual_last_sleep);
-#endif
+	return 0;
 }
 
 static inline u32 msm_rpmstats_read_long_register(void __iomem *regbase,
