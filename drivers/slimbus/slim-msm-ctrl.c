@@ -85,9 +85,8 @@ enum mgr_intr {
 
 enum frm_cfg {
 	FRM_ACTIVE	= 1,
-// Overclock slimbus to get the best audio quality
-	CLK_GEAR	= 10, // Increase root freq from 11 (24.526MHz) to 31 (27+MHz) which is the largest it will take
-	ROOT_FREQ	= 31, // Increase clock gear from 7 to 10 which is the larget it will take
+	CLK_GEAR	= 7,
+	ROOT_FREQ	= 11,
 	REF_CLK_GEAR	= 15,
 	INTR_WAKE	= 19,
 };
