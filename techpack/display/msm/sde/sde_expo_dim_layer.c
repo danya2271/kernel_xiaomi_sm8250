@@ -69,10 +69,10 @@ static void set_dim_layer_exposure(uint16_t brightness, struct dsi_display *disp
 		return;
 	};
 
-	if (!display->drm_conn->state->crtc) {
+/*	if (!display->drm_conn->state->crtc) {
 		pr_err("No CRTC on display connector!!\n");
 		return;
-	}
+	}*/
 
 	crtc = display->drm_conn->state->crtc;
 	state = crtc->state;
