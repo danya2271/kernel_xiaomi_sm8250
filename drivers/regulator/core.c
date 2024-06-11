@@ -304,13 +304,13 @@ static int regulator_check_voltage(struct regulator_dev *rdev,
 	}
 
 	/* check if requested voltage range actually overlaps the constraints */
-	if (*max_uV < rdev->constraints->min_uV ||
+/*	if (*max_uV < rdev->constraints->min_uV ||
 	    *min_uV > rdev->constraints->max_uV) {
 		rdev_err(rdev, "requested voltage range [%d, %d] does not fit within constraints: [%d, %d]\n",
 			*min_uV, *max_uV, rdev->constraints->min_uV,
 			rdev->constraints->max_uV);
 		return -EINVAL;
-	}
+	}*/
 
 	if (*max_uV > rdev->constraints->max_uV)
 		*max_uV = rdev->constraints->max_uV;
@@ -318,9 +318,7 @@ static int regulator_check_voltage(struct regulator_dev *rdev,
 		*min_uV = rdev->constraints->min_uV;
 
 	if (*min_uV > *max_uV) {
-		rdev_err(rdev, "unsupportable voltage range: %d-%duV\n",
-			 *min_uV, *max_uV);
-		return -EINVAL;
+        *min_uV = *max_uV;
 	}
 
 	return 0;
@@ -353,11 +351,11 @@ static int regulator_check_consumers(struct regulator_dev *rdev,
 		if (!voltage->min_uV && !voltage->max_uV)
 			continue;
 
-		if (init_max_uV < voltage->min_uV
+/*		if (init_max_uV < voltage->min_uV
 		    || init_min_uV > voltage->max_uV)
 			rdev_err(rdev, "requested voltage range [%d, %d] does not fit within previously voted range: [%d, %d]\n",
 				init_min_uV, init_max_uV, voltage->min_uV,
-				voltage->max_uV);
+				voltage->max_uV);*/
 
 		if (*max_uV > voltage->max_uV)
 			*max_uV = voltage->max_uV;
@@ -366,9 +364,10 @@ static int regulator_check_consumers(struct regulator_dev *rdev,
 	}
 
 	if (*min_uV > *max_uV) {
-		rdev_err(rdev, "Restricting voltage, %u-%uuV\n",
-			*min_uV, *max_uV);
-		return -EINVAL;
+//		rdev_err(rdev, "Restricting voltage, %u-%uuV\n",
+//			*min_uV, *max_uV);
+//		return -EINVAL;
+        *min_uV = *max_uV;
 	}
 
 	return 0;
