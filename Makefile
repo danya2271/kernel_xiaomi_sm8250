@@ -693,7 +693,13 @@ KBUILD_CFLAGS   += -O2
 endif
 
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS   += -march=armv8.2-a
+KBUILD_CFLAGS   += -march=armv8.2-a+lse+crypto+dotprod
+endif
+
+#Enable MLGO
+ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 180000; echo $$?),0)
+KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
+KBUILD_LDFLAGS  += -mllvm -regalloc-enable-advisor=release
 endif
 
 ifdef CONFIG_POLLY_CLANG
