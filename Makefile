@@ -734,11 +734,16 @@ ifeq ($(cc-name),clang)
 KBUILD_CFLAGS   += -ffp-contract=fast
 endif
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS   += -march=armv8.2-a
+KBUILD_CFLAGS   += -march=armv8.2-a+lse+crypto+dotprod
 endif
 
 ifneq ($(cc-name),clang)
 KBUILD_CFLAGS += -Wno-format -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-enum-int-mismatch -Wno-uninitialized -Wno-address -Wno-strict-aliasing
+endif
+#Enable MLGO
+ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 180000; echo $$?),0)
+KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
+KBUILD_LDFLAGS  += -mllvm -regalloc-enable-advisor=release
 endif
 ifeq ($(cc-name),clang)
 # Additional optimizations for better kernel speed
