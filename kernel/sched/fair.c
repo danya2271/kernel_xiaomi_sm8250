@@ -142,6 +142,8 @@ int __weak arch_asym_cpu_priority(int cpu)
 {
 	return -cpu;
 }
+
+#define capacity_greater(cap1, cap2) ((cap1) * 1024 > (cap2) * 1078)
 #endif
 
 #ifdef CONFIG_CFS_BANDWIDTH
@@ -6593,10 +6595,9 @@ static void find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 		goto out;
 
 	/* fast path for prev_cpu */
-	if (((capacity_orig_of(prev_cpu) == capacity_orig_of(start_cpu)) ||
-		asym_cap_siblings(prev_cpu, start_cpu)) &&
-		!cpu_isolated(prev_cpu) && cpu_online(prev_cpu) &&
-		idle_cpu(prev_cpu)) {
+	if ((capacity_orig_of(prev_cpu) == capacity_orig_of(start_cpu)) ||
+		(!cpu_isolated(prev_cpu) && cpu_online(prev_cpu) &&
+		idle_cpu(prev_cpu))) {
 
 		if (idle_get_state_idx(cpu_rq(prev_cpu)) <= 1) {
 			target_cpu = prev_cpu;
@@ -6604,8 +6605,7 @@ static void find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 			fbt_env->fastpath = PREV_CPU_FASTPATH;
 			goto target;
 		}
-	}
-
+		}
 	/* Scan CPUs in all SDs */
 	sg = start_sd->groups;
 	do {
@@ -9218,8 +9218,7 @@ group_similar_cpu_capacity(struct sched_group *sg, struct sched_group *ref)
 	long diff = sg->sgc->min_capacity - ref->sgc->min_capacity;
 	long max = max(sg->sgc->min_capacity, ref->sgc->min_capacity);
 
-	return ((abs(diff) < max >> 3) ||
-		asym_cap_siblings(group_first_cpu(sg), group_first_cpu(ref)));
+	return (abs(diff) < max >> 3);
 }
 
 static inline enum
@@ -10124,10 +10123,9 @@ static struct sched_group *find_busiest_group(struct lb_env *env)
 			if ((sds.busiest->group_weight > 1) &&
 				capacity_local > capacity_busiest) {
 				goto out_balanced;
-			} else if (capacity_local == capacity_busiest ||
-				   asym_cap_siblings(cpu_local, cpu_busiest)) {
-				if (cpu_rq(cpu_busiest)->nr_running < 2)
-					goto out_balanced;
+			} else if (capacity_local == capacity_busiest) {
+					if (cpu_rq(cpu_busiest)->nr_running < 2)
+						goto out_balanced;
 			}
 		}
 	}
@@ -10339,7 +10337,7 @@ static struct rq *find_busiest_queue(struct lb_env *env,
 			break;
 
 		case migrate_util:
-			util = cpu_util(cpu_of(rq));
+			util = __cpu_util(cpu_of(rq));
 
 			if (busiest_util < util) {
 				busiest_util = util;
