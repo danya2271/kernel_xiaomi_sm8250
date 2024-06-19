@@ -2203,7 +2203,10 @@ static inline unsigned long task_util(struct task_struct *p)
  *
  * Return: the (estimated) utilization for the specified CPU
  */
-static inline unsigned long cpu_util(int cpu)
+#ifdef CONFIG_SCHED_WALT
+#else
+static inline unsigned long __cpu_util(int cpu)
+#endif
 {
 	struct cfs_rq *cfs_rq;
 	unsigned int util;
@@ -2256,7 +2259,7 @@ cpu_util_freq(int cpu, struct sched_walt_cpu_load *walt_load)
 #ifdef CONFIG_SCHED_WALT
 	return cpu_util_freq_walt(cpu, walt_load);
 #else
-	return cpu_util(cpu);
+	return __cpu_util(cpu);
 #endif
 }
 
@@ -2901,7 +2904,7 @@ static inline bool asym_cap_sibling_group_has_capacity(int dst_cpu, int margin)
 		return true;
 
 	total_capacity = capacity_of(sib1) + capacity_of(sib2);
-	total_util = cpu_util(sib1) + cpu_util(sib2);
+	total_util = __cpu_util(sib1) + __cpu_util(sib2);
 
 	return ((total_capacity * 100) > (total_util * margin));
 }

@@ -5482,7 +5482,7 @@ static unsigned long capacity_of(int cpu);
 bool __cpu_overutilized(int cpu, int delta)
 {
 	return (capacity_orig_of(cpu) * 1024) <
-		((cpu_util(cpu) + delta) * sched_capacity_margin_up[cpu]);
+		((__cpu_util(cpu) + delta) * sched_capacity_margin_up[cpu]);
 }
 
 bool cpu_overutilized(int cpu)
@@ -6723,7 +6723,7 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int t
 
 	for_each_cpu_wrap(cpu, cpus, target) {
 		if (!--nr)
-			return si_cpu;
+			return cpu;
 		if (available_idle_cpu(cpu) || sched_idle_cpu(cpu))
 			break;
 	}
@@ -6744,7 +6744,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 	struct sched_domain *sd;
 	int i, recent_used_cpu;
 
-	if (available_idle_cpu(target) sched_idle_cpu(target))
+	if (available_idle_cpu(target) && sched_idle_cpu(target))
 		return target;
 
 	/*
@@ -6821,7 +6821,7 @@ static unsigned long cpu_util_without(int cpu, struct task_struct *p)
 
 	/* Task has no contribution or is new */
 	if (cpu != task_cpu(p) || !READ_ONCE(p->se.avg.last_update_time))
-		return cpu_util(cpu);
+		return __cpu_util(cpu);
 
 #ifdef CONFIG_SCHED_WALT
 	util = max_t(long, cpu_util(cpu) - task_util(p), 0);
@@ -9766,7 +9766,7 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 			load = source_load(i, load_idx);
 
 		sgs->group_load += load;
-		sgs->group_util += cpu_util(i);
+		sgs->group_util += __cpu_util(i);
 		sgs->sum_nr_running += rq->cfs.h_nr_running;
 
 		nr_running = rq->nr_running;
