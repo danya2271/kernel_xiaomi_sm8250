@@ -706,8 +706,38 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
 
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS   += -Os
+KBUILD_LDFLAGS	+= -Os
+KBUILD_AFLAGS	+= -Os
 else
-KBUILD_CFLAGS   += -O2
+KBUILD_CFLAGS   += -O3
+KBUILD_LDFLAGS	+= -O3
+KBUILD_AFLAGS	+= -O3
+endif
+
+ifeq ($(cc-name),clang)
+#Enable fast FMA optimizations
+KBUILD_CFLAGS   += -ffp-contract=fast
+endif
+ifeq ($(cc-name),clang)
+KBUILD_CFLAGS := -mcpu=cortex-a53+crc
+endif
+
+ifneq ($(cc-name),clang)
+KBUILD_CFLAGS += -Wno-format -Wno-maybe-uninitialized -Wno-misleading-indentation -Wno-enum-int-mismatch -Wno-uninitialized -Wno-address -Wno-strict-aliasing
+endif
+#Enable MLGO
+ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 180000; echo $$?),0)
+KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
+KBUILD_LDFLAGS  += -mllvm -regalloc-enable-advisor=release
+# Enable hot cold split optimization
+KBUILD_CFLAGS   += -mllvm -hot-cold-split=true
+endif
+ifeq ($(cc-name),clang)
+# Additional optimizations for better kernel speed
+KBUILD_CFLAGS +=  -fno-semantic-interposition -fno-signed-zeros  -ffinite-math-only -freciprocal-math -fcf-protection=none -fno-trapping-math -fno-math-errno -ffast-math -funroll-loops
+else
+KBUILD_CFLAGS += -fno-trapping-math -fno-math-errno
+KBUILD_CFLAGS +=  -fipa-pta -fipa-sra -frename-registers
 endif
 
 ifdef CONFIG_CC_WERROR
