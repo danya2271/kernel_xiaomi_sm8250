@@ -103,7 +103,7 @@ DEFINE_PER_CPU_READ_MOSTLY(int, sched_load_boost);
  */
 int __weak arch_asym_cpu_priority(int cpu)
 {
-	return -arch_scale_cpu_capacity(cpu);
+	return -arch_scale_cpu_capacity(NULL, cpu);
 }
 
 #define capacity_greater(cap1, cap2) ((cap1) * 1024 > (cap2) * 1078)
