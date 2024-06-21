@@ -118,3 +118,8 @@ config PROC_CMDLINE_OVERRIDE_ANDROID_BOOT_DEVICES
 	help
 	  Say Y here to override Android boot devices parameter value
 	  from bootdevice parameter that supplied by the LK bootloader.
+
+config PROC_STRIPPED
+	default n
+	depends on EXPERT
+	bool "Strip non-essential /proc functionality to reduce code size"
