@@ -980,7 +980,7 @@ endif
 CC_FLAGS_LTO	+= -fvisibility=hidden -fwhole-program-vtables
 
 # Limit inlining across translation units to reduce binary size
-KBUILD_LDFLAGS += -mllvm -import-instr-limit=80
+KBUILD_LDFLAGS += -mllvm -import-instr-limit=40
 
 endif
 
