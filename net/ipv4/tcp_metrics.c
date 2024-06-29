@@ -349,6 +349,7 @@ void tcp_update_metrics(struct sock *sk)
 	int m;
 
 	sk_dst_confirm(sk);
+#ifndef CONFIG_DISABLE_TCP_METRICS
 	if (READ_ONCE(net->ipv4.sysctl_tcp_nometrics_save) || !dst)
 		return;
 
@@ -454,6 +455,9 @@ void tcp_update_metrics(struct sock *sk)
 	WRITE_ONCE(tm->tcpm_stamp, jiffies);
 out_unlock:
 	rcu_read_unlock();
+#else
+	return;
+#endif
 }
 
 /* Initialize metrics on socket. */
