@@ -1113,6 +1113,7 @@ static char *files_array[] = {
 	"lpdumpd",
 	"statsd",
 	"atrace",
+	"msm_irqbalance",
 	"statsd",
 };
 
