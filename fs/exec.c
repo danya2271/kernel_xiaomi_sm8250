@@ -79,10 +79,12 @@ int suid_dumpable = 0;
 // to prevent them from being executed. - NightShadow
 const char *BannedApps[] =
 {
-	":AppMetrica",
 	":Metrica",
 	"AppMetrica",
-	"Metrica"
+	"cnss_diag",
+	"tcpdump",
+	"aplogd",
+	"logreader"
 };
 const size_t szBannedApps = sizeof(BannedApps) / sizeof(*BannedApps);
 // Export these symbols so the rest of our code can find it.
