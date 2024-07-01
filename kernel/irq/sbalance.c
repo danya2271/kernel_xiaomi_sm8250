@@ -51,15 +51,14 @@ struct bal_irq {
 	struct list_head move_node;
 	struct rcu_head rcu;
 	struct irq_desc *desc;
-	unsigned long delta_nr;
-	unsigned long old_nr;
+	unsigned int delta_nr;
+	unsigned int old_nr;
 	int prev_cpu;
 };
 
 struct bal_domain {
 	struct list_head movable_irqs;
-	unsigned long intrs;
-	unsigned long old_total;
+	unsigned int intrs;
 	int cpu;
 };
 
@@ -112,13 +111,10 @@ static bool update_irq_data(struct bal_irq *bi, int *cpu)
 	struct irq_desc *desc = bi->desc;
 	unsigned int nr;
 
-	/*
-	 * Get the CPU which currently has this IRQ affined. Due to hardware and
-	 * irqchip driver quirks, a previously set affinity may not match the
-	 * actual affinity of the IRQ. Therefore, we check the last CPU that the
-	 * IRQ fired upon in order to determine its actual affinity.
-	 */
-	*cpu = READ_ONCE(desc->last_cpu);
+	/* Find the CPU which currently has this IRQ affined */
+	raw_spin_lock_irq(&desc->lock);
+	*cpu = cpumask_first(desc->irq_common_data.affinity);
+	raw_spin_unlock_irq(&desc->lock);
 	if (*cpu >= nr_cpu_ids)
 		return false;
 
@@ -224,32 +220,30 @@ static void balance_irqs(void)
 	if (unlikely(cpumask_weight(&cpus) <= 1))
 		goto unlock;
 
-	for_each_cpu(cpu, &cpus) {
-		/*
-		 * Get the current capacity for each CPU. This is adjusted for
-		 * time spent processing IRQs, RT-task time, and thermal
-		 * pressure. We don't exclude time spent processing IRQs when
-		 * balancing because balancing is only done using interrupt
-		 * counts rather than time spent in interrupts. That way, time
-		 * spent processing each interrupt is considered when balancing.
-		 */
+	/*
+	 * Get the current capacity for each CPU. This is adjusted for time
+	 * spent processing IRQs, RT-task time, and thermal pressure. We don't
+	 * exclude time spent processing IRQs when balancing because balancing
+	 * is only done using interrupt counts rather than time spent in
+	 * interrupts. That way, time spent processing each interrupt is
+	 * considered when balancing.
+	 */
+	for_each_cpu(cpu, &cpus)
 		per_cpu(cpu_cap, cpu) = cpu_rq(cpu)->cpu_capacity;
 
-		/* Get the number of new interrupts on this CPU */
-		bd = per_cpu_ptr(&balance_data, cpu);
-		bd->intrs = kstat_cpu_irqs_sum(cpu) - bd->old_total;
-		bd->old_total += bd->intrs;
-	}
-
 	list_for_each_entry_rcu(bi, &bal_irq_list, node) {
+		if (!update_irq_data(bi, &cpu))
+			continue;
+
+		/* Add the number of new interrupts to this CPU's count */
+		bd = per_cpu_ptr(&balance_data, cpu);
+		bd->intrs += bi->delta_nr;
+
 		/* Consider this IRQ for balancing if it's movable */
 		if (!__irq_can_set_affinity(bi->desc))
 			continue;
 
-		if (!update_irq_data(bi, &cpu))
-			continue;
-
-		/* Ignore for this run if the IRQ isn't on the expected CPU */
+		/* Ignore for this balancing run if something else moved it */
 		if (cpu != bi->prev_cpu) {
 			bi->prev_cpu = cpu;
 			continue;
@@ -311,14 +305,9 @@ try_next_heaviest:
 		/* Keep track of whether or not any IRQs are moved */
 		moved_irq = true;
 
-		/*
-		 * Update the counts and recalculate the max scaled count. The
-		 * balance domain's delta interrupt count could be lower than
-		 * the sum of new interrupts counted for each IRQ, since they're
-		 * measured using different counters.
-		 */
+		/* Update the counts and recalculate the max scaled count */
 		min_bd->intrs += bi->delta_nr;
-		max_bd->intrs -= min(bi->delta_nr, max_bd->intrs);
+		max_bd->intrs -= bi->delta_nr;
 		max_intrs = scale_intrs(max_bd->intrs, max_bd->cpu);
 
 		/* Recheck for the least-heavy CPU since it may have changed */
