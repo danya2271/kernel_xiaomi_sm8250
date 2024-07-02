@@ -341,11 +341,6 @@ do { \
 
 static inline void set_tx_timestamp(struct tx_pkt_info *pkt)
 {
-	unsigned long long t_now;
-
-	t_now = sched_clock();
-	pkt->ts_nsec = do_div(t_now, 1000000000U);
-	pkt->ts_sec = (unsigned int)t_now;
 }
 
 static inline void verify_tx_queue_is_empty(const char *func)
@@ -1344,7 +1339,6 @@ fail:
  */
 static void store_rx_timestamp(void)
 {
-	last_rx_pkt_timestamp = sched_clock();
 }
 
 /**
@@ -1353,12 +1347,6 @@ static void store_rx_timestamp(void)
  */
 static void log_rx_timestamp(void)
 {
-	unsigned long long t = last_rx_pkt_timestamp;
-	unsigned long nanosec_rem;
-
-	nanosec_rem = do_div(t, 1000000000U);
-	BAM_DMUX_LOG("Last rx pkt processed at [%6u.%09lu]\n", (unsigned int)t,
-								nanosec_rem);
 }
 
 static void rx_timer_work_func(struct work_struct *work)

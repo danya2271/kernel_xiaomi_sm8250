@@ -3158,39 +3158,7 @@ void hdd_wlan_get_stats(struct hdd_adapter *adapter, uint16_t *length,
 static int wlan_hdd_write_suspend_resume_stats(struct hdd_context *hdd_ctx,
 					       char *buffer, uint16_t max_len)
 {
-	int ret;
-	QDF_STATUS status;
-	struct suspend_resume_stats *sr_stats;
-
-	sr_stats = &hdd_ctx->suspend_resume_stats;
-	ret = scnprintf(buffer, max_len,
-			"\n"
-			"Suspends: %u\n"
-			"Resumes: %u\n"
-			"\n"
-			"Suspend Fail Reasons\n"
-			"\tIPA: %u\n"
-			"\tRadar: %u\n"
-			"\tRoam: %u\n"
-			"\tScan: %u\n"
-			"\tInitial Wakeup: %u\n"
-			"\n",
-			sr_stats->suspends, sr_stats->resumes,
-			sr_stats->suspend_fail[SUSPEND_FAIL_IPA],
-			sr_stats->suspend_fail[SUSPEND_FAIL_RADAR],
-			sr_stats->suspend_fail[SUSPEND_FAIL_ROAM],
-			sr_stats->suspend_fail[SUSPEND_FAIL_SCAN],
-			sr_stats->suspend_fail[SUSPEND_FAIL_INITIAL_WAKEUP]);
-
-	status = ucfg_mc_cp_stats_write_wow_stats(hdd_ctx->psoc,
-						  &buffer[ret], max_len - ret,
-						  &ret);
-	if (QDF_IS_STATUS_ERROR(status)) {
-		hdd_err("Failed to get WoW stats");
-		return qdf_status_to_os_return(status);
-	}
-
-	return ret;
+	return 0;
 }
 
 /**

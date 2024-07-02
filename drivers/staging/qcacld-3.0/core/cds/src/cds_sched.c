@@ -189,15 +189,6 @@ static int cds_sched_find_attach_cpu(p_cds_sched_context pSchedContext,
 				goto err;
 			}
 
-			if (pSchedContext->conf_rx_thread_cpu_mask) {
-				if (pSchedContext->conf_rx_thread_cpu_mask &
-								(1 << cpus))
-					qdf_cpumask_set_cpu(cpus, &new_mask);
-			} else if (topology_physical_package_id(cpus) ==
-						 CDS_CPU_CLUSTER_TYPE_PERF) {
-				qdf_cpumask_set_cpu(cpus, &new_mask);
-			}
-
 			core_affine_count++;
 		}
 	} else {
@@ -282,20 +273,6 @@ void cds_sched_handle_rx_thread_affinity_req(bool high_throughput)
 		/* Attach to all cores, let scheduler decide */
 		qdf_cpumask_setall(&new_mask);
 		goto affine_thread;
-	}
-	for_each_online_cpu(cpus) {
-		if (topology_physical_package_id(cpus) >
-		    CDS_MAX_CPU_CLUSTERS) {
-			cds_err("can handle max %d clusters ",
-				CDS_MAX_CPU_CLUSTERS);
-			return;
-		}
-		if (pschedcontext->conf_rx_thread_ul_affinity &&
-		    (pschedcontext->conf_rx_thread_ul_affinity &
-				 (1 << cpus)))
-			qdf_cpumask_set_cpu(cpus, &new_mask);
-
-		core_affine_count++;
 	}
 
 affine_thread:

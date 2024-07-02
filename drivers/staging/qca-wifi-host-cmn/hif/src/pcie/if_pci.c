@@ -3631,21 +3631,12 @@ void hif_pci_irq_set_affinity_hint(
 	int i, ret;
 	unsigned int cpus;
 	bool mask_set = false;
+	if (IS_ENABLED(CONFIG_IRQ_SBALANCE))
+		return 0;
 
 	for (i = 0; i < hif_ext_group->numirq; i++)
 		qdf_cpumask_clear(&hif_ext_group->new_cpu_mask[i]);
 
-	for (i = 0; i < hif_ext_group->numirq; i++) {
-		qdf_for_each_online_cpu(cpus) {
-			if (qdf_topology_physical_package_id(cpus) ==
-				CPU_CLUSTER_TYPE_PERF) {
-				qdf_cpumask_set_cpu(cpus,
-						    &hif_ext_group->
-						    new_cpu_mask[i]);
-				mask_set = true;
-			}
-		}
-	}
 	for (i = 0; i < hif_ext_group->numirq; i++) {
 		if (mask_set) {
 			qdf_dev_modify_irq_status(hif_ext_group->os_irq[i],
@@ -3685,18 +3676,7 @@ void hif_pci_ce_irq_set_affinity_hint(
 	qdf_cpu_mask ce_cpu_mask;
 
 	host_ce_conf = ce_sc->host_ce_config;
-	qdf_cpumask_clear(&ce_cpu_mask);
 
-	qdf_for_each_online_cpu(cpus) {
-		if (qdf_topology_physical_package_id(cpus) ==
-			CPU_CLUSTER_TYPE_PERF) {
-			qdf_cpumask_set_cpu(cpus,
-					    &ce_cpu_mask);
-		} else {
-			hif_err_rl("Unable to set cpu mask for offline CPU %d"
-				   , cpus);
-		}
-	}
 	if (qdf_cpumask_empty(&ce_cpu_mask)) {
 		hif_err_rl("Empty cpu_mask, unable to set CE IRQ affinity");
 		return;

@@ -80,6 +80,9 @@ qdf_dev_set_irq_affinity(uint32_t irnum, struct qdf_cpu_mask *cpmask)
 {
 	int ret;
 
+	if (IS_ENABLED(CONFIG_IRQ_SBALANCE))
+		return 0;
+
 	if (irnum <= 0)
 		return QDF_STATUS_E_INVAL;
 

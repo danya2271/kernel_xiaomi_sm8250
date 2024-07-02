@@ -300,34 +300,7 @@ bool hif_ce_service_should_yield(struct hif_softc *scn,
 bool hif_ce_service_should_yield(struct hif_softc *scn,
 				 struct CE_state *ce_state)
 {
-	bool yield, time_limit_reached, rxpkt_thresh_reached = 0;
-
-	time_limit_reached =
-		sched_clock() > ce_state->ce_service_yield_time ? 1 : 0;
-
-	if (!time_limit_reached)
-		rxpkt_thresh_reached = hif_max_num_receives_reached
-					(scn, ce_state->receive_count);
-
-	/* Setting receive_count to MAX_NUM_OF_RECEIVES when this count goes
-	 * beyond MAX_NUM_OF_RECEIVES for NAPI backet calulation issue. This
-	 * can happen in fast path handling as processing is happenning in
-	 * batches.
-	 */
-	if (rxpkt_thresh_reached)
-		ce_state->receive_count = MAX_NUM_OF_RECEIVES;
-
-	yield =  time_limit_reached || rxpkt_thresh_reached;
-
-	if (yield &&
-	    ce_state->htt_rx_data &&
-	    hif_napi_enabled(GET_HIF_OPAQUE_HDL(scn), ce_state->id)) {
-		hif_napi_update_yield_stats(ce_state,
-					    time_limit_reached,
-					    rxpkt_thresh_reached);
-	}
-
-	return yield;
+	return 0;
 }
 qdf_export_symbol(hif_ce_service_should_yield);
 #endif
@@ -1151,11 +1124,6 @@ int ce_per_engine_service(struct hif_softc *scn, unsigned int CE_id)
 	/* Clear force_break flag and re-initialize receive_count to 0 */
 	CE_state->receive_count = 0;
 	CE_state->force_break = 0;
-	CE_state->ce_service_start_time = sched_clock();
-	CE_state->ce_service_yield_time =
-		CE_state->ce_service_start_time +
-		hif_get_ce_service_max_yield_time(
-			(struct hif_opaque_softc *)scn);
 
 	qdf_spin_lock(&CE_state->ce_index_lock);
 

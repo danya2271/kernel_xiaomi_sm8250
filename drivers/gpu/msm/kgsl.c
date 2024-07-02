@@ -5154,8 +5154,8 @@ int kgsl_request_irq(struct platform_device *pdev, const  char *name,
 	if (num < 0)
 		return num;
 
-	ret = devm_request_irq(&pdev->dev, num, handler, IRQF_TRIGGER_HIGH,
-		name, data);
+	ret = devm_request_irq(&pdev->dev, num, handler, IRQF_TRIGGER_HIGH |
+			       IRQF_PERF_AFFINE, name, data);
 
 	if (ret)
 		dev_err(&pdev->dev, "Unable to get interrupt %s: %d\n",
@@ -5233,7 +5233,6 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 	disable_irq(device->pwrctrl.interrupt_num);
 
 	rwlock_init(&device->context_lock);
-	spin_lock_init(&device->submit_lock);
 
 	timer_setup(&device->idle_timer, kgsl_timer, 0);
 
@@ -5296,9 +5295,6 @@ int kgsl_device_platform_probe(struct kgsl_device *device)
 	device->events_wq = alloc_workqueue("kgsl-events",
 		WQ_UNBOUND | WQ_MEM_RECLAIM | WQ_SYSFS | WQ_HIGHPRI, 0);
 
-	/* Initialize the snapshot engine */
-	kgsl_device_snapshot_init(device);
-
 	/* Initialize common sysfs entries */
 	kgsl_pwrctrl_init_sysfs(device);
 
@@ -5321,8 +5317,6 @@ void kgsl_device_platform_remove(struct kgsl_device *device)
 
 	kfree(device->dev->dma_parms);
 	device->dev->dma_parms = NULL;
-
-	kgsl_device_snapshot_close(device);
 
 	kgsl_exit_page_pools();
 
@@ -5456,8 +5450,8 @@ static int __init kgsl_core_init(void)
 
 	kthread_init_worker(&kgsl_driver.worker);
 
-	kgsl_driver.worker_thread = kthread_run(kthread_worker_fn,
-		&kgsl_driver.worker, "kgsl_worker_thread");
+	kgsl_driver.worker_thread = kthread_run_perf_critical(cpu_perf_mask,
+		kthread_worker_fn, &kgsl_driver.worker, "kgsl_worker_thread");
 
 	if (IS_ERR(kgsl_driver.worker_thread)) {
 		pr_err("kgsl: unable to start kgsl thread\n");

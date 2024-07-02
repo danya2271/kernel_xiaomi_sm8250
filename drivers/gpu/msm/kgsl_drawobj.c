@@ -366,6 +366,7 @@ static bool drawobj_sync_fence_func(void *priv)
 	}
 	return false;
 }
+
 /* drawobj_add_sync_fence() - Add a new sync fence syncpoint
  * @device: KGSL device
  * @syncobj: KGSL sync obj to add the sync point to
