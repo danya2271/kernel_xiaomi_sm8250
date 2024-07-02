@@ -105,17 +105,4 @@ const char *cam_get_module_name(unsigned int module_id)
 void cam_debug_log(unsigned int module_id, const char *func, const int line,
 	const char *fmt, ...)
 {
-	char str_buffer[STR_BUFFER_MAX_LENGTH];
-	va_list args;
-
-	va_start(args, fmt);
-
-	if (debug_mdl & module_id) {
-		vsnprintf(str_buffer, STR_BUFFER_MAX_LENGTH, fmt, args);
-		pr_info("CAM_DBG: %s: %s: %d: %s\n",
-			cam_get_module_name(module_id),
-			func, line, str_buffer);
-	}
-
-	va_end(args);
 }

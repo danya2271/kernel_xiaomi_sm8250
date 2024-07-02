@@ -2,6 +2,7 @@
 	dsi_l11r_38_08_0a_dsc_cmd: qcom,mdss_dsi_l11r_38_08_0a_dsc_cmd {
 		qcom,mdss-dsi-panel-name = "xiaomi 38 08 0a cmd mode dsc dsi panel";
 		qcom,mdss-dsi-panel-type = "dsi_cmd_mode";
+		qcom,mdss-dsi-panel-physical-type = "oled";
 		qcom,mdss-dsi-virtual-channel-id = <0>;
 		qcom,mdss-dsi-stream = <0>;
 		qcom,mdss-dsi-bpp = <24>;

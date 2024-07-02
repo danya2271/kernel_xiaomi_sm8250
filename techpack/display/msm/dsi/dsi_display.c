@@ -22,6 +22,8 @@
 #include "dsi_pwr.h"
 #include "sde_dbg.h"
 #include "dsi_parser.h"
+#include <linux/cpu_suspend.h>
+
 
 #ifdef CONFIG_DRM_SDE_EXPO
 #include "sde_expo_dim_layer.h"
@@ -57,6 +59,8 @@ static const struct of_device_id dsi_display_dt_match[] = {
 };
 
 struct dsi_display *primary_display;
+
+static unsigned int cur_refresh_rate = 60;
 
 static void dsi_display_mask_ctrl_error_interrupts(struct dsi_display *display,
 			u32 mask, bool enable)
@@ -243,9 +247,7 @@ int dsi_display_set_backlight(struct drm_connector *connector,
 	}
 
 #ifdef CONFIG_DRM_SDE_EXPO
-	if(panel->dimlayer_exposure) {
-		bl_temp = expo_map_dim_level((u32)bl_temp, dsi_display);
-	}
+	bl_temp = expo_map_dim_level((u32)bl_temp, dsi_display);
 #endif
 
 	rc = dsi_panel_set_backlight(panel, (u32)bl_temp);
@@ -1254,15 +1256,19 @@ int dsi_display_set_power(struct drm_connector *connector,
 			dsi_panel_set_doze_brightness(display->panel,
 				mi_cfg->unset_doze_brightness, true);
 		mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
+		suspend_cpus_aod();
+		screen_off = true;
 		break;
 	case SDE_MODE_DPMS_LP2:
 		mi_cfg->in_aod = true;
 		mi_drm_notifier_call_chain(MI_DRM_EARLY_EVENT_BLANK, &notify_data);
-		rc = dsi_panel_set_lp2(display->panel);
+		rc = dsi_panel_set_lp1(display->panel);
 		if (mi_cfg->unset_doze_brightness)
 			dsi_panel_set_doze_brightness(display->panel,
 				mi_cfg->unset_doze_brightness, true);
 		mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
+		suspend_cpus_aod();
+		screen_off = true;
 		break;
 	case SDE_MODE_DPMS_ON:
 		if ((display->panel->power_mode == SDE_MODE_DPMS_LP1) ||
@@ -1271,8 +1277,11 @@ int dsi_display_set_power(struct drm_connector *connector,
 			rc = dsi_panel_set_nolp(display->panel);
 			mi_drm_notifier_call_chain(MI_DRM_EVENT_BLANK, &notify_data);
 		}
+		activate_cpus();
 		break;
 	case SDE_MODE_DPMS_OFF:
+		suspend_cpus();
+		screen_off = true;
 	default:
 		return rc;
 	}
@@ -5495,7 +5504,7 @@ static ssize_t sysfs_dimlayer_exposure_read(struct device *dev,
 	panel = display->panel;
 
 	mutex_lock(&panel->panel_lock);
-	status = panel->dimlayer_exposure;
+	status = 1;
 	mutex_unlock(&panel->panel_lock);
 
 	return snprintf(buf, PAGE_SIZE, "%d\n", status);
@@ -7337,6 +7346,8 @@ int dsi_display_set_mode(struct dsi_display *display,
 	int rc = 0;
 	struct dsi_display_mode adj_mode;
 	struct dsi_mode_info timing;
+	screen_off = false;
+//	activate_cpus();
 
 	if (!display || !mode || !display->panel) {
 		DSI_ERR("Invalid params\n");
@@ -7374,11 +7385,11 @@ int dsi_display_set_mode(struct dsi_display *display,
 		goto error;
 	}
 
-	DSI_INFO("mdp_transfer_time_us=%d us\n",
-			adj_mode.priv_info->mdp_transfer_time_us);
-	DSI_INFO("hactive= %d,vactive= %d,fps=%d\n",
-			timing.h_active, timing.v_active,
-			timing.refresh_rate);
+//	DSI_INFO("mdp_transfer_time_us=%d us\n",
+//			adj_mode.priv_info->mdp_transfer_time_us);
+//	DSI_INFO("hactive= %d,vactive= %d,fps=%d\n",
+//			timing.h_active, timing.v_active,
+//			timing.refresh_rate);
 
 	if (display->panel->cur_mode->timing.refresh_rate != timing.refresh_rate) {
 		if (display->drm_conn && display->drm_conn->kdev)
@@ -7577,7 +7588,7 @@ static void dsi_display_handle_fifo_overflow(struct work_struct *work)
 	 * Add sufficient delay to make sure
 	 * pixel transmission has started
 	 */
-	udelay(200);
+	usleep_range(190, 210);
 end:
 	dsi_display_clk_ctrl(display->dsi_clk_handle,
 			DSI_ALL_CLKS, DSI_CLK_OFF);
@@ -8104,6 +8115,11 @@ int dsi_display_pre_commit(void *display,
 	return rc;
 }
 
+unsigned int dsi_panel_get_refresh_rate(void)
+{
+	return READ_ONCE(cur_refresh_rate);
+}
+
 int dsi_display_enable(struct dsi_display *display)
 {
 	int rc = 0;
@@ -8204,9 +8220,10 @@ int dsi_display_enable(struct dsi_display *display)
 	mutex_lock(&display->display_lock);
 
 	mode = display->panel->cur_mode;
+	WRITE_ONCE(cur_refresh_rate, mode->timing.refresh_rate);
 
 	if (mode->dsi_mode_flags & DSI_MODE_FLAG_DMS) {
-		rc = dsi_panel_post_switch(display->panel);
+		rc = dsi_panel_switch(display->panel);
 		if (rc) {
 			DSI_ERR("[%s] failed to switch DSI panel mode, rc=%d\n",
 				   display->name, rc);
@@ -8235,7 +8252,7 @@ int dsi_display_enable(struct dsi_display *display)
 	}
 
 	if (mode->dsi_mode_flags & DSI_MODE_FLAG_DMS) {
-		rc = dsi_panel_switch(display->panel);
+		rc = dsi_panel_post_switch(display->panel);
 		if (rc) {
 			DSI_ERR("[%s] failed to switch DSI panel mode, rc=%d\n",
 				   display->name, rc);

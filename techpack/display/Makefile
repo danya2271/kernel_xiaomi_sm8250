@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-only
-
+PGO_PROFILE := n
 # auto-detect subdirs
 ifeq ($(CONFIG_ARCH_KONA), y)
 include $(srctree)/techpack/display/config/konadisp.conf
