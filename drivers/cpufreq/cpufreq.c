@@ -34,6 +34,9 @@
 #include <linux/sched/sysctl.h>
 
 #include <trace/events/power.h>
+#include <linux/cpu_suspend.h>
+
+#define SCREEN_OFF_CEILING    614400
 
 static LIST_HEAD(cpufreq_policy_list);
 
@@ -92,7 +95,7 @@ static void cpufreq_governor_limits(struct cpufreq_policy *policy);
  * changes to devices when the CPU clock speed changes.
  * The mutex locks both lists.
  */
-static BLOCKING_NOTIFIER_HEAD(cpufreq_policy_notifier_list);
+SRCU_NOTIFIER_HEAD_STATIC(cpufreq_policy_notifier_list);
 SRCU_NOTIFIER_HEAD_STATIC(cpufreq_transition_notifier_list);
 
 static int off __read_mostly;
@@ -232,7 +235,7 @@ struct cpufreq_policy *cpufreq_cpu_get(unsigned int cpu)
 	struct cpufreq_policy *policy = NULL;
 	unsigned long flags;
 
-	if (WARN_ON(cpu >= nr_cpu_ids))
+	if (cpu >= nr_cpu_ids)
 		return NULL;
 
 	/* get the cpufreq driver */
@@ -1797,7 +1800,7 @@ EXPORT_SYMBOL_GPL(cpufreq_get_driver_data);
  *      changes in cpufreq policy.
  *
  *	This function may sleep, and has the same return conditions as
- *	blocking_notifier_chain_register.
+ *	srcu_notifier_chain_register.
  */
 int cpufreq_register_notifier(struct notifier_block *nb, unsigned int list)
 {
@@ -1822,7 +1825,7 @@ int cpufreq_register_notifier(struct notifier_block *nb, unsigned int list)
 		mutex_unlock(&cpufreq_fast_switch_lock);
 		break;
 	case CPUFREQ_POLICY_NOTIFIER:
-		ret = blocking_notifier_chain_register(
+		ret = srcu_notifier_chain_register(
 				&cpufreq_policy_notifier_list, nb);
 		break;
 	default:
@@ -1841,7 +1844,7 @@ EXPORT_SYMBOL(cpufreq_register_notifier);
  *	Remove a driver from the CPU frequency notifier list.
  *
  *	This function may sleep, and has the same return conditions as
- *	blocking_notifier_chain_unregister.
+ *	srcu_notifier_chain_unregister.
  */
 int cpufreq_unregister_notifier(struct notifier_block *nb, unsigned int list)
 {
@@ -1862,7 +1865,7 @@ int cpufreq_unregister_notifier(struct notifier_block *nb, unsigned int list)
 		mutex_unlock(&cpufreq_fast_switch_lock);
 		break;
 	case CPUFREQ_POLICY_NOTIFIER:
-		ret = blocking_notifier_chain_unregister(
+		ret = srcu_notifier_chain_unregister(
 				&cpufreq_policy_notifier_list, nb);
 		break;
 	default:
@@ -2010,6 +2013,10 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 
 	if (cpufreq_disabled())
 		return -ENODEV;
+
+	if (screen_off && target_freq > SCREEN_OFF_CEILING) {
+		target_freq = SCREEN_OFF_CEILING;
+	}
 
 	/* Make sure that target_freq is within supported range */
 	target_freq = clamp_val(target_freq, policy->min, policy->max);
@@ -2280,18 +2287,12 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 		return ret;
 
 	/* adjust if necessary - all reasons */
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
+	srcu_notifier_call_chain(&cpufreq_policy_notifier_list,
 			CPUFREQ_ADJUST, new_policy);
 
-#ifndef CONFIG_BOARD_XIAOMI
 	/* adjust if necessary - hardware incompatibility */
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
+	srcu_notifier_call_chain(&cpufreq_policy_notifier_list,
 			CPUFREQ_INCOMPATIBLE, new_policy);
-#else
-	/* the adjusted frequency should not exceed thermal limit*/
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
-			CPUFREQ_THERMAL, new_policy);
-#endif
 
 	/*
 	 * verify the cpu speed can be set within this limit, which might be
@@ -2302,7 +2303,7 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 		return ret;
 
 	/* notification of the new policy */
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
+	srcu_notifier_call_chain(&cpufreq_policy_notifier_list,
 			CPUFREQ_NOTIFY, new_policy);
 
 	policy->min = new_policy->min;
