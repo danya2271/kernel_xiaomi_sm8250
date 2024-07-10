@@ -1101,6 +1101,9 @@ static char *files_array[] = {
 	"statsd",
 	"atrace",
 	"statsd",
+#ifdef CONFIG_ANDROID_SIMPLE_LMK
+	"lmkd",
+#endif
 };
 
 static char *paths_array[] = {
