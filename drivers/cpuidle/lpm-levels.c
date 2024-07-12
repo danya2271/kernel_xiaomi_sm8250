@@ -42,6 +42,7 @@
 #include "../clk/clk.h"
 #define CREATE_TRACE_POINTS
 #include <trace/events/trace_msm_low_power.h>
+#include <linux/cpu_suspend.h>
 
 #define SCLK_HZ (32768)
 #define PSCI_POWER_STATE(reset) (reset << 30)
@@ -1701,6 +1702,14 @@ static int lpm_probe(struct platform_device *pdev)
 	unsigned int cpu;
 	struct hrtimer *cpu_histtimer;
 	struct kobject *module_kobj = NULL;
+
+	if (screen_off) {
+		sleep_disabled = false;
+		wake_up_all_idle_cpus();
+	} else {
+		sleep_disabled = true;
+		wake_up_all_idle_cpus();
+	}
 
 	get_online_cpus();
 	lpm_root_node = lpm_of_parse_cluster(pdev);
