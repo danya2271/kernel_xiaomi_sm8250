@@ -718,6 +718,12 @@ KBUILD_CFLAGS  += -mllvm -inline-enable-cost-benefit-analysis
 #KBUILD_CFLAGS  += -mllvm -
 #KBUILD_CFLAGS  += -mllvm -
 #KBUILD_CFLAGS  += -mllvm -
+#Enable MLGO
+ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 180000; echo $$?),0)
+KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
+KBUILD_LDFLAGS  += -mllvm -regalloc-enable-advisor=release
+KBUILD_LDFLAGS  += -mllvm -enable-ml-inliner=release
+endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
