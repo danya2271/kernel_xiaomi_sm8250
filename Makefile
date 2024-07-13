@@ -703,7 +703,7 @@ ifeq ($(cc-name),clang)
 KBUILD_CFLAGS   += -ffp-contract=fast
 endif
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS   += -march=armv8.2-a+lse+crypto+dotprod
+KBUILD_CFLAGS   += -march=armv8.2-a+lse+crypto+dotprod --cuda-path=/dev/null
 endif
 
 ifneq ($(cc-name),clang)
@@ -713,6 +713,7 @@ endif
 ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 180000; echo $$?),0)
 KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
 KBUILD_LDFLAGS  += -mllvm -regalloc-enable-advisor=release
+KBUILD_LDFLAGS  += -mllvm -enable-ml-inliner=release
 endif
 ifeq ($(cc-name),clang)
 # Additional optimizations for better kernel speed
