@@ -529,7 +529,7 @@ int dirty_bytes_handler(struct ctl_table *table, int write,
 	ret = proc_doulongvec_minmax(table, write, buffer, lenp, ppos);
 	if (ret == 0 && write && vm_dirty_bytes != old_bytes) {
 		writeback_set_ratelimit();
-		vm_dirty_ratio = 0;
+		vm_dirty_ratio = 20;
 	}
 	return ret;
 }
