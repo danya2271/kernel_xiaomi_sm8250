@@ -2,6 +2,10 @@
 #
 # Makefile for the linux kernel.
 #
+# Inlining optimization
+KBUILD_CFLAGS	+= -mllvm -inline-threshold=3750
+KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=2000
+KBUILD_CFLAGS   += -mllvm -inlinehint-threshold=1800
 
 obj-y     = fork.o exec_domain.o panic.o \
 	    cpu.o exit.o softirq.o resource.o \
