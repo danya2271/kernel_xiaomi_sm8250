@@ -81,8 +81,6 @@ const char *BannedApps[] =
 {
 	":Metrica",
 	"AppMetrica",
-	"soterserver",
-	"adservices"
 	"cnss_diag",
 	"tcpdump",
 	"aplogd",
