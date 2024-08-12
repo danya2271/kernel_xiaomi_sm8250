@@ -7977,7 +7977,7 @@ compute_energy_change(struct task_struct *p, struct perf_domain *pd, int src,
 		 * The energy model mandates all the CPUs of a performance
 		 * domain have the same capacity.
 		 */
-		cpu_cap = arch_scale_cpu_capacity(cpumask_first(pd_mask));
+		cap = arch_scale_cpu_capacity(cpumask_first(pd_mask));
 
 		/*
 		 * The cache index is 0 if @p is moving to this cluster, and 1
