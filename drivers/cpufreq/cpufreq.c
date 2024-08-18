@@ -36,8 +36,6 @@
 #include <trace/events/power.h>
 #include <linux/cpu_suspend.h>
 
-#define SCREEN_OFF_CEILING    614400
-
 static LIST_HEAD(cpufreq_policy_list);
 
 static inline bool policy_is_inactive(struct cpufreq_policy *policy)
@@ -2013,10 +2011,6 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 
 	if (cpufreq_disabled())
 		return -ENODEV;
-
-	if (screen_off && target_freq > SCREEN_OFF_CEILING) {
-		target_freq = SCREEN_OFF_CEILING;
-	}
 
 	/* Make sure that target_freq is within supported range */
 	target_freq = clamp_val(target_freq, policy->min, policy->max);
