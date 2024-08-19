@@ -13,10 +13,11 @@
 #include <linux/delayacct.h>
 #include <linux/pid_namespace.h>
 #include <linux/cgroupstats.h>
-#include <linux/cpu.h>
+#include <linux/gpu_input_boost.h>
 #include <linux/binfmts.h>
 
 #include <linux/cpu_input_boost.h>
+#include <linux/gpu_input_boost.h>
 #include <trace/events/cgroup.h>
 
 /*
@@ -550,6 +551,7 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
                !memcmp(of->kn->parent->name, "top-app", sizeof("top-app")) &&
                task_is_zygote(task->parent)) {
                 cpu_input_boost_kick_max(1000);
+				gpu_input_boost_kick_max(1000);
         }
 
 out_finish:
