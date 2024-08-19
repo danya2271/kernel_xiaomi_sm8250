@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0-only
 ccflags-y += -I$(src)
 
+# GPU Input Boost
+obj-$(CONFIG_GPU_INPUT_BOOST)		+= gpu_input_boost.o
+
 msm_kgsl_core-y = \
 	kgsl.o \
 	kgsl_trace.o \
