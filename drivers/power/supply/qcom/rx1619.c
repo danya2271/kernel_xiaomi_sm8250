@@ -313,7 +313,7 @@ static int get_board_version(void)
 static int rx1619_read(struct rx1619_chg *chip, u8 *val, u16 addr)
 {
 	unsigned int temp;
-	int rc;
+	int rc = 0;
 
 	rc = regmap_read(chip->regmap, addr, &temp);
 	if (rc >= 0) {
@@ -2863,7 +2863,7 @@ static void rx_chg_detect_work(struct work_struct *work)
 	union power_supply_propval val = {0, };
 	union power_supply_propval pc_val = {0, };
 	union power_supply_propval wk_val = {0, };
-	int rc;
+	int rc = 0;
 
 	dev_info(chip->dev, "[idt] enter %s\n", __func__);
 
@@ -2928,7 +2928,7 @@ static void reverse_chg_state_set_work(struct work_struct *work)
 	struct rx1619_chg *chip =
 		 container_of(work, struct rx1619_chg,
 					reverse_chg_state_work.work);
-	int ret;
+	int ret = 0;
 
 	dev_info(chip->dev, "no rx found and disable reverse charging\n");
 	ret = rx_set_reverse_chg_mode(chip, false);
@@ -2943,7 +2943,7 @@ static void reverse_dping_state_set_work(struct work_struct *work)
 	struct rx1619_chg *chip =
 		 container_of(work, struct rx1619_chg,
 					reverse_dping_state_work.work);
-	int ret;
+	int ret = 0;
 
 	dev_info(chip->dev, "tx mode fault and disable reverse charging\n");
 	ret = rx_set_reverse_chg_mode(chip, false);
@@ -3051,7 +3051,7 @@ static void rx1619_wireless_int_work(struct work_struct *work)
 	u8 err_cmd;
 	static int retry;
 	static int retry_id;
-	int rc;
+	int rc = 0;
 	int cnt;
 	union power_supply_propval cp_val = {0, };
 	union power_supply_propval val = {0, };
@@ -3886,7 +3886,7 @@ static int rx_set_reverse_chg_mode(struct rx1619_chg *chip, int enable)
 	union power_supply_propval cp_val = {0, };
 	union power_supply_propval val = {0, };
 	union power_supply_propval wk_val = {0, };
-	int ret = 0, rc;
+	int ret = 0, rc = 0;
 
 	chip->wireless_psy = power_supply_get_by_name("wireless");
 	if (!chip->wireless_psy) {
@@ -4463,7 +4463,7 @@ static int rx1619_wireless_set_property(struct power_supply *psy,
 		enum power_supply_property prop,
 		const union power_supply_propval *val)
 {
-	int ret;
+	int ret = 0;
 	struct rx1619_chg *chip = power_supply_get_drvdata(psy);
 	int data;
 
@@ -4618,7 +4618,7 @@ static const struct regmap_config rx1619_regmap_config = {
 static int rx1619_prop_is_writeable(struct power_supply *psy,
 		enum power_supply_property psp)
 {
-	int rc;
+	int rc = 0;
 
 	switch (psp) {
 	case POWER_SUPPLY_PROP_INPUT_VOLTAGE_REGULATION:
@@ -4878,7 +4878,7 @@ static struct i2c_driver rx1619_driver = {
 
 static int __init rx1619_init(void)
 {
-	int ret;
+	int ret = 0;
 	uint32_t hw_version = 0;
 #ifdef CONFIG_RX1619_REMOVE
 	return 0;
