@@ -439,7 +439,7 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 		level = min_t(int, level, devfreq->profile->max_state - 1);
 	}
 
-	if (boost_adjust_notify() == 1)
+	if ((boost_adjust_notify() == 1) && (level > input_boost_level))
 		level = input_boost_level;
 	else if (boost_adjust_notify() == 2)
 		level = 0;
