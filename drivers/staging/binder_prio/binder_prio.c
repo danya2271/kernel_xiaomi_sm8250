@@ -11,8 +11,7 @@
 static const char *task_name[] = {
 	"com.miui.home",
 	"ndroid.systemui",  // com.android.systemui
-	// "surfaceflinger",
-	"com.tencent.mm",
+	"surfaceflinger",
 };
 
 static int to_userspace_prio(int policy, int kernel_priority) {
@@ -25,16 +24,13 @@ static int to_userspace_prio(int policy, int kernel_priority) {
 static bool set_binder_rt_task(struct binder_transaction *t) {
 	int i;
 
-	if (t && t->from && t->from->task && t->to_proc && t->to_proc->tsk && (!(t->flags & TF_ONE_WAY)) &&
+	if (t && t->from && t->from->task && (!(t->flags & TF_ONE_WAY)) &&
 	    rt_policy(t->from->task->policy) && (t->from->task->pid == t->from->task->tgid)) {
 		for (i = 0; i < ARRAY_SIZE(task_name); i++) {
 			if (strncmp(t->from->task->comm, task_name[i], strlen(task_name[i])) == 0) {
 				return true;
 			}
 		}
-		if (!strncmp(t->from->task->group_leader->comm, "surfaceflinger", strlen("surfaceflinger")) &&
-		    !strncmp(t->from->task->comm, "passBlur", strlen("passBlur")))
-			return true;
 	}
 	return false;
 }
