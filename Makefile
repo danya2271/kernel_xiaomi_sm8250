@@ -689,28 +689,29 @@ KBUILD_CFLAGS   += -O3 -march=armv8.2-a+lse+crypto+dotprod --cuda-path=/dev/null
 KBUILD_AFLAGS   += -O3 -march=armv8.2-a+lse+crypto+dotprod
 KBUILD_LDFLAGS  += -O3 --plugin-opt=O3
 else
-KBUILD_CFLAGS   += -O2
-KBUILD_AFLAGS   += -O2
-KBUILD_LDFLAGS  += -O2
-
-ifdef CONFIG_INLINE_OPTIMIZATION
-ifdef CONFIG_CC_IS_CLANG
-KBUILD_CFLAGS	+= -mllvm -inline-threshold=2500
-KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=2000
-KBUILD_CFLAGS	+= -mllvm -unroll-threshold=1200
-else ifdef CONFIG_CC_IS_GCC
-KBUILD_CFLAGS	+= --param max-inline-insns-single=600
-KBUILD_CFLAGS	+= --param max-inline-insns-auto=750
-
-# We limit inlining to 5KB on the stack.
-KBUILD_CFLAGS	+= --param large-stack-frame=12288
-
-KBUILD_CFLAGS	+= --param inline-min-speedup=5
-KBUILD_CFLAGS	+= --param inline-unit-growth=60
-endif
+KBUILD_CFLAGS   += -O3
+KBUILD_AFLAGS   += -O3
+KBUILD_LDFLAGS  += -O3
 endif
 
-endif
+# Inlining optimization
+KBUILD_CFLAGS  += -mllvm -inline-threshold=4800
+KBUILD_CFLAGS  += -mllvm -inlinehint-threshold=1500
+KBUILD_CFLAGS  += -mllvm -inline-savings-multiplier=12
+KBUILD_CFLAGS  += -mllvm -inline-cold-callsite-threshold=55
+KBUILD_CFLAGS  += -mllvm -ignore-tti-inline-compatible
+KBUILD_CFLAGS  += -mllvm -inline-savings-profitable-multiplier=6
+KBUILD_CFLAGS  += -mllvm -inline-size-allowance=30
+KBUILD_CFLAGS  += -mllvm -inlinecold-threshold=130
+KBUILD_CFLAGS  += -mllvm -locally-hot-callsite-threshold=750
+KBUILD_CFLAGS  += -mllvm -inline-instr-cost=18
+KBUILD_CFLAGS  += -mllvm -inline-call-penalty=5
+KBUILD_CFLAGS  += -mllvm -hot-callsite-rel-freq=100
+KBUILD_CFLAGS  += -mllvm -cold-callsite-rel-freq=5
+KBUILD_CFLAGS  += -mllvm -inline-enable-cost-benefit-analysis
+#KBUILD_CFLAGS  += -mllvm -
+#KBUILD_CFLAGS  += -mllvm -
+#KBUILD_CFLAGS  += -mllvm -
 
 # Tell gcc to never replace conditional load with a non-conditional one
 KBUILD_CFLAGS	+= $(call cc-option,--param=allow-store-data-races=0)
