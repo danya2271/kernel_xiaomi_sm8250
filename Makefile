@@ -715,17 +715,11 @@ KBUILD_CFLAGS  += -mllvm -inline-call-penalty=5
 KBUILD_CFLAGS  += -mllvm -hot-callsite-rel-freq=100
 KBUILD_CFLAGS  += -mllvm -cold-callsite-rel-freq=5
 KBUILD_CFLAGS  += -mllvm -inline-enable-cost-benefit-analysis
-#KBUILD_CFLAGS  += -mllvm -
-#KBUILD_CFLAGS  += -mllvm -
-#KBUILD_CFLAGS  += -mllvm -
 #Enable MLGO
 ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 180000; echo $$?),0)
 KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
 KBUILD_LDFLAGS  += -mllvm -regalloc-enable-advisor=release
 KBUILD_LDFLAGS  += -mllvm -enable-ml-inliner=release
-endif
-ifeq ($(cc-name),clang)
-KBUILD_CFLAGS   += -march=armv8.2-a
 endif
 
 # Tell gcc to never replace conditional load with a non-conditional one
