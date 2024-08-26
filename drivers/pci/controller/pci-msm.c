@@ -35,6 +35,8 @@
 #include <linux/types.h>
 #include <linux/uaccess.h>
 #include <soc/qcom/subsystem_notif.h>
+#include <linux/devfreq_boost.h>
+#include <linux/cpu_input_boost.h>
 
 #include "../pci.h"
 
@@ -269,6 +271,8 @@
 #define BDF_OFFSET(bus, devfn) \
 	((bus << 24) | (devfn << 16))
 
+#ifdef CONFIG_DEBUG
+
 #define PCIE_GEN_DBG(x...) do { \
 	if (msm_pcie_debug_mask) \
 		pr_alert(x); \
@@ -321,6 +325,24 @@
 		ipc_log_string((dev)->ipc_log, "%s: " fmt, __func__, ##arg); \
 	pr_info("%s: " fmt, __func__, ##arg);  \
 	} while (0)
+
+#else
+
+#define PCIE_GEN_DBG(x...) do {} while (0)
+
+#define PCIE_DBG(dev, fmt, arg...) do {} while (0)
+
+#define PCIE_DBG2(dev, fmt, arg...) do {} while (0)
+
+#define PCIE_DBG3(dev, fmt, arg...) do {} while (0)
+
+#define PCIE_DUMP(dev, fmt, arg...) do {} while (0)
+
+#define PCIE_DBG_FS(dev, fmt, arg...) do {} while (0)
+
+#define PCIE_INFO(dev, fmt, arg...) do {} while (0)
+
+#endif
 
 #define PCIE_ERR(dev, fmt, arg...) do {			 \
 	if ((dev) && (dev)->ipc_log_long)   \
@@ -7150,6 +7172,9 @@ static int __init pcie_init(void)
 	if (ret)
 		pr_warn("PCIe: DRV: failed to register with rpmsg: ret: %d\n",
 			ret);
+
+	cpu_input_boost_kick_max(20000);
+	devfreq_boost_kick_max(DEVFREQ_CPU_LLCC_DDR_BW, 20000);
 
 	ret = platform_driver_register(&msm_pcie_driver);
 
