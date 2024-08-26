@@ -742,8 +742,9 @@ probe_exit:
 	INIT_LIST_HEAD(&hw->list);
 	list_add_tail(&hw->list, &lmh_dcvs_hw_list);
 	mutex_unlock(&lmh_dcvs_list_access);
+#ifdef CONFIG_DEBUG
 	lmh_debug_register(pdev);
-
+#endif
 	if (!no_cdev_register) {
 		ret = cpuhp_setup_state(CPUHP_AP_ONLINE_DYN,
 					"lmh-dcvs/cdev:online",
