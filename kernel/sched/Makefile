@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0
+KBUILD_CFLAGS  += -mllvm -inline-instr-cost=1
 ifdef CONFIG_FUNCTION_TRACER
 CFLAGS_REMOVE_clock.o = $(CC_FLAGS_FTRACE)
 endif
