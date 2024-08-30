@@ -99,6 +99,7 @@
 
 #include <linux/cpu_input_boost.h>
 #include <linux/gpu_input_boost.h>
+#include <linux/devfreq_boost.h>
 #include <asm/pgtable.h>
 #include <asm/pgalloc.h>
 #include <linux/uaccess.h>
@@ -2374,6 +2375,7 @@ long _do_fork(unsigned long clone_flags,
 	long nr;
 
 	if (task_is_zygote(current)) {
+		devfreq_boost_kick_max(DEVFREQ_CPU_LLCC_DDR_BW, 150);
 		cpu_input_boost_kick_max(150);
 		gpu_input_boost_kick_max(150);
 	}

@@ -18,6 +18,11 @@
 
 #define GOODIX_DRM_INTERFACE_WA
 
+#include <linux/cpu_input_boost.h>
+#include <linux/gpu_input_boost.h>
+#include <linux/devfreq_boost.h>
+#include <linux/cpu_suspend.h>
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/ioctl.h>
@@ -455,6 +460,11 @@ static long gf_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		break;
 
 	case GF_IOC_INPUT_KEY_EVENT:
+		if (screen_off) {
+			gpu_input_boost_kick_max(1500);
+			cpu_input_boost_kick_max(1000);
+			devfreq_boost_kick_max(DEVFREQ_CPU_LLCC_DDR_BW, 700);
+		}
 		if (copy_from_user(&gf_key, (struct gf_key *)arg,
 				   sizeof(struct gf_key))) {
 			pr_debug(

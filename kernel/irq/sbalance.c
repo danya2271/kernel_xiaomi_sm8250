@@ -401,7 +401,7 @@ static int __noreturn sbalance_thread(void *data)
 
 static int __init sbalance_init(void)
 {
-	BUG_ON(IS_ERR(kthread_run(sbalance_thread, NULL, "sbalanced")));
+	BUG_ON(IS_ERR(kthread_run_perf_critical(cpu_lp_mask, sbalance_thread, NULL, "sbalanced")));
 	return 0;
 }
 late_initcall(sbalance_init);
