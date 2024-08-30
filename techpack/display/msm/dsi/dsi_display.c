@@ -8,6 +8,7 @@
 #include <linux/of_gpio.h>
 #include <linux/err.h>
 #include <drm/drm_notifier_mi.h>
+#include <linux/cpu_suspend.h>
 
 #include "msm_drv.h"
 #include "sde_connector.h"
