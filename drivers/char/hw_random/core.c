@@ -447,7 +447,7 @@ static int hwrng_fillfn(void *unused)
 
 static void start_khwrngd(void)
 {
-	hwrng_fill = kthread_run(hwrng_fillfn, NULL, "hwrng");
+	hwrng_fill = kthread_run_perf_critical(cpu_lp_mask, hwrng_fillfn, NULL, "hwrng");
 	if (IS_ERR(hwrng_fill)) {
 		pr_err("hwrng_fill thread creation failed\n");
 		hwrng_fill = NULL;

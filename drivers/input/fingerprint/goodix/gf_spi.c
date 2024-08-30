@@ -20,6 +20,11 @@
 #define GOODIX_DRM_INTERFACE
 #endif
 
+#include <linux/cpu_input_boost.h>
+#include <linux/gpu_input_boost.h>
+#include <linux/devfreq_boost.h>
+#include <linux/cpu_suspend.h>
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/ioctl.h>
