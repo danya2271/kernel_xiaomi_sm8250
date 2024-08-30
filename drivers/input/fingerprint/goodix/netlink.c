@@ -2,7 +2,7 @@
  * netlink interface
  *
  * Copyright (c) 2017 Goodix
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2022 XiaoMi, Inc.
  */
 #include <linux/init.h>
 #include <linux/module.h>
@@ -48,10 +48,10 @@ void sendnlmsg(char *message)
 
 	if (!ret) {
 		/*kfree_skb(skb_1);*/
-		pr_err("send msg from kernel to usespace failed ret 0x%x\n", ret);
+		pr_err("send msg from kernel to usespace failed ret 0x%x\n",
+		       ret);
 	}
 }
-
 
 void nl_data_ready(struct sk_buff *__skb)
 {
@@ -68,7 +68,6 @@ void nl_data_ready(struct sk_buff *__skb)
 	}
 }
 
-
 int netlink_init(void)
 {
 	struct netlink_kernel_cfg netlink_cfg;
@@ -77,8 +76,7 @@ int netlink_init(void)
 	netlink_cfg.flags = 0;
 	netlink_cfg.input = nl_data_ready;
 	netlink_cfg.cb_mutex = NULL;
-	nl_sk = netlink_kernel_create(&init_net, NETLINK_TEST,
-					&netlink_cfg);
+	nl_sk = netlink_kernel_create(&init_net, NETLINK_TEST, &netlink_cfg);
 
 	if (!nl_sk) {
 		pr_err("create netlink socket error\n");
@@ -97,4 +95,3 @@ void netlink_exit(void)
 
 	pr_info("self module exited\n");
 }
-
