@@ -3640,7 +3640,7 @@ static int sde_rotator_probe(struct platform_device *pdev)
 		snprintf(name, sizeof(name), "rot_fenceq_%d_%d",
 			rot_dev->dev->id, i);
 		kthread_init_worker(&rot_dev->rot_kw[i]);
-		rot_dev->rot_thread[i] = kthread_run_perf_critical(cpu_lp_mask, kthread_worker_fn,
+		rot_dev->rot_thread[i] = kthread_run(kthread_worker_fn,
 			&rot_dev->rot_kw[i], name);
 		if (IS_ERR(rot_dev->rot_thread[i])) {
 			SDEDEV_ERR(rot_dev->dev,
