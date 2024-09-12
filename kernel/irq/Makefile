@@ -1,5 +1,9 @@
 # SPDX-License-Identifier: GPL-2.0
 
+# Inlining optimization
+KBUILD_CFLAGS  += -mllvm -inline-threshold=9800
+KBUILD_CFLAGS  += -mllvm -inlinehint-threshold=7500
+
 obj-y := irqdesc.o handle.o manage.o spurious.o resend.o chip.o dummychip.o devres.o
 obj-$(CONFIG_IRQ_TIMINGS) += timings.o
 obj-$(CONFIG_GENERIC_IRQ_CHIP) += generic-chip.o

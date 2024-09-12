@@ -3,6 +3,9 @@
 # Makefile for the linux kernel.
 #
 
+# Inlining optimization
+KBUILD_CFLAGS  += -mllvm -inline-instr-cost=1
+
 CPPFLAGS_vmlinux.lds	:= -DTEXT_OFFSET=$(TEXT_OFFSET)
 AFLAGS_head.o		:= -DTEXT_OFFSET=$(TEXT_OFFSET)
 CFLAGS_armv8_deprecated.o := -I$(src)

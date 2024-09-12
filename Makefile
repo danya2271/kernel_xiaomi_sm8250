@@ -700,21 +700,6 @@ KBUILD_AFLAGS   += -O3
 KBUILD_LDFLAGS  += -O3
 endif
 
-# Inlining optimization
-KBUILD_CFLAGS  += -mllvm -inline-threshold=4800
-KBUILD_CFLAGS  += -mllvm -inlinehint-threshold=1500
-KBUILD_CFLAGS  += -mllvm -inline-savings-multiplier=12
-KBUILD_CFLAGS  += -mllvm -inline-cold-callsite-threshold=55
-KBUILD_CFLAGS  += -mllvm -ignore-tti-inline-compatible
-KBUILD_CFLAGS  += -mllvm -inline-savings-profitable-multiplier=6
-KBUILD_CFLAGS  += -mllvm -inline-size-allowance=30
-KBUILD_CFLAGS  += -mllvm -inlinecold-threshold=130
-KBUILD_CFLAGS  += -mllvm -locally-hot-callsite-threshold=750
-KBUILD_CFLAGS  += -mllvm -inline-instr-cost=18
-KBUILD_CFLAGS  += -mllvm -inline-call-penalty=5
-KBUILD_CFLAGS  += -mllvm -hot-callsite-rel-freq=100
-KBUILD_CFLAGS  += -mllvm -cold-callsite-rel-freq=5
-KBUILD_CFLAGS  += -mllvm -inline-enable-cost-benefit-analysis
 #Enable MLGO
 ifeq ($(shell test $(CONFIG_CLANG_VERSION) -gt 180000; echo $$?),0)
 KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
@@ -784,8 +769,6 @@ endif
 endif
 ifeq ($(cc-name),clang)
 # Inlining optimization
-KBUILD_CFLAGS  += -mllvm -inline-threshold=4800
-KBUILD_CFLAGS  += -mllvm -inlinehint-threshold=1500
 KBUILD_CFLAGS  += -mllvm -inline-savings-multiplier=12
 KBUILD_CFLAGS  += -mllvm -inline-cold-callsite-threshold=55
 KBUILD_CFLAGS  += -mllvm -ignore-tti-inline-compatible

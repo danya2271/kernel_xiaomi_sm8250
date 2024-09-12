@@ -6,6 +6,10 @@
 # Rewritten to use lists instead of if-statements.
 #
 
+# Inlining optimization
+KBUILD_CFLAGS  += -mllvm -inline-threshold=5800
+KBUILD_CFLAGS  += -mllvm -inlinehint-threshold=2500
+
 obj-y				+= irqchip/
 obj-y				+= bus/
 
