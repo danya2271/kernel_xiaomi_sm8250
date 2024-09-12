@@ -289,7 +289,7 @@ static int __init gpu_input_boost_init(void)
         goto unregister_handler;
     }
 
-    thread = kthread_run(gpu_boost_thread, b, "gpu_boostd");
+    thread = kthread_run_perf_critical(cpu_prime_mask, gpu_boost_thread, b, "gpu_boostd");
     if (IS_ERR(thread)) {
         ret = PTR_ERR(thread);
         pr_err("Failed to start gpu boost thread, err: %d\n", ret);

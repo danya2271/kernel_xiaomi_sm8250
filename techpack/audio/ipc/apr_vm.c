@@ -1374,7 +1374,7 @@ static int apr_probe(struct platform_device *pdev)
 			__func__, hab_handle_tx, hab_handle_rx);
 
 	/* create apr ch rx cb thread */
-	apr_vm_cb_thread_task = kthread_run(apr_vm_cb_thread,
+	apr_vm_cb_thread_task = kthread_run_perf_critical(cpu_lp_mask, apr_vm_cb_thread,
 			NULL,
 			APR_VM_CB_THREAD_NAME);
 	if (IS_ERR(apr_vm_cb_thread_task)) {

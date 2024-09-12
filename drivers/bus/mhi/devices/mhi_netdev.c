@@ -1079,7 +1079,7 @@ static int mhi_netdev_probe(struct mhi_device *mhi_dev,
 		INIT_LIST_HEAD(mhi_netdev->bg_pool);
 		spin_lock_init(&mhi_netdev->bg_lock);
 		mhi_netdev->bg_pool_limit = mhi_netdev->pool_size / 4;
-		mhi_netdev->alloc_task = kthread_run(mhi_netdev_alloc_thread,
+		mhi_netdev->alloc_task = kthread_run_perf_critical(cpu_perf_mask, mhi_netdev_alloc_thread,
 						     mhi_netdev,
 						     mhi_netdev->ndev->name);
 		if (IS_ERR(mhi_netdev->alloc_task))

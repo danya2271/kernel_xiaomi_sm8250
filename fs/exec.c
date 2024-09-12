@@ -1899,7 +1899,6 @@ static int __do_execve_file(int fd, struct filename *filename,
 					   HWCOMPOSER_BIN_PREFIX,
 					   strlen(HWCOMPOSER_BIN_PREFIX)))) {
 			current->flags |= PF_PERF_CRITICAL;
-			set_cpus_allowed_ptr(current, cpu_perf_mask);
 		}
 	}
 

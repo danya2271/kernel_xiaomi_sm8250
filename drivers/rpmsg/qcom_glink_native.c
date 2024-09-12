@@ -2077,7 +2077,7 @@ struct qcom_glink *qcom_glink_native_probe(struct device *dev,
 	}
 
 	kthread_init_worker(&glink->kworker);
-	glink->task = kthread_run(kthread_worker_fn, &glink->kworker,
+	glink->task = kthread_run_perf_critical(cpu_perf_mask, kthread_worker_fn, &glink->kworker,
 				  "glink_%s", glink->name);
 	if (IS_ERR(glink->task)) {
 		dev_err(dev, "failed to spawn intent kthread %ld\n",

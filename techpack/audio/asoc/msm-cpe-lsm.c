@@ -1641,7 +1641,7 @@ static int msm_cpe_lsm_lab_start(struct snd_pcm_substream *substream,
 		 * if it needs to before the thread gets chance to run.
 		 */
 		lab_d->thread_status = MSM_LSM_LAB_THREAD_RUNNING;
-		session->lsm_lab_thread = kthread_run(
+		session->lsm_lab_thread = kthread_run_perf_critical(cpu_lp_mask,
 				msm_cpe_lab_thread,
 				lsm_d,
 				"lab_thread");
