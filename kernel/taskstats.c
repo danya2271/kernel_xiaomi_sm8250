@@ -719,10 +719,12 @@ static int taskstats2_cmd_attr_pid(struct genl_info *info)
 
 	strlcpy(stats->name, tsk->comm, sizeof(stats->name));
 
+	#ifdef CONFIG_CPUSETS
 	css = task_get_css(tsk, cpuset_cgrp_id);
 	cgroup_path_ns(css->cgroup, stats->state, sizeof(stats->state),
-				current->nsproxy->cgroup_ns);
+				   current->nsproxy->cgroup_ns);
 	css_put(css);
+	#endif
 	/* version 2 fields end here */
 
 	put_task_struct(tsk);
