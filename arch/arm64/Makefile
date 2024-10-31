@@ -65,8 +65,8 @@ KBUILD_CFLAGS	+= $(lseinstr) $(brokengasinst) $(compat_vdso)
 
 ifeq ($(CONFIG_ARCH_KONA), y)
 ifeq ($(cc-name),clang)
-KBUILD_CFLAGS   += -mcpu=cortex-a77
-KBUILD_AFLAGS   += -mcpu=cortex-a77
+KBUILD_CFLAGS   += -mcpu=cortex-a77+crypto+dotprod+crc
+KBUILD_AFLAGS   += -mcpu=cortex-a77+crypto+dotprod+crc
 ifeq ($(CONFIG_LD_IS_LLD), y)
 KBUILD_LDFLAGS  += -mllvm -mcpu=cortex-a77
 endif
