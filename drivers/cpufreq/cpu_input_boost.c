@@ -139,27 +139,6 @@ static void update_online_cpu_policy(void)
 	put_online_cpus();
 }
 
-static void __cpu_input_boost_kick(struct boost_drv *b)
-{
-	if (test_bit(SCREEN_OFF, &b->state))
-		return;
-
-	if (!input_boost_duration)
-		return;
-
-	set_bit(INPUT_BOOST, &b->state);
-	if (!mod_delayed_work(system_unbound_wq, &b->input_unboost,
-			      msecs_to_jiffies(input_boost_duration)))
-		wake_up(&b->boost_waitq);
-}
-
-void cpu_input_boost_kick(void)
-{
-	struct boost_drv *b = &boost_drv_g;
-
-	__cpu_input_boost_kick(b);
-}
-
 static void __cpu_input_boost_kick_max(struct boost_drv *b,
 				       unsigned int duration_ms)
 {
@@ -190,6 +169,28 @@ void cpu_input_boost_kick_max(unsigned int duration_ms)
 	struct boost_drv *b = &boost_drv_g;
 
 	__cpu_input_boost_kick_max(b, duration_ms);
+}
+
+static void __cpu_input_boost_kick(struct boost_drv *b)
+{
+	if (test_bit(SCREEN_OFF, &b->state))
+		return;
+	if (!test_bit(INPUT_BOOST, &b->state)) {
+		cpu_input_boost_kick_max(25);
+		set_bit(INPUT_BOOST, &b->state);
+		return;
+	}
+	set_bit(INPUT_BOOST, &b->state);
+	if (!mod_delayed_work(system_unbound_wq, &b->input_unboost,
+			      msecs_to_jiffies(CONFIG_INPUT_BOOST_DURATION_MS)))
+		wake_up(&b->boost_waitq);
+}
+
+void cpu_input_boost_kick(void)
+{
+	struct boost_drv *b = &boost_drv_g;
+
+	__cpu_input_boost_kick(b);
 }
 
 static void input_unboost_worker(struct work_struct *work)
