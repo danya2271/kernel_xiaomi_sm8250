@@ -23,30 +23,37 @@
 enum {
     SCREEN_OFF,
     INPUT_BOOST,
+    MID_BOOST,
     MAX_BOOST
 };
 
 struct boost_drv {
     struct delayed_work input_unboost;
     struct delayed_work max_unboost;
+    struct delayed_work mid_unboost;
     struct notifier_block gpu_notif;
     struct notifier_block fb_notif;
     wait_queue_head_t boost_waitq;
     atomic_long_t max_boost_expires;
+    atomic_long_t mid_boost_expires;
     unsigned long state;
 };
 
 void input_unboost_worker(struct work_struct *work);
 void max_unboost_worker(struct work_struct *work);
+void mid_unboost_worker(struct work_struct *work);
 
 struct boost_drv boost_drv_g __read_mostly = {
     .input_unboost = __DELAYED_WORK_INITIALIZER(boost_drv_g.input_unboost,
                                                 input_unboost_worker, 0),
                                                 .max_unboost = __DELAYED_WORK_INITIALIZER(boost_drv_g.max_unboost,
                                                                                           max_unboost_worker, 0),
+                                                .mid_unboost = __DELAYED_WORK_INITIALIZER(boost_drv_g.mid_unboost,
+                                                                                          mid_unboost_worker, 0),
                                                                                           .boost_waitq = __WAIT_QUEUE_HEAD_INITIALIZER(boost_drv_g.boost_waitq)
 };
 
+module_param(mid_input_boost_level, uint, 0644);
 module_param(input_boost_level, uint, 0644);
 module_param(input_boost_duration, short, 0644);
 module_param(wake_boost_duration, short, 0644);
@@ -55,7 +62,11 @@ int boost_adjust_notify(void)
 {
     struct boost_drv *b = &boost_drv_g;
 
-    /* Boost CPU to max frequency for max boost */
+    if (test_bit(MID_BOOST, &b->state)) {
+        return 3;
+    }
+
+    /* Boost GPU to max frequency for max boost */
     if (test_bit(MAX_BOOST, &b->state)) {
         return 2;
     }
@@ -70,6 +81,38 @@ int boost_adjust_notify(void)
     return 0;
 }
 
+static void __gpu_input_boost_kick_mid(struct boost_drv *b,
+                                       unsigned int duration_ms)
+{
+    unsigned long boost_jiffies = msecs_to_jiffies(duration_ms);
+    unsigned long curr_expires, new_expires;
+
+    if (test_bit(SCREEN_OFF, &b->state))
+        return;
+
+    do {
+        curr_expires = atomic_long_read(&b->mid_boost_expires);
+        new_expires = jiffies + boost_jiffies;
+
+        /* Skip this boost if there's a longer boost in effect */
+        if (time_after(curr_expires, new_expires))
+            return;
+    } while (atomic_long_cmpxchg(&b->mid_boost_expires, curr_expires,
+                                 new_expires) != curr_expires);
+
+    set_bit(MID_BOOST, &b->state);
+    if (!mod_delayed_work(system_unbound_wq, &b->mid_unboost,
+        boost_jiffies))
+        wake_up(&b->boost_waitq);
+}
+
+void gpu_input_boost_kick_mid(unsigned int duration_ms)
+{
+    struct boost_drv *b = &boost_drv_g;
+
+    __gpu_input_boost_kick_mid(b, duration_ms);
+}
+
 static void __gpu_input_boost_kick(struct boost_drv *b)
 {
     if (test_bit(SCREEN_OFF, &b->state))
@@ -77,6 +120,12 @@ static void __gpu_input_boost_kick(struct boost_drv *b)
 
     if (!input_boost_duration)
         return;
+
+    if (!test_bit(INPUT_BOOST, &b->state)) {
+		gpu_input_boost_kick_mid(50);
+		set_bit(INPUT_BOOST, &b->state);
+		return;
+	}
 
     set_bit(INPUT_BOOST, &b->state);
     if (!mod_delayed_work(system_unbound_wq, &b->input_unboost,
@@ -138,6 +187,15 @@ void max_unboost_worker(struct work_struct *work)
                                        typeof(*b), max_unboost);
 
     clear_bit(MAX_BOOST, &b->state);
+    wake_up(&b->boost_waitq);
+}
+
+void mid_unboost_worker(struct work_struct *work)
+{
+    struct boost_drv *b = container_of(to_delayed_work(work),
+                                       typeof(*b), mid_unboost);
+
+    clear_bit(MID_BOOST, &b->state);
     wake_up(&b->boost_waitq);
 }
 

@@ -2,6 +2,8 @@
 /*
  * Copyright (C) 2024 danya2271 <danya2271@yandex.ru>.
  */
+static unsigned int mid_input_boost_level __read_mostly =
+CONFIG_MID_INPUT_BOOST_LEVEL;
 static unsigned int input_boost_level __read_mostly =
 CONFIG_INPUT_BOOST_LEVEL;
 static unsigned short input_boost_duration __read_mostly =

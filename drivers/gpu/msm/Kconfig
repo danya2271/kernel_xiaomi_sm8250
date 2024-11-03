@@ -47,6 +47,12 @@ config INPUT_BOOST_LEVEL
 	help
 	  Input boost level for GPU.
 
+config MID_INPUT_BOOST_LEVEL
+	int "Middle GPU boost level"
+	default "4"
+	help
+	  Middle Input boost level for GPU.
+
 endif
 
 config QCOM_ADRENO_DEFAULT_GOVERNOR
