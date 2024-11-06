@@ -3324,10 +3324,6 @@ cppflags-$(CONFIG_IPA_SET_RESET_TX_DB_PA) += -DIPA_SET_RESET_TX_DB_PA
 KBUILD_CPPFLAGS += $(cppflags-y)
 
 ccflags-y += -Wmissing-prototypes
-<<<<<<< HEAD:drivers/staging/qcacld-3.0/Kbuild
-=======
-ccflags-y += -g0
->>>>>>> 844e8e04c81a (qcacld-3.0: don't pass optimize for size flag):techpack/wlan/qcacld-3.0/Kbuild
 
 ifeq ($(call cc-option-yn, -Wheader-guard), y)
 ccflags-y += -Wheader-guard
