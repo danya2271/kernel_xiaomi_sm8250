@@ -12216,6 +12216,7 @@ static void _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
 	unsigned long next_balance = now + 60*HZ;
 	bool has_blocked_load = false;
 	int update_next_balance = 0;
+	int this_cpu = this_rq->cpu;
 	int balance_cpu;
 	struct rq *rq;
 
@@ -12246,7 +12247,7 @@ static void _nohz_idle_balance(struct rq *this_rq, unsigned int flags,
 		 * work being done for other CPUs. Next load
 		 * balancing owner will pick it up.
 		 */
-		if (need_resched()) {
+		if (!idle_cpu(this_cpu) && need_resched()) {
 			has_blocked_load = true;
 			goto abort;
 		}
