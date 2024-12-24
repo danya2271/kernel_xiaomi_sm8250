@@ -1137,23 +1137,37 @@ static ssize_t gpu_available_frequencies_show(struct device *dev,
 }
 
 static ssize_t gpu_clock_stats_show(struct device *dev,
-				struct device_attribute *attr, char *buf)
+                                    struct device_attribute *attr, char *buf)
 {
-	struct kgsl_device *device = dev_get_drvdata(dev);
-	struct kgsl_pwrctrl *pwr = &device->pwrctrl;
-	int index, num_chars = 0;
+    struct kgsl_device *device = dev_get_drvdata(dev);
+    struct kgsl_pwrctrl *pwr = &device->pwrctrl;
+    int index, num_chars = 0;
+    unsigned long long total_time = 0;
 
-	mutex_lock(&device->mutex);
-	kgsl_pwrscale_update_stats(device);
-	mutex_unlock(&device->mutex);
-	for (index = 0; index < pwr->num_pwrlevels - 1; index++)
-		num_chars += scnprintf(buf + num_chars, PAGE_SIZE - num_chars,
-			"%llu ", pwr->clock_times[index]);
+    mutex_lock(&device->mutex);
+    kgsl_pwrscale_update_stats(device);
 
-	if (num_chars < PAGE_SIZE)
-		buf[num_chars++] = '\n';
+    // Calculate the total time spent across all power levels
+    for (index = 0; index < pwr->num_pwrlevels; index++) {
+        total_time += pwr->clock_times[index];
+    }
 
-	return num_chars;
+    mutex_unlock(&device->mutex);
+
+    // Calculate and print the percentage of usage for each clock frequency
+    for (index = 0; index < pwr->num_pwrlevels; index++) {
+        unsigned long long percent_usage = (total_time > 0) ?
+                                           (pwr->clock_times[index] * 100) / total_time :
+                                           0;
+        num_chars += scnprintf(buf + num_chars, PAGE_SIZE - num_chars,
+                               "Lvl: %d Usage: %llu%% Time: %llu us,\n",
+                               index, percent_usage, pwr->clock_times[index]);
+    }
+
+    if (num_chars < PAGE_SIZE)
+        buf[num_chars++] = '\n';
+
+    return num_chars;
 }
 
 static ssize_t reset_count_show(struct device *dev,
