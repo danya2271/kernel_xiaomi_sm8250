@@ -280,6 +280,24 @@ config MAX_BOOST_FREQ_PRIME
 	help
 	  Max-boost frequency for the prime CPU cluster.
 
+config HIGH_BOOST_FREQ_LP
+	int "Low-power cluster max-boost freq"
+	default "0"
+	help
+	  High-boost frequency for the low-power CPU cluster.
+
+config HIGH_BOOST_FREQ_PERF
+	int "Performance cluster max-boost freq"
+	default "0"
+	help
+	  High-boost frequency for the performance CPU cluster.
+
+config HIGH_BOOST_FREQ_PRIME
+	int "Prime cluster max-boost freq"
+	default "0"
+	help
+	  High-boost frequency for the prime CPU cluster.
+
 config CPU_FREQ_MIN_LP
 	int "Default minimum frequency for the little cluster"
 	default 0
