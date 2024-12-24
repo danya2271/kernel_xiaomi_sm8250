@@ -371,6 +371,8 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 	int val, level = 0;
 	unsigned int scm_data[4];
 	int context_count = 0;
+	int fps = msm_panel_fps;
+	unsigned int refresh_rate = dsi_panel_get_refresh_rate();
 
 	/* keeps stats.private_data == NULL   */
 	result = devfreq_update_stats(devfreq);
@@ -439,7 +441,15 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
 		level = min_t(int, level, devfreq->profile->max_state - 1);
 	}
 
-switch (boost_adjust_notify()) {
+	if (level == 11 || level == 10) {
+		if (refresh_rate <= 60) {
+			level = 11;
+		} else {
+			level = 10;
+		}
+	}
+
+	switch (boost_adjust_notify()) {
     case 1:
         if (level > input_boost_level) {
             level = input_boost_level;
