@@ -456,7 +456,9 @@ static int tz_get_target_freq(struct devfreq *devfreq, unsigned long *freq)
         }
         break;
     case 2:
-        level = 0;
+		if (level > max_input_boost_level) {
+			level = max_input_boost_level;
+		}
         break;
     case 3:
         if (level > mid_input_boost_level) {

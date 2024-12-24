@@ -53,6 +53,7 @@ struct boost_drv boost_drv_g __read_mostly = {
                                                                                           .boost_waitq = __WAIT_QUEUE_HEAD_INITIALIZER(boost_drv_g.boost_waitq)
 };
 
+module_param(max_input_boost_level, uint, 0644);
 module_param(mid_input_boost_level, uint, 0644);
 module_param(input_boost_level, uint, 0644);
 module_param(input_boost_duration, short, 0644);
