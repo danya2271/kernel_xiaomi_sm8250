@@ -18,6 +18,7 @@
 #include <linux/sched/sysctl.h>
 #include <linux/binfmts.h>
 #include <drm/drm_refresh_rate.h>
+#include "./../../drivers/cpuidle/lpm-levels.h"
 
 
 #define IOWAIT_BOOST_MIN	(SCHED_CAPACITY_SCALE / 8)
@@ -361,12 +362,18 @@ static __always_inline
 unsigned long calculate_headroom_high(unsigned long headroom, int cpu, unsigned long util) {
 	if (cpumask_test_cpu(cpu, cpu_prime_mask))
 		return util; // we don't want to boost prime cluster if there is no touchboost
-	return util + (cpumask_test_cpu(cpu, cpu_lp_mask) ? util : (sysctl_headroom_big/2 + util));
+		if (sleep_disabled) { // check for touchboost
+			return util + util + (cpumask_test_cpu(cpu, cpu_lp_mask) ? util : sysctl_headroom_big);
+		} else {
+			return util + (cpumask_test_cpu(cpu, cpu_lp_mask) ? util : (sysctl_headroom_big/2 + util));
+		}
 }
 
 static __always_inline
 unsigned long calculate_headroom_low(unsigned long headroom, int cpu, unsigned long util, int fps) {
-	if (util <= sysctl_util_low) { // check if util is way too high for decreasing headroom
+	if (sleep_disabled) { // check for touchboost
+		return util + (util >> 1);
+	} else if (util <= sysctl_util_low) { // check if util is way too high for decreasing headroom
 		if (cpumask_test_cpu(cpu, cpu_prime_mask))
 			return (util >> 3); // we want to reduce headroom of prime cluster if phone is idling with screen on
 			return (fps > sysctl_fps_threshold_high) ? (util - (util >> 1)) :
