@@ -94,9 +94,6 @@ static void cluster_prepare(struct lpm_cluster *cluster,
 static bool print_parsed_dt;
 module_param_named(print_parsed_dt, print_parsed_dt, bool, 0664);
 
-static bool sleep_disabled;
-module_param_named(sleep_disabled, sleep_disabled, bool, 0664);
-
 /**
  * msm_cpuidle_get_deep_idle_latency - Get deep idle latency value
  *
@@ -593,9 +590,6 @@ static inline bool lpm_disallowed(s64 sleep_us, int cpu, struct lpm_cpu *pm_cpu)
 {
 	uint64_t bias_time = 0;
 
-	if (cpu_isolated(cpu))
-		goto out;
-
 	if (sleep_disabled)
 		return true;
 
@@ -666,7 +660,7 @@ static int cpu_power_select(struct cpuidle_device *dev,
 		calculate_next_wakeup(&next_wakeup_us, next_event_us,
 				      lvl_latency_us, sleep_us);
 
-		if (!i && !cpu_isolated(dev->cpu)) {
+		if (!i) {
 			/*
 			 * If the next_wake_us itself is not sufficient for
 			 * deeper low power modes than clock gating do not
@@ -1288,7 +1282,7 @@ unlock_and_return:
 static int psci_enter_sleep(struct lpm_cpu *cpu, int idx, bool from_idle)
 {
 	int affinity_level = 0, state_id = 0, power_state = 0;
-	int ret, success;
+	int ret = 0, success;
 	/*
 	 * idx = 0 is the default LPM state
 	 */
