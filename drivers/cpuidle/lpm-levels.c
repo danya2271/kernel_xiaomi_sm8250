@@ -42,6 +42,8 @@
 #include "../clk/clk.h"
 #define CREATE_TRACE_POINTS
 #include <trace/events/trace_msm_low_power.h>
+#include <drm/drm_refresh_rate.h>
+#include "./../../kernel/sched/sched.h"
 
 #define SCLK_HZ (32768)
 #define PSCI_POWER_STATE(reset) (reset << 30)
@@ -946,6 +948,22 @@ static void clear_cl_predict_history(void)
 	}
 }
 
+static int cluster_select_deepest(struct lpm_cluster *cluster)
+{
+	int i;
+	for (i = cluster->nlevels - 1; i >= 0; i--) {
+		struct lpm_cluster_level *level = &cluster->levels[i];
+		if (level->notify_rpm) {
+			if (!(sys_pm_ops && sys_pm_ops->sleep_allowed))
+				continue;
+			if (!sys_pm_ops->sleep_allowed())
+				continue;
+		}
+		break;
+	}
+	return i;
+}
+
 static int cluster_select(struct lpm_cluster *cluster, bool from_idle,
 							int *ispred)
 {
@@ -956,6 +974,13 @@ static int cluster_select(struct lpm_cluster *cluster, bool from_idle,
 	uint32_t sleep_us;
 	uint32_t cpupred_us = 0, pred_us = 0;
 	int pred_mode = 0, predicted = 0;
+	unsigned char refresh_rate = dsi_panel_get_refresh_rate();
+	unsigned char fps = msm_panel_fps;
+
+	if ((refresh_rate <= 60) && (!sleep_disabled)) {
+		if (fps < sysctl_fps_threshold_high)
+			return cluster_select_deepest(cluster);
+	}
 
 	if (!cluster)
 		return -EINVAL;
