@@ -695,8 +695,8 @@ KBUILD_CFLAGS   += -O3 -march=armv8.2-a+lse+crypto+dotprod --cuda-path=/dev/null
 KBUILD_AFLAGS   += -O3 -march=armv8.2-a+lse+crypto+dotprod
 KBUILD_LDFLAGS  += -O3 --plugin-opt=O3
 else
-KBUILD_CFLAGS   += -O3
-KBUILD_AFLAGS   += -O3
+KBUILD_CFLAGS   += -O3 -mcpu=cortex-a76.cortex-a55
+KBUILD_AFLAGS   += -O3 -mcpu=cortex-a76.cortex-a55
 KBUILD_LDFLAGS  += -O3
 endif
 
