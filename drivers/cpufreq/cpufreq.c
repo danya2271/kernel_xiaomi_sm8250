@@ -92,7 +92,7 @@ static void cpufreq_governor_limits(struct cpufreq_policy *policy);
  * changes to devices when the CPU clock speed changes.
  * The mutex locks both lists.
  */
-static BLOCKING_NOTIFIER_HEAD(cpufreq_policy_notifier_list);
+SRCU_NOTIFIER_HEAD_STATIC(cpufreq_policy_notifier_list);
 SRCU_NOTIFIER_HEAD_STATIC(cpufreq_transition_notifier_list);
 
 static int off __read_mostly;
@@ -1782,7 +1782,7 @@ EXPORT_SYMBOL_GPL(cpufreq_get_driver_data);
  *      changes in cpufreq policy.
  *
  *	This function may sleep, and has the same return conditions as
- *	blocking_notifier_chain_register.
+ *	srcu_notifier_chain_register.
  */
 int cpufreq_register_notifier(struct notifier_block *nb, unsigned int list)
 {
@@ -1807,7 +1807,7 @@ int cpufreq_register_notifier(struct notifier_block *nb, unsigned int list)
 		mutex_unlock(&cpufreq_fast_switch_lock);
 		break;
 	case CPUFREQ_POLICY_NOTIFIER:
-		ret = blocking_notifier_chain_register(
+		ret = srcu_notifier_chain_register(
 				&cpufreq_policy_notifier_list, nb);
 		break;
 	default:
@@ -1826,7 +1826,7 @@ EXPORT_SYMBOL(cpufreq_register_notifier);
  *	Remove a driver from the CPU frequency notifier list.
  *
  *	This function may sleep, and has the same return conditions as
- *	blocking_notifier_chain_unregister.
+ *	srcu_notifier_chain_unregister.
  */
 int cpufreq_unregister_notifier(struct notifier_block *nb, unsigned int list)
 {
@@ -1847,7 +1847,7 @@ int cpufreq_unregister_notifier(struct notifier_block *nb, unsigned int list)
 		mutex_unlock(&cpufreq_fast_switch_lock);
 		break;
 	case CPUFREQ_POLICY_NOTIFIER:
-		ret = blocking_notifier_chain_unregister(
+		ret = srcu_notifier_chain_unregister(
 				&cpufreq_policy_notifier_list, nb);
 		break;
 	default:
@@ -2255,11 +2255,11 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 		return ret;
 
 	/* adjust if necessary - all reasons */
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
+	srcu_notifier_call_chain(&cpufreq_policy_notifier_list,
 			CPUFREQ_ADJUST, new_policy);
 
 	/* the adjusted frequency should not exceed thermal limit*/
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
+	srcu_notifier_call_chain(&cpufreq_policy_notifier_list,
 			CPUFREQ_THERMAL, new_policy);
 
 	/*
@@ -2271,7 +2271,7 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 		return ret;
 
 	/* notification of the new policy */
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
+	srcu_notifier_call_chain(&cpufreq_policy_notifier_list,
 			CPUFREQ_NOTIFY, new_policy);
 
 	policy->min = new_policy->min;
