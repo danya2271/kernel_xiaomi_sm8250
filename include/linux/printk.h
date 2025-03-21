@@ -294,6 +294,7 @@ extern int kptr_restrict;
  * and other debug macros are compiled out unless either DEBUG is defined
  * or CONFIG_DYNAMIC_DEBUG is set.
  */
+#ifdef CONFIG_DEBUG
 #define pr_emerg(fmt, ...) \
 	printk(KERN_EMERG pr_fmt(fmt), ##__VA_ARGS__)
 #define pr_alert(fmt, ...) \
@@ -307,6 +308,15 @@ extern int kptr_restrict;
 #define pr_warn pr_warning
 #define pr_notice(fmt, ...) \
 	printk(KERN_NOTICE pr_fmt(fmt), ##__VA_ARGS__)
+#else
+#define pr_emerg(fmt, ...) do {} while(0)
+#define pr_alert(fmt, ...) do {} while(0)
+#define pr_crit(fmt, ...) do {} while(0)
+#define pr_err(fmt, ...) do {} while(0)
+#define pr_warning(fmt, ...) do {} while(0)
+#define pr_warn pr_warning
+#define pr_notice(fmt, ...) do {} while(0)
+#endif
 #define pr_info(fmt, ...) \
 	printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
 /*
