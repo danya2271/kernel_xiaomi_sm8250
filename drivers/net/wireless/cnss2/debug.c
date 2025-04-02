@@ -12,9 +12,6 @@
 #define MMIO_REG_ACCESS_MEM_TYPE		0xFF
 #define HEX_DUMP_ROW_SIZE			16
 
-void *cnss_ipc_log_context;
-void *cnss_ipc_log_long_context;
-
 static void cnss_print_hex_dump(const void *buf, int len)
 {
 	const u8 *ptr = buf;
@@ -956,33 +953,9 @@ void cnss_debugfs_destroy(struct cnss_plat_data *plat_priv)
 
 int cnss_debug_init(void)
 {
-	cnss_ipc_log_context = ipc_log_context_create(CNSS_IPC_LOG_PAGES,
-						      "cnss", 0);
-	if (!cnss_ipc_log_context) {
-		cnss_pr_err("Unable to create IPC log context\n");
-		return -EINVAL;
-	}
-
-	cnss_ipc_log_long_context = ipc_log_context_create(CNSS_IPC_LOG_PAGES,
-							   "cnss-long", 0);
-	if (!cnss_ipc_log_long_context) {
-		cnss_pr_err("Unable to create IPC long log context\n");
-		ipc_log_context_destroy(cnss_ipc_log_context);
-		return -EINVAL;
-	}
-
 	return 0;
 }
 
 void cnss_debug_deinit(void)
 {
-	if (cnss_ipc_log_long_context) {
-		ipc_log_context_destroy(cnss_ipc_log_long_context);
-		cnss_ipc_log_long_context = NULL;
-	}
-
-	if (cnss_ipc_log_context) {
-		ipc_log_context_destroy(cnss_ipc_log_context);
-		cnss_ipc_log_context = NULL;
-	}
 }
